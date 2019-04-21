@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.extcompileSdkVersion
+    defaultConfig {
+        applicationId "com.xsjqzt.app"
+        minSdkVersion rootProject.extminSdkVersion
+        targetSdkVersion rootProject.exttargetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        //解决方法数超过64k问题
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    //自定义APK名称,多渠道打包
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            variant.productFlavors.each { flavor ->
+                def project = "xjt"
+                def separator = "_"
+                def versionName = variant.versionName
+                def apkName = project + separator + versionName + separator  + flavor.name + ".apk"
+
+                output.outputFileName = apkName
+            }
+        }
+    }
+}
+
+dependencies {
+
+
+    implementation project(':library_common')
+    implementation project(':module_main')
+    //解决方法数超过64k问题
+    implementation 'com.android.support:multidex:1.0.3'
+
+}

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/common_transparent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:background="@color/color_99000000"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        
+        <TextView
+            style="@style/textview14"
+            android:textColor="@color/common_white"
+            android:text="@string/main_str_roompsw_tip"
+            />
+        
+        <EditText
+            android:id="@+id/room_psw_et"
+            android:layout_width="185dp"
+            android:layout_height="37dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:background="@drawable/corners3_white_bg"
+            android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/bottom_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textSize="9dp"
+                android:textColor="@color/common_white"
+                android:text="@string/str_main_roompsw_conform"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center_horizontal"
+                android:drawableLeft="@mipmap/icon_gth"
+                android:drawablePadding="6dp"
+                android:gravity="center"/>
+
+
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</RelativeLayout>

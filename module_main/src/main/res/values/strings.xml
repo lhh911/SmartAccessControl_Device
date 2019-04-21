@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">module_main</string>
+    <string name="main_str_roompsw_tip">请输入房号或密码</string>
+    <string name="str_main_roompsw_conform">按OK键结束输入</string>
+</resources>

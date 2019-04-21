@@ -1,0 +1,62 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.0'
+        
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+
+ext{
+    packageName = 'com.jbb.xjl'
+    versionCodeVersion = 1
+    versionNameVersion = '1.0'
+    extcompileSdkVersion = 27
+    extminSdkVersion = 16
+    exttargetSdkVersion = 27
+    appcompat_v7Version = '27.1.1'
+    support_v4Version = '27.1.1'
+    designVersion = '27.1.1'
+    recyclerviewVersion = '27.1.1'
+    constraint_layoutVersion = '1.1.3'
+    junitVersion = '4.12'
+    test_runnerVersion = '1.0.2'
+    test_espresso_coreVersion = '3.0.2'
+
+    converter_gsonVersion = '2.3.0'
+    retrofit2Version = '2.3.0'
+    adapterRxjava2Version = '2.3.0'
+    converterScalarsVersion = '2.3.0'
+    loggingInterceptorVersion = '3.4.1'
+    rxandroid2Version = '2.1.0'
+    rxjava2Version = '2.3.0'
+    glideVersion = '4.8.0'
+    fastjsonVersion = '1.2.54'
+    permissionVersion = '2.0.0-rc12'
+
+    arouterVersion = '1.4.0'
+    annotationProcessorVersion = '1.2.1'
+
+
+}
+
