@@ -20,6 +20,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/regist_tip_tv"
                 style="@style/textview13"
                 android:text="@string/main_str_regist_iccard"
                 android:textColor="@color/common_white"
@@ -47,6 +48,8 @@
 
 
         <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/qr_code_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

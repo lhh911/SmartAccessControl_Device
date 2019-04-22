@@ -3,4 +3,7 @@
     <string name="main_str_roompsw_tip">请输入房号或密码</string>
     <string name="str_main_roompsw_conform">按OK键结束输入</string>
     <string name="main_str_regist_iccard">注册IC卡</string>
+    <string name="main_str_devicename">设备名称</string>
+    <string name="main_str_ipaddress">IP地址</string>
+    <string name="main_str_voice">音量</string>
 </resources>

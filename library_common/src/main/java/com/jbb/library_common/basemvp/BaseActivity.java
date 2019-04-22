@@ -78,13 +78,13 @@ public abstract class BaseActivity extends FragmentActivity implements View.OnCl
     //不同页面需要改状态栏颜色时重写此方法
     protected void setStatusColor() {
 //        StatusUtil.setUseStatusBarColor(this, Color.parseColor("#ffffff"));
-//        StatusUtil.setUseStatusBarColor(this, Color.TRANSPARENT);
+        StatusUtil.setUseStatusBarColor(this, Color.TRANSPARENT);
     }
 
     protected void setSystemInvadeBlack() {
         // 第二个参数是是否沉浸,第三个参数是状态栏字体是否为黑色
 //        StatusUtil.setSystemStatus(this, false, true);
-//        StatusUtil.setSystemStatus(this, false, false);
+        StatusUtil.setSystemStatus(this, false, false);
     }
 
     public void show(String text) {

@@ -44,7 +44,7 @@ public class ImgTextView extends LinearLayout {
         setOrientation(direction);
         setGravity(Gravity.CENTER);
 
-        ImageView imageView  = new ImageView(context);
+        imageView  = new ImageView(context);
         imageView.setImageResource(src);
         LayoutParams params = new LayoutParams((int)imageSize,(int)imageSize);
         imageView.setLayoutParams(params);
@@ -68,5 +68,11 @@ public class ImgTextView extends LinearLayout {
 
     public void setText(String text) {
         textView.setText(text);
+    }
+
+    public void setImageResouse(int id,int imageSize){
+        imageView.setImageResource(id);
+        LayoutParams params = new LayoutParams((int)imageSize,(int)imageSize);
+        imageView.setLayoutParams(params);
     }
 }

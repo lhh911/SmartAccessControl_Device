@@ -32,8 +32,11 @@
         <activity
             android:name=".ui.RoomNumPswUnlockActivity"
             android:theme="@style/TransparentTheme" />
-        <activity android:name=".ui.RegistICCardActivity"
+        <activity
+            android:name=".ui.RegistICCardActivity"
             android:theme="@style/TransparentTheme" />
+        <activity android:name=".ui.SystemInfoActivity"
+            android:theme="@style/TransparentTheme"/>
     </application>
 
 </manifest>
