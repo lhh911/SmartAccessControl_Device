@@ -1,17 +1,8 @@
-package com.xsjqzt.module_main;
+package com.xsjqzt.module_main.ui;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.media.ThumbnailUtils;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -21,6 +12,7 @@ import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
+import com.xsjqzt.module_main.R;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -95,6 +87,10 @@ public class MainActivity extends BaseActivity {
 
     public void btn1Click(View view) {
         goTo(RoomNumPswUnlockActivity.class);
+    }
+
+    public void btn2Click(View view) {
+        goTo(RegistICCardActivity.class);
     }
 
 

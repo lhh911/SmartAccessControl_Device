@@ -35,8 +35,8 @@ public abstract class BaseMvpActivity <V extends BaseMvpView,T extends BaseMvpPr
 
         ActivityManager.getInstance().pushActivity(this);
 
-//        setStatusColor();
-//        setSystemInvadeBlack();
+        setStatusColor();
+        setSystemInvadeBlack();
 
         presenter = initPresenter();
         presenter.attach((V)this);
@@ -104,17 +104,14 @@ public abstract class BaseMvpActivity <V extends BaseMvpView,T extends BaseMvpPr
 
 
 
-
     //不同页面需要改状态栏颜色时重写此方法
     protected void setStatusColor() {
-//        StatusUtil.setUseStatusBarColor(this, Color.parseColor("#ffffff"));
         StatusUtil.setUseStatusBarColor(this, Color.TRANSPARENT);
     }
 
     protected void setSystemInvadeBlack() {
         // 第二个参数是是否沉浸,第三个参数是状态栏字体是否为黑色
-//        StatusUtil.setSystemStatus(this, false, true);
-        StatusUtil.setSystemStatus(this, true, false);
+        StatusUtil.setSystemStatus(this, false, false);
     }
 
 

@@ -4,7 +4,7 @@ package com.jbb.library_common.comfig;
 //import com.jf.lib_common.utils.LogUtil;
 
 public class AppConfig {
-    public static final String SDCARD_DIR_PATH = "xiaojintiao";
+    public static final String SDCARD_DIR_PATH = "SmartAccessControl_Device";
     public static final String SDCARD_DIR_PICTURE = "picture";
 
     public static final int LOG_OFF = -100;
