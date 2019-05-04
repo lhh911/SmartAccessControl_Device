@@ -8,6 +8,8 @@ import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.comfig.AppConfig;
 import com.jbb.library_common.utils.log.LogUtil;
 
+import cn.jpush.android.api.JPushInterface;
+
 public class MyAppcation extends BaseApplication {
 
     @Override
@@ -23,6 +25,7 @@ public class MyAppcation extends BaseApplication {
         }
         ARouter.init(this);
 
+        JPushInterface.init(getApplicationContext());
     }
 
     //解决方法数超过64k问题
