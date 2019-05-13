@@ -31,20 +31,24 @@ public class SubscribeUtils {
 
                     @Override
                     public Observable apply(ResponseBody response) throws Exception {
-//                        if (response.isSuccessful() && response.code() == 200) {
-                            BaseBean baseBean = null;
-                            String result = response.string();
-                            baseBean = JSON.parseObject(result, BaseBean.class);
+                        BaseBean baseBean = null;
+                        String result = response.string();
+                        baseBean = JSON.parseObject(result, BaseBean.class);
+                        if(baseBean == null){
+                            return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
+                        }
 
-                            if(baseBean.getResultCode() == 0){
-                                T bean = JSON.parseObject(result, resultClass);
-                                return Observable.just(bean);
-                            }else{
-                                if(baseBean.getResultCode() == 2){
-                                    BaseApplication.getContext().sendBroadcast(new Intent(KeyContacts.ACTION_API_KEY_INVALID));
-                                }
-                                return Observable.error(new NetException(baseBean.getResultCode(),baseBean.getResultCodeMessage()));
+                        if(baseBean.getCode() == 0){
+                            T bean = JSON.parseObject(result, resultClass);
+                            return Observable.just(bean);
+                        }else{
+                            if(baseBean.getCode() == 2001 || baseBean.getCode() == 2002){//2001 token 过期， 2002 Refresh Token 过期
+                                Intent it = new Intent(KeyContacts.ACTION_API_KEY_INVALID);
+                                it.putExtra("code" ,baseBean.getCode());
+                                BaseApplication.getContext().sendBroadcast(it);
                             }
+                            return Observable.error(new NetException(baseBean.getCode(),baseBean.getMessage()));
+                        }
 
                     }
                 })

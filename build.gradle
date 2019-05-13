@@ -20,7 +20,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url "https://raw.githubusercontent.com/HyphenateInc/Hyphenate-SDK-Android/master/repository" }
+        maven { url "https://raw.githubusercontent.com/HyphenateInc/Hyphenate-SDK-Android/master/repository" }//环信
     }
 }
 

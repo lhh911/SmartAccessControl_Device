@@ -12,6 +12,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -418,6 +420,28 @@ public class Utils {
     public static String formatTwoDecimal(Double num) {
         DecimalFormat df = new DecimalFormat("0.00");
         return df.format(num);
+    }
+
+
+    public static boolean getNetWorkState(Context context) {
+        //得到连接管理器对象
+        ConnectivityManager connectivityManager = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetworkInfo = connectivityManager
+                .getActiveNetworkInfo();
+        //如果网络连接，判断该网络类型
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+//            if (activeNetworkInfo.getType() == (ConnectivityManager.TYPE_WIFI)) {
+//                return ConnectivityManager.TYPE_WIFI;//wifi
+//            } else if (activeNetworkInfo.getType() == (ConnectivityManager.TYPE_MOBILE)) {
+//                return ConnectivityManager.TYPE_MOBILE;//mobile
+//            }
+            return true;
+        } else {
+            //网络异常
+            return false;
+        }
     }
 
 }
