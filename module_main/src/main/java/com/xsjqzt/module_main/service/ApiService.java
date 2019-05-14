@@ -24,7 +24,7 @@ public interface ApiService {
 
     //获取token
     @FormUrlEncoded
-    @POST("entrance/auth/get_key")
+    @POST("entrance/auth/get_token")
     Observable<ResponseBody> getToken(@Field("sn") String sn1, @Field("skey") String skey);
 
     //刷新token
