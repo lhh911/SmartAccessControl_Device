@@ -4,7 +4,7 @@ public class InterfaceConfig {
 
 //    public static final String BASEURL = "http://apitest.jiebangbang.cn:28080/manager/" ;
 
-    public static final String [] URLS = {"http://xjtapi.fenqiduo.cn" ,"http://apitest.jiebangbang.cn:28080"};//
+    public static final String [] URLS = {"https://api.xsjqzt.com" ,"https://api.xsjqzt.com"};//
 
     public static final String BASEURL = URLS[AppConfig.HOST_ADDRESS_CONFIG_INDEX];
 

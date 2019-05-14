@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
-    android:orientation="vertical">
+    android:background="@color/black">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,4 +36,53 @@
         android:layout_height="match_parent"
         android:visibility="gone"/>
 
-</LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/call_layout"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        android:background="@color/color_99000000"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/call_num_tv"
+            android:layout_width="185dp"
+            android:layout_height="37dp"
+            android:gravity="center"
+            android:textSize="22dp"
+            android:textColor="@color/common_white"
+            android:text=""
+            android:inputType="number"
+            android:imeOptions="actionDone"
+            android:singleLine="true"/>
+
+            <TextView
+                android:id="@+id/call_status_tv"
+                style="@style/textview13"
+                android:layout_marginTop="20dp"
+                android:text=""
+                android:textColor="@color/common_white" />
+
+
+
+            <TextView
+                android:id="@+id/call_tip_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="25dp"
+                android:drawableLeft="@mipmap/icon_gth"
+                android:drawablePadding="6dp"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="按OK键呼叫"
+                android:textColor="@color/common_white"
+                android:textSize="9dp" />
+
+
+    </LinearLayout>
+
+</RelativeLayout>

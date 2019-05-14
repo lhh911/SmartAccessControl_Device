@@ -1,30 +1,43 @@
 package com.xsjqzt.module_main.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.hyphenate.chat.EMCallStateChangeListener;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.exceptions.EMNoActiveCallException;
+import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
+import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.model.CardResBean;
+import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
-import com.xsjqzt.module_main.presenter.TokenPresenter;
-import com.xsjqzt.module_main.view.TokenView;
+import com.xsjqzt.module_main.presenter.MainPresenter;
+import com.xsjqzt.module_main.view.MainView;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -33,15 +46,23 @@ import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 @Route(path = "/module_main/main")
-public class MainActivity extends BaseMvpActivity<TokenView,TokenPresenter> implements TokenView  {
+public class MainActivity extends BaseMvpActivity<MainView,MainPresenter> implements MainView  {
 
     private Banner banner ;
     private SimpleVideoPlayer videoPlayer;
+
+    //视频呼叫
+    private LinearLayout callLayout;
+    private TextView callNumTv,callStatusTv,callTipTv;
 
     private int showType = 2;// 1 图片广告，2 视频广告
     private MyBroadcastReceiver mReceiver;
@@ -74,11 +95,18 @@ public class MainActivity extends BaseMvpActivity<TokenView,TokenPresenter> impl
 
     @Override
     public void init() {
+        callLayout = findViewById(R.id.call_layout);
+        callNumTv = findViewById(R.id.call_num_tv);
+        callStatusTv = findViewById(R.id.call_status_tv);
+        callTipTv = findViewById(R.id.call_tip_tv);
+
         banner = findViewById(R.id.banner);
         videoPlayer = findViewById(R.id.videoplayer);
         requestPermiss();
 
         registReceiver();
+
+        presenter.entranceDetail();
     }
 
     @Override
@@ -149,6 +177,21 @@ public class MainActivity extends BaseMvpActivity<TokenView,TokenPresenter> impl
     }
 
     @Override
+    public void entranceDetailSuccess(EntranceDetailsResBean bean) {
+        //当前进出口的详细信息
+    }
+
+    @Override
+    public void loadIDCardsSuccess(CardResBean bean) {
+        //获取身份证数据，存储到数据库，供离线开门验证
+    }
+
+    @Override
+    public void loadICCardsSuccess(CardResBean bean) {
+        //获取IC卡数据，存储到数据库，供离线开门验证
+    }
+
+    @Override
     public void showLoading() {
 
     }
@@ -165,7 +208,6 @@ public class MainActivity extends BaseMvpActivity<TokenView,TokenPresenter> impl
 
 
     public class GlideImageLoader extends ImageLoader {
-
         @Override
         public void displayImage(Context context, Object path, ImageView imageView) {
             GlideUtils.display(context, (String) path,imageView);
@@ -207,11 +249,14 @@ public class MainActivity extends BaseMvpActivity<TokenView,TokenPresenter> impl
 
         if(mReceiver != null)
             unregisterReceiver(mReceiver);
+
+        removeTask();
+        endCall();
     }
 
     @Override
-    public TokenPresenter initPresenter() {
-        return new TokenPresenter();
+    public MainPresenter initPresenter() {
+        return new MainPresenter();
     }
 
     private void requestPermiss(){
@@ -306,6 +351,114 @@ public class MainActivity extends BaseMvpActivity<TokenView,TokenPresenter> impl
     }
 
 
+    //拨打视频通话
+    private void callVideo() {
+        String roomNum = callNumTv.getText().toString().trim();
+        //通过房号获取到环信的账号名（接口）
+
+        try {//单参数
+            EMClient.getInstance().callManager().makeVideoCall("test001");
+        } catch (EMServiceNotReadyException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        EMClient.getInstance().callManager().addCallStateChangeListener(new EMCallStateChangeListener() {
+            @Override
+            public void onCallStateChanged(CallState callState, CallError error) {
+                switch (callState) {
+                    case CONNECTING: // 正在连接对方
+                        ToastUtil.showCustomToast("正在连接对方");
+                        callStatusTv.setText("呼叫中，请稍候...");
+                        break;
+                    case CONNECTED: // 双方已经建立连接
+                        ToastUtil.showCustomToast("双方已经建立连接");
+                        callStatusTv.setText("呼叫中，请稍候...");
+                        break;
+
+                    case ACCEPTED: // 电话接通成功
+                        ToastUtil.showCustomToast("电话接通成功");
+                        startTimer();
+                        break;
+                    case DISCONNECTED: // 电话断了
+                        ToastUtil.showCustomToast("电话断了");
+                        removeTask();
+                        endCall();
+                        break;
+                    case NETWORK_UNSTABLE: //网络不稳定
+                        if(error == CallError.ERROR_NO_DATA){
+                            //无通话数据
+                        }else{
+                        }
+
+                        ToastUtil.showCustomToast("网络不稳定");
+                        break;
+                    case NETWORK_NORMAL: //网络恢复正常
+                        ToastUtil.showCustomToast("网络恢复正常");
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        });
+    }
+
+
+    int delayMillis = 1000;
+    int duration;//通话时长
+    Handler timeHandler;
+    Runnable timeRunnable;
+    String mTimePattern = "mm:ss";
+    //开始通话计时
+    private void startTimer() {
+        duration = 0;
+        startTask();
+    }
+
+    private void startTask() {
+        if(timeHandler != null && timeRunnable != null) {
+            removeTask();
+        }
+
+        timeHandler = new Handler();
+        timeRunnable = new TimeRunnable(this);
+        timeHandler.postDelayed(timeRunnable,delayMillis);
+    }
+
+    private void removeTask(){
+        if(timeHandler != null && timeRunnable != null) {
+            timeHandler.removeCallbacks(timeRunnable);
+            timeHandler = null;
+            timeRunnable = null;
+        }
+    }
+
+
+
+    public class TimeRunnable implements Runnable{
+        WeakReference<Activity> weakReference = null;
+        public TimeRunnable(Activity activity) {
+            weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            if(weakReference.get() != null) {
+                duration++;
+                callStatusTv.setText("通话中 " + DurationFormatUtils.formatDuration(duration, mTimePattern));
+                timeHandler.postDelayed(timeRunnable, delayMillis);
+            }
+        }
+    }
+
+    public void endCall(){
+        try {
+            EMClient.getInstance().callManager().endCall();
+        } catch (EMNoActiveCallException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
 

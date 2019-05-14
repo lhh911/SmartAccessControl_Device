@@ -5,6 +5,8 @@ import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.retrofit.other.HttpLoggingInterceptor;
 import com.jbb.library_common.retrofit.other.ParamsInterceptor;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -37,6 +39,7 @@ public class RetrofitManager {
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
+        builder.connectTimeout(15000,TimeUnit.SECONDS);
         builder.addInterceptor(new HttpLoggingInterceptor());
         builder.addInterceptor(new ParamsInterceptor());
 

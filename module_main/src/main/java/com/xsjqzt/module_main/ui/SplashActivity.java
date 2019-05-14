@@ -42,7 +42,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                goTo(MainActivity.class);
+//                goTo(MainActivity.class);
                 ARouter.getInstance().build("/module_main/main").navigation();//
                 finish();
             }

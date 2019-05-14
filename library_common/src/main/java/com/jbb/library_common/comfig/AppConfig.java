@@ -13,7 +13,7 @@ public class AppConfig {
     /***
      * 日志开关
      ***/
-    public static final int LOG_SWITCH_FLAG = LOG_OFF;
+    public static final int LOG_SWITCH_FLAG = LOG_ON;
      //线上地址
     public static final int HOST_INDEX_ONLINE = 0;
      //测试地址

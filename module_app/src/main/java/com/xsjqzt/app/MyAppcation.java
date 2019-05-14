@@ -18,7 +18,7 @@ public class MyAppcation extends BaseApplication {
 
         LogUtil.init().writeToFile(false).setDebug(AppConfig.LOG_SWITCH_FLAG == LogUtil.LOG_ON);
 
-        if (AppConfig.HOST_ADDRESS_CONFIG_INDEX == AppConfig.HOST_INDEX_PREPARE) {
+        if (BuildConfig.DEBUG) {
             // These two lines must be written before init, otherwise these configurations will be invalid in the init process
             ARouter.openLog();     // Print log
             ARouter.openDebug();   // Turn on debugging mode (If you are running in InstantRun mode, you must turn on debug mode! Online version needs to be closed, otherwise there is a security risk)
