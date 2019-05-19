@@ -150,7 +150,7 @@ public class ScreenShotUtil {
             return null;
         }
 
-        int strokeWidth = 20;//边框宽度
+        int strokeWidth = CommUtil.dp2px(4);//边框宽度
         Bitmap bitmap = null;
         Canvas canvas = null;
         try {

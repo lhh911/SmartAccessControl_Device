@@ -30,11 +30,11 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         EMHelper.getInstance().init(getApplicationContext());
 
         UserInfoSerializUtil.initUserInstance();
-//        if(!UserInfoInstance.getInstance().hasLogin()){
-//            bindDevice();
-//        }else{
-//        }
-        next(1500);
+        if(!UserInfoInstance.getInstance().hasLogin()){
+            bindDevice();
+        }else{
+            next(1500);
+        }
     }
 
     private void bindDevice(){
@@ -46,18 +46,20 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         }
         String str1 = macAddress.substring(0,macAddress.length() /2);
         String str2 = macAddress.substring(macAddress.length() /2 , macAddress.length());
-        sn1 =  MD5Util.md5(str1);
-        sn2 =  MD5Util.md5(str2);
+//        sn1 =  MD5Util.md5(str1);
+//        sn2 =  MD5Util.md5(str2);
+        sn1 =  str1;
+        sn2 =  str2;
         LogUtil.w("macAddress = " + macAddress);
         LogUtil.w("序列号 sn1 = " + sn1);
         LogUtil.w("序列号 sn1 = " + sn2);
 
-        int eid = 3;
+        int eid = 2;
         presenter.bindDevice(sn1,sn2,eid);
     }
 
 
-    private void login() {
+    private void loadKey() {
 
         presenter.loadKey(sn1);
     }
@@ -130,6 +132,6 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     public void bindDeviceSuccess() {
-        login();
+        loadKey();
     }
 }

@@ -258,21 +258,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SimpleVideoPlayerManager.instance().resumeNiceVideoPlayer();
-        if (banner != null)
-            banner.startAutoPlay();
-    }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        SimpleVideoPlayerManager.instance().suspendNiceVideoPlayer();
-        if (banner != null)
-            banner.stopAutoPlay();
-    }
 
 
     @Override
@@ -626,18 +612,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 String str = bytesToHex(paramComBean.bRec);
 
                 //对比数据库，开门
-//                Message msg = Message.obtain();
-//                msg.what = 1;
-//                msg.obj = str;
-//                doorHandler.sendMessage(msg);
-                parseData(str);
+                Message msg = Message.obtain();
+                msg.what = 3;
+                msg.obj = str;
+                doorHandler.sendMessage(msg);
+//                parseData(str);
             }
         };
-        try {
-            serialHelper.open();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        open();
     }
 
 
@@ -688,6 +670,35 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
+    public void open() {
+        try {
+            if (serialHelper != null)
+                serialHelper.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SimpleVideoPlayerManager.instance().resumeNiceVideoPlayer();
+        if (banner != null)
+            banner.startAutoPlay();
+
+        open();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SimpleVideoPlayerManager.instance().suspendNiceVideoPlayer();
+        if (banner != null)
+            banner.stopAutoPlay();
+
+        stopMeasuing();
+    }
 
     private Handler doorHandler = new Handler() {
 
@@ -695,9 +706,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 1:
-//                    String str = (String) msg.obj;
-//                    ToastUtil.showCustomToast(str);
-//                    LogUtil.w("nfc数据 = " + str);
+//
                     // open door;
                     Gpio.RelayOnOff(1);
                     savaICCardRecord();
@@ -707,6 +716,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 case 2:
                     // close door;
                     Gpio.RelayOnOff(0);
+                    break;
+                case 3:
+                    String str = (String) msg.obj;
+
+                    parseData(str);
                     break;
             }
         }
