@@ -17,6 +17,11 @@ import retrofit2.http.Query;
 
 public interface ApiService {
 
+    //设备绑定
+    @FormUrlEncoded
+    @POST("entrance/auth/bind")
+    Observable<ResponseBody> bindDevice(@Field("sn1") String sn1, @Field("sn2") String sn2, @Field("eid") int eid);
+
     //获取加密key
     @FormUrlEncoded
     @POST("entrance/auth/get_key")
@@ -51,9 +56,11 @@ public interface ApiService {
 
     //获取身份证数据
     @POST("entrance/data/idcards")
-    Observable<ResponseBody> loadIDCards(@Header("Authorization") String token, @Query("page") int page, @Query("page_size") int page_size);
+    Observable<ResponseBody> loadIDCards(@Header("Authorization") String token, @Query("sid") int sid );
 
     //获取IC卡数据
     @POST("entrance/data/iccards")
-    Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("page") int page, @Query("page_size") int page_size);
+    Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("sid") int sid );
+
+
 }

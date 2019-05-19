@@ -7,11 +7,12 @@ public class DbManager {
     // 是否加密
     public static final boolean ENCRYPTED = true;
 
-    private static final String DB_NAME = "smartaccesscontrol.db";
+    public static final String DB_NAME = "smartaccesscontrol.db";//数据库名
     private static DbManager mDbManager;
     private DaoMaster mDaoMaster;
     private DaoSession mDaoSession;
-    private DaoMaster.DevOpenHelper mDevOpenHelper;
+//    private DaoMaster.DevOpenHelper mDevOpenHelper;
+    private DBHelper dbHelper;
 
 
     public static DbManager getInstance(){
@@ -31,9 +32,10 @@ public class DbManager {
     }
 
     private void init(){
-        mDevOpenHelper = new DaoMaster.DevOpenHelper(BaseApplication.getContext(),DB_NAME);
+//        mDevOpenHelper = new DaoMaster.DevOpenHelper(BaseApplication.getContext(),DB_NAME);
 
-        mDaoMaster = new DaoMaster(mDevOpenHelper.getWritableDatabase());
+        dbHelper = new DBHelper(BaseApplication.getContext());
+        mDaoMaster = new DaoMaster(dbHelper.getWritableDatabase());
         mDaoSession = mDaoMaster.newSession();
 
     }
@@ -50,9 +52,9 @@ public class DbManager {
      * 关闭数据库
      */
     public void closeDataBase() {
-        if (mDevOpenHelper != null) {
-            mDevOpenHelper.close();
-            mDevOpenHelper = null;
+        if (dbHelper != null) {
+            dbHelper.close();
+            dbHelper = null;
         }
         if (mDaoSession != null) {
             mDaoSession.clear();

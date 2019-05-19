@@ -6,8 +6,12 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
-import com.xsjqzt.module_main.model.CardResBean;
+import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.entity.ICCard;
+import com.xsjqzt.module_main.greendao.entity.IDCard;
+import com.xsjqzt.module_main.model.ICCardResBean;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
+import com.xsjqzt.module_main.model.IDCardResBean;
 import com.xsjqzt.module_main.model.KeyResBean;
 import com.xsjqzt.module_main.model.RefreshTokenResBean;
 import com.xsjqzt.module_main.model.TokenResBean;
@@ -15,11 +19,15 @@ import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.view.MainView;
-import com.xsjqzt.module_main.view.TokenView;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -58,11 +66,11 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     public void getToken(String sn1, String skey) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .getToken(sn1,skey), TokenResBean.class, new NetListeren<TokenResBean>() {
+                .getToken(sn1, skey), TokenResBean.class, new NetListeren<TokenResBean>() {
             @Override
             public void onSuccess(TokenResBean bean) {
                 if (mView != null) {
-                    if(bean.getData() != null) {
+                    if (bean.getData() != null) {
                         UserInfoInstance.getInstance().setToken(bean.getData().getToken());
                         UserInfoInstance.getInstance().setRefresh_token(bean.getData().getRefresh_token());
                         UserInfoSerializUtil.serializUserInstance();
@@ -120,13 +128,9 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     //通知调节音量成功后告诉后台
     public void setVoice(int volume) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .setVoice(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken() ,volume), RefreshTokenResBean.class, new NetListeren<RefreshTokenResBean>() {
+                .setVoice(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), volume), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
-            public void onSuccess(RefreshTokenResBean bean) {
-                String token = bean.getData().getToken();
-                UserInfoInstance.getInstance().setToken(token);
-                UserInfoSerializUtil.serializUserInstance();
-
+            public void onSuccess(BaseBean bean) {
             }
 
             @Override
@@ -144,7 +148,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         });
     }
 
-    public void uploadIDCardRecord(Map<String,Object> params , MultipartBody.Part file) {
+    public void uploadIDCardRecord(Map<String, Object> params, MultipartBody.Part file) {
         //创建rquestbody对象
         File file1 = new File("");
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
@@ -152,7 +156,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
 
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .uploadIDCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken() ,params ,file), BaseBean.class, new NetListeren<BaseBean>() {
+                .uploadIDCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, file), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean bean) {
 
@@ -175,7 +179,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
 
-    public void uploadICCardRecord(Map<String,Object> params , MultipartBody.Part file) {
+    public void uploadICCardRecord(Map<String, Object> params, MultipartBody.Part file) {
         //创建rquestbody对象
         File file1 = new File("");
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
@@ -183,7 +187,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
 
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .uploadICCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken() ,params ,file), BaseBean.class, new NetListeren<BaseBean>() {
+                .uploadICCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, file), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean bean) {
 
@@ -211,7 +215,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 .entranceDetail(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceDetailsResBean.class, new NetListeren<EntranceDetailsResBean>() {
             @Override
             public void onSuccess(EntranceDetailsResBean bean) {
-                if(mView != null)
+                if (mView != null)
                     mView.entranceDetailSuccess(bean);
             }
 
@@ -232,13 +236,25 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
 
     //获取身份证数据
-    public void loadIDCards(int page,int page_size) {
+    public void loadIDCards(int sid ) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),page,page_size), CardResBean.class, new NetListeren<CardResBean>() {
+                .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid ), IDCardResBean.class, new NetListeren<IDCardResBean>() {
             @Override
-            public void onSuccess(CardResBean bean) {
-                if(mView != null)
-                    mView.loadIDCardsSuccess(bean);
+            public void onSuccess(IDCardResBean bean) {
+//                if (mView != null)
+//                    mView.loadIDCardsSuccess(bean);
+                //插入数据库
+                Observable.just(bean.getData())
+                        .flatMap(new Function<List<IDCard>, ObservableSource<?>>() {
+                            @Override
+                            public ObservableSource<?> apply(List<IDCard> idCards) throws Exception {
+                                DbManager.getInstance().getDaoSession().getIDCardDao().insertInTx(idCards);
+                                return null;
+                            }
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .subscribe();
+
             }
 
             @Override
@@ -257,13 +273,25 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     //获取身份证数据
-    public void loadICCards(int page,int page_size) {
+    public void loadICCards(int sid) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),page,page_size), CardResBean.class, new NetListeren<CardResBean>() {
+                .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid), ICCardResBean.class, new NetListeren<ICCardResBean>() {
             @Override
-            public void onSuccess(CardResBean bean) {
-                if(mView != null)
-                    mView.loadICCardsSuccess(bean);
+            public void onSuccess(ICCardResBean bean) {
+//                if (mView != null)
+//                    mView.loadICCardsSuccess(bean);
+
+                Observable.just(bean.getData())
+                        .flatMap(new Function<List<ICCard>, ObservableSource<?>>() {
+                            @Override
+                            public ObservableSource<?> apply(List<ICCard> icCards) throws Exception {
+                                DbManager.getInstance().getDaoSession().getICCardDao().insertInTx(icCards);
+                                return null;
+                            }
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .subscribe();
+
             }
 
             @Override

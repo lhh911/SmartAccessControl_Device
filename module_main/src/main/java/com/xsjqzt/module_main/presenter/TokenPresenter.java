@@ -2,6 +2,7 @@ package com.xsjqzt.module_main.presenter;
 
 import com.jbb.library_common.basemvp.BaseMvpPresenter;
 import com.jbb.library_common.retrofit.RetrofitManager;
+import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.xsjqzt.module_main.model.KeyResBean;
@@ -13,6 +14,37 @@ import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.view.TokenView;
 
 public class TokenPresenter extends BaseMvpPresenter<TokenView> {
+
+    public void bindDevice(String sn1,String sn2,int eid) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .bindDevice(sn1,sn2,eid), BaseBean.class, new NetListeren<BaseBean>() {
+            @Override
+            public void onSuccess(BaseBean bean) {
+                if (mView != null) {
+                    mView.bindDeviceSuccess();
+                }
+
+            }
+
+            @Override
+            public void onStart() {
+                if (mView != null)
+                    mView.showLoading();
+            }
+
+            @Override
+            public void onEnd() {
+                if (mView != null)
+                    mView.hideLoading();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+            }
+        });
+    }
+
 
     public void loadKey(String sn) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)

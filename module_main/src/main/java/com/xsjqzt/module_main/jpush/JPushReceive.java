@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.jbb.library_common.comfig.KeyContacts;
+
 import cn.jpush.android.api.JPushInterface;
 
 public class JPushReceive extends BroadcastReceiver {
@@ -46,13 +48,20 @@ public class JPushReceive extends BroadcastReceiver {
     }
 
     private void receivingNotification(Context context, Bundle bundle){
-        String title = bundle.getString(JPushInterface.EXTRA_NOTIFICATION_TITLE);
+//        String title = bundle.getString(JPushInterface.EXTRA_NOTIFICATION_TITLE);
 //        LogUtil.d(TAG, " title : " + title);
-        String message = bundle.getString(JPushInterface.EXTRA_ALERT);
+//        String message = bundle.getString(JPushInterface.EXTRA_ALERT);
 //        LogUtil.d(TAG, "message : " + message);
-        String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
+//        String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
 //        LogUtil.d(TAG, "extras : " + extras);
 
+        Intent it = new Intent();
+        it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
+        it.putExtras(bundle);
+        context.sendBroadcast(it);
+
+        int notificationId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
+        JPushInterface.clearNotificationById(context, notificationId);
     }
 
     private void openNotification(Context context, Bundle bundle){

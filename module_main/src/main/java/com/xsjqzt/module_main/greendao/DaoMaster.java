@@ -21,12 +21,16 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
-        StudentDao.createTable(db, ifNotExists);
+        ICCardDao.createTable(db, ifNotExists);
+        IDCardDao.createTable(db, ifNotExists);
+        OpenRecordDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
-        StudentDao.dropTable(db, ifExists);
+        ICCardDao.dropTable(db, ifExists);
+        IDCardDao.dropTable(db, ifExists);
+        OpenRecordDao.dropTable(db, ifExists);
     }
 
     /**
@@ -45,7 +49,9 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(StudentDao.class);
+        registerDaoClass(ICCardDao.class);
+        registerDaoClass(IDCardDao.class);
+        registerDaoClass(OpenRecordDao.class);
     }
 
     public DaoSession newSession() {

@@ -266,7 +266,7 @@ public class FileUtil {
             }
 
 
-            return Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + AppConfig.SDCARD_DIR_PATH;
+            return tempPath.getPath();
         } else if (FileUtil.isRootStorageCanUse()) {
             return context.getCacheDir().getAbsolutePath();
         } else {

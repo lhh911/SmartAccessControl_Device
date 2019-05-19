@@ -40,6 +40,8 @@ public class KeyContacts {
 
     public static final String ACTION_LOGIN_SUCCESS = "action_login_success";//登录成功后通知
     public static final String ACTION_API_KEY_INVALID = "action_api_key_invalid";//apikey失效
+    public static final String ACTION_RECEICE_NOTITY = "com.xsjqzt.app.action_receice_notity";//接收到极光推送的通知
+    public static final String ACTION_TIMER_UPLOAD_OPENRECORD = "com.xsjqzt.app.timer_upload_openrecord";//24点是定时闹钟任务，上传开门记录
 
     public static final String system  = "android";//手机系统
 

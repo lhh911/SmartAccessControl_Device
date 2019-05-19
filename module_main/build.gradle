@@ -41,17 +41,18 @@ android {
 
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(':library_common')
     implementation project(':nicevideoplayer')
     implementation project(':easeui')
-
+    implementation project(':serialport')
     // 此处以JPush 3.1.6 版本为例。
     api 'cn.jiguang.sdk:jcore:1.2.5'
     // 此处以JCore 1.2.5 版本为例。
     api 'cn.jiguang.sdk:jpush:3.1.6'
-    api 'org.greenrobot:greendao:3.2.2'//greendao数据库lib
-
+    api 'org.greenrobot:greendao:3.2.2'
+    //greendao数据库lib
     annotationProcessor "com.alibaba:arouter-compiler:$rootProject.annotationProcessorVersion"
+    implementation files('libs/Gpio908F.jar')
+//    implementation 'tp.xmaihh:serialport:2.0'
 }
