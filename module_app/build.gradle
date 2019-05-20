@@ -37,7 +37,7 @@ android {
     android.applicationVariants.all { variant ->
         variant.outputs.all { output ->
             variant.productFlavors.each { flavor ->
-                def project = "xjt"
+                def project = "qzt"
                 def separator = "_"
                 def versionName = variant.versionName
                 def apkName = project + separator + versionName + separator  + flavor.name + ".apk"

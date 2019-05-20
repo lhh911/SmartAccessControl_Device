@@ -13,6 +13,9 @@ import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.view.TokenView;
 
+import io.reactivex.Observable;
+import okhttp3.ResponseBody;
+
 public class TokenPresenter extends BaseMvpPresenter<TokenView> {
 
     public void bindDevice(String sn1,String sn2,int eid) {
@@ -47,12 +50,18 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
 
 
     public void loadKey(String sn) {
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+
+
+        SubscribeUtils.subscribe2(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadKey(sn), KeyResBean.class, new NetListeren<KeyResBean>() {
             @Override
             public void onSuccess(KeyResBean bean) {
                 if (mView != null) {
-                    mView.loadKeySuccess(bean.getData());
+                    if(bean.getCode() == 0)
+                        mView.loadKeySuccess(bean.getData());
+                    else{
+                        mView.loadKeyFail();
+                    }
                 }
 
             }

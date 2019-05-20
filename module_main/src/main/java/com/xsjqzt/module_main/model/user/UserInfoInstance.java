@@ -15,6 +15,10 @@ public class UserInfoInstance implements Parcelable {
     private String refresh_token;
 
 
+    private String macAddress;
+    private String sn1;
+    private String sn2;
+
     private UserInfoInstance(){}
 
     protected UserInfoInstance(Parcel in) {
@@ -124,5 +128,30 @@ public class UserInfoInstance implements Parcelable {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+
+    public String getMacAddress() {
+        return macAddress;
+    }
+
+    public void setMacAddress(String macAddress) {
+        this.macAddress = macAddress;
+    }
+
+    public String getSn1() {
+        return sn1;
+    }
+
+    public void setSn1(String sn1) {
+        this.sn1 = sn1;
+    }
+
+    public String getSn2() {
+        return sn2;
+    }
+
+    public void setSn2(String sn2) {
+        this.sn2 = sn2;
     }
 }

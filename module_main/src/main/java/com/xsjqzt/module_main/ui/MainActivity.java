@@ -446,7 +446,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         //通过房号获取到环信的账号名（接口）
 
         try {//单参数
-            EMClient.getInstance().callManager().makeVideoCall("test001");
+            EMClient.getInstance().callManager().makeVideoCall("test001","");
         } catch (EMServiceNotReadyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

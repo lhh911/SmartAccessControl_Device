@@ -8,15 +8,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jbb.library_common.basemvp.BaseActivity;
+import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.ScreenShotUtil;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.model.EntranceInfoResBean;
+import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.presenter.SystemInfoPresenter;
+import com.xsjqzt.module_main.view.SystemInfoIView;
 
-public class SystemInfoActivity extends BaseActivity {
+public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView,SystemInfoPresenter> implements SystemInfoIView {
 
     private TextView deviceNameTv,ipAddressTv,qrNumTv;
     private ImageView voiceIv,qrCodeIv;
-    private String qrCodeNum = "adcei100011" ;
 
     @Override
     public void init() {
@@ -27,6 +31,16 @@ public class SystemInfoActivity extends BaseActivity {
         qrCodeIv = findViewById(R.id.qr_code_iv);
 
         createQrCode();
+
+        if(UserInfoInstance.getInstance().hasLogin())
+            presenter.loadDevice();
+
+    }
+
+
+    @Override
+    public SystemInfoPresenter initPresenter() {
+        return new SystemInfoPresenter();
     }
 
     @Override
@@ -40,9 +54,35 @@ public class SystemInfoActivity extends BaseActivity {
     }
 
     private void createQrCode(){
-        qrNumTv.setText(qrCodeNum);
-        Bitmap qrCode = ScreenShotUtil.createQRCode(qrCodeNum, CommUtil.dp2px(100), CommUtil.dp2px(100), "#ffffff");
+        qrNumTv.setText(UserInfoInstance.getInstance().getMacAddress());
+        Bitmap qrCode = ScreenShotUtil.createQRCode(UserInfoInstance.getInstance().getMacAddress(), CommUtil.dp2px(110), CommUtil.dp2px(110), "#ffffff");
         qrCodeIv.setImageBitmap(qrCode);
     }
 
+    @Override
+    public void showLoading() {
+        show("");
+    }
+
+    @Override
+    public void hideLoading() {
+        dismiss();
+    }
+
+    @Override
+    public void error(Exception e) {
+
+    }
+
+    @Override
+    public void loadDeviceSuccess(EntranceInfoResBean bean) {
+        if(bean != null && bean.getData() != null){
+            String garden_name = bean.getData().getGarden_name();
+            String region_name = bean.getData().getRegion_name();
+            String building_name = bean.getData().getBuilding_name();
+            String name = bean.getData().getName();
+
+            deviceNameTv.setText(garden_name + region_name + building_name + name);
+        }
+    }
 }

@@ -62,5 +62,7 @@ public interface ApiService {
     @POST("entrance/data/iccards")
     Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("sid") int sid );
 
-
+    //获取进出口信息
+    @POST("entrance/data/entrance_detail")
+    Observable<ResponseBody> loadDevice(@Header("Authorization") String token);
 }

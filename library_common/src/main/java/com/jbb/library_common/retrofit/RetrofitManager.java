@@ -2,6 +2,7 @@ package com.jbb.library_common.retrofit;
 
 
 import com.jbb.library_common.comfig.InterfaceConfig;
+import com.jbb.library_common.other.OkHttpClineUtils;
 import com.jbb.library_common.retrofit.other.HttpLoggingInterceptor;
 import com.jbb.library_common.retrofit.other.ParamsInterceptor;
 
@@ -42,6 +43,8 @@ public class RetrofitManager {
         builder.connectTimeout(15000,TimeUnit.SECONDS);
         builder.addInterceptor(new HttpLoggingInterceptor());
         builder.addInterceptor(new ParamsInterceptor());
+        builder.sslSocketFactory(OkHttpClineUtils.getSSLSocketFactory(),OkHttpClineUtils.getX509TrustManager());
+        builder.hostnameVerifier(OkHttpClineUtils.getHostnameVerifier());
 
         mRetrofit = new Retrofit.Builder()
                 .client(builder.build())

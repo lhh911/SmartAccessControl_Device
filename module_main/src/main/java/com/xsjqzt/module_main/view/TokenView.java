@@ -8,4 +8,6 @@ public interface TokenView extends BaseMvpView {
     void getTokenSuccess();
 
     void bindDeviceSuccess();
+
+    void loadKeyFail();
 }

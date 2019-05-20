@@ -2,15 +2,20 @@ package com.xsjqzt.app;
 
 import android.content.Context;
 import android.support.multidex.MultiDex;
+import android.text.TextUtils;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.comfig.AppConfig;
+import com.jbb.library_common.utils.DeviceUtil;
+import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 
 import cn.jpush.android.api.JPushInterface;
 
 public class MyAppcation extends BaseApplication {
+
+
 
     @Override
     public void onCreate() {
@@ -26,7 +31,11 @@ public class MyAppcation extends BaseApplication {
         ARouter.init(this);
 
         JPushInterface.init(getApplicationContext());
+
+
     }
+
+
 
     //解决方法数超过64k问题
     @Override
