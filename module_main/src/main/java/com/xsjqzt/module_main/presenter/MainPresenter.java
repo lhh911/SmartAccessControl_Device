@@ -9,18 +9,21 @@ import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
+import com.xsjqzt.module_main.model.CardResBean;
 import com.xsjqzt.module_main.model.ICCardResBean;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.IDCardResBean;
 import com.xsjqzt.module_main.model.KeyResBean;
 import com.xsjqzt.module_main.model.RefreshTokenResBean;
 import com.xsjqzt.module_main.model.TokenResBean;
+import com.xsjqzt.module_main.model.UploadCardResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.view.MainView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -148,19 +151,14 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         });
     }
 
-    public void uploadIDCardRecord(Map<String, Object> params, MultipartBody.Part file) {
-        //创建rquestbody对象
-        File file1 = new File("");
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", file1.getName(), requestFile);
-
+    public void uploadIDCardRecord(final int type,final String sn) {
 
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .uploadIDCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, file), BaseBean.class, new NetListeren<BaseBean>() {
+                .uploadIDCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn , 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
-            public void onSuccess(BaseBean bean) {
-
-
+            public void onSuccess(UploadCardResBean bean) {
+                if(mView != null)
+                    mView.uploadCardSuccess(type, bean.getId(), sn);
             }
 
             @Override
@@ -179,19 +177,14 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
 
-    public void uploadICCardRecord(Map<String, Object> params, MultipartBody.Part file) {
-        //创建rquestbody对象
-        File file1 = new File("");
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file1);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", file1.getName(), requestFile);
-
+    public void uploadICCardRecord(final int type,final String sn) {
 
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .uploadICCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, file), BaseBean.class, new NetListeren<BaseBean>() {
+                .uploadICCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
-            public void onSuccess(BaseBean bean) {
-
-
+            public void onSuccess(UploadCardResBean bean) {
+                if(mView != null)
+                    mView.uploadCardSuccess(type, bean.getId(), sn);
             }
 
             @Override
@@ -245,10 +238,19 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 //                    mView.loadIDCardsSuccess(bean);
                 //插入数据库
                 Observable.just(bean.getData())
-                        .flatMap(new Function<List<IDCard>, ObservableSource<?>>() {
+                        .flatMap(new Function<List<CardResBean>, ObservableSource<?>>() {
                             @Override
-                            public ObservableSource<?> apply(List<IDCard> idCards) throws Exception {
-                                DbManager.getInstance().getDaoSession().getIDCardDao().insertInTx(idCards);
+                            public ObservableSource<?> apply(List<CardResBean> idCards) throws Exception {
+                                List<IDCard> lists = new ArrayList<>();
+                                for(CardResBean bean : idCards){
+                                    IDCard card = new IDCard();
+                                    card.setSid(bean.getId());
+                                    card.setSn(bean.getSn());
+                                    card.setUser_id(bean.getUser_id());
+                                    card.setUser_name(bean.getUser_name());
+                                }
+
+                                DbManager.getInstance().getDaoSession().getIDCardDao().insertInTx(lists);
                                 return null;
                             }
                         })
@@ -278,14 +280,21 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid), ICCardResBean.class, new NetListeren<ICCardResBean>() {
             @Override
             public void onSuccess(ICCardResBean bean) {
-//                if (mView != null)
-//                    mView.loadICCardsSuccess(bean);
 
                 Observable.just(bean.getData())
-                        .flatMap(new Function<List<ICCard>, ObservableSource<?>>() {
+                        .flatMap(new Function<List<CardResBean>, ObservableSource<?>>() {
                             @Override
-                            public ObservableSource<?> apply(List<ICCard> icCards) throws Exception {
-                                DbManager.getInstance().getDaoSession().getICCardDao().insertInTx(icCards);
+                            public ObservableSource<?> apply(List<CardResBean> icCards) throws Exception {
+                                List<ICCard> lists = new ArrayList<>();
+                                for(CardResBean bean : icCards){
+                                    ICCard card = new ICCard();
+                                    card.setSid(bean.getId());
+                                    card.setSn(bean.getSn());
+                                    card.setUser_id(bean.getUser_id());
+                                    card.setUser_name(bean.getUser_name());
+                                }
+
+                                DbManager.getInstance().getDaoSession().getICCardDao().insertInTx(lists);
                                 return null;
                             }
                         })

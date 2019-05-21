@@ -48,7 +48,18 @@ public interface ApiService {
 
     //上传IC卡开门记录
     @POST("entrance/upload/iccard_record")
-    Observable<ResponseBody> uploadICCardRecord(@Header("Authorization") String token , @PartMap Map<String ,Object> params, @Part MultipartBody.Part file);
+    Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token , @PartMap Map<String ,Object> params, @Part MultipartBody.Part file);
+
+
+    //上传IC卡开门记录不含图片
+    @POST("entrance/upload/iccard_record")
+    Observable<ResponseBody> uploadICCardRecordNoImage(@Header("Authorization") String token , @Field("sn") String sn, @Field("status") int status);
+
+    //上传ID卡开门记录不含图片
+    @POST("entrance/upload/idcard_record")
+    Observable<ResponseBody> uploadIDCardRecordNoImage(@Header("Authorization") String token , @Field("sn") String sn, @Field("status") int status);
+
+
 
     //获取当前进出口信息
     @POST("entrance/data/entrance_detail")
@@ -65,4 +76,6 @@ public interface ApiService {
     //获取进出口信息
     @POST("entrance/data/entrance_detail")
     Observable<ResponseBody> loadDevice(@Header("Authorization") String token);
+
+
 }

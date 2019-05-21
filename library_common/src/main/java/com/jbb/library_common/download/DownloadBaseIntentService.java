@@ -43,7 +43,7 @@ public abstract class DownloadBaseIntentService extends IntentService {
         //插件更新不会很频繁 产品说暂时可以不做删除  后续版本需要先清空下文件夹
         try {
             String fileName = FileUtil.getFileName(url);
-            String filePath = FileUtil.getAppDirFilePath() + File.separator + "download"+ File.separator + fileName;
+            String filePath = FileUtil.getAppCachePath(this) + File.separator + "download"+ File.separator + fileName;
             DownloadUtil.download(this, downloadCallBack, url, filePath);
         } catch (Exception e) {
             downloadCallBack.onError(DownloadUtil.ERROR);

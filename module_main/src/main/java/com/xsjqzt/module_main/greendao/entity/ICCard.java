@@ -16,51 +16,76 @@ public class ICCard {
     @NotNull
     private String sn;//ic卡号码
 
-    @NotNull
-    private String name;//ic名
 
-    @Generated(hash = 79061019)
-    public ICCard(Long id, int sid, @NotNull String sn, @NotNull String name) {
+    private String user_name;//
+
+
+    private int user_id;//
+
+
+    @Generated(hash = 1936218565)
+    public ICCard(Long id, int sid, @NotNull String sn, String user_name,
+            int user_id) {
         this.id = id;
         this.sid = sid;
         this.sn = sn;
-        this.name = name;
+        this.user_name = user_name;
+        this.user_id = user_id;
     }
+
 
     @Generated(hash = 1554848264)
     public ICCard() {
     }
 
+
     public Long getId() {
         return this.id;
     }
+
 
     public void setId(Long id) {
         this.id = id;
     }
 
+
     public int getSid() {
         return this.sid;
     }
+
 
     public void setSid(int sid) {
         this.sid = sid;
     }
 
+
     public String getSn() {
         return this.sn;
     }
+
 
     public void setSn(String sn) {
         this.sn = sn;
     }
 
-    public String getName() {
-        return this.name;
+
+    public String getUser_name() {
+        return this.user_name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
+    }
+
+
+    public int getUser_id() {
+        return this.user_id;
+    }
+
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
     }
 
   }

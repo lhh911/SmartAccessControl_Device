@@ -92,20 +92,16 @@ public class OpenRecordService extends IntentService {
 
         if (record != null) {
             Map<String, Object> params = new HashMap<>();
-            params.put("sn", record.getSn());
-            params.put("status", record.getStatus());
-            params.put("createTime", record.getCreateTime());
-            File file = new File("");
+            params.put("id", record.getSn());
+            params.put("type", record.getType());
+            File file = new File(record.getImage());
             RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("uploaded_file", file.getName(), requestFile);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 
-            if (record.getICOrID() == 1) {//ic卡记录
-                subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                        .uploadICCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
-            }else{  //身份证记录
-                subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                        .uploadIDCardRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
-            }
+
+            subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                        .uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
+
         }
     }
 

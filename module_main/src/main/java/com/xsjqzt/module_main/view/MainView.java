@@ -11,6 +11,8 @@ public interface MainView extends BaseMvpView {
 
     void entranceDetailSuccess(EntranceDetailsResBean bean);
 
+    void uploadCardSuccess(int type, int id ,String sn);
+
 //    void loadIDCardsSuccess(ICCardResBean bean);
 
 //    void loadICCardsSuccess(ICCardResBean bean);

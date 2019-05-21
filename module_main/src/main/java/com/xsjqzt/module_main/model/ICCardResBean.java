@@ -6,13 +6,13 @@ import com.xsjqzt.module_main.greendao.entity.ICCard;
 import java.util.List;
 
 public class ICCardResBean extends BaseBean {
-    private List<ICCard> data;
+    private List<CardResBean> data;
 
-    public List<ICCard> getData() {
+    public List<CardResBean> getData() {
         return data;
     }
 
-    public void setData(List<ICCard> data) {
+    public void setData(List<CardResBean> data) {
         this.data = data;
     }
 

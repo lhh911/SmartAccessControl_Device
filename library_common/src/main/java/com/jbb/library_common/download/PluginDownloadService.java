@@ -24,7 +24,7 @@ public class PluginDownloadService extends DownloadBaseIntentService {
     public void success() {
         LogUtil.d("PluginDownloadService download  finished:" + url);
         String fileName = FileUtil.getFileName(url);
-        String filePath = FileUtil.getAppDirFilePath() + File.separator + "download/" + fileName;
+        String filePath = FileUtil.getAppCachePath(this) + File.separator + "download/" + fileName;
 //        String md5 = SharePreferensUtil.getString(KeyContacts.SP_KEY_APP_PLUGINMD5, KeyContacts.SP_FILE_DEFAULT);
         File file = new File(filePath);
 //        if (TextUtils.isEmpty(md5) || CommUtil.getMd5ByFile(file).equalsIgnoreCase(md5)) {

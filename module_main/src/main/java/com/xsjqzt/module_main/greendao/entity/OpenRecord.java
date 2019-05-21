@@ -17,77 +17,98 @@ public class OpenRecord {
 
     private String image;//板载摄像头照片
 
-    private String image2;//IPC抓拍照片
+    private int sid;//服务器此条记录id，传图片是用
 
     private boolean uploadStatus;// false 未上传，true 上传
 
     private long createTime;//记录生成时间
 
-    private int ICOrID ; // 1 IC记录， 2 id卡记录
+    private String type ; //照片来源 ，"": 默认拍照， "IPC": IPC抓拍拍照
 
-    @Generated(hash = 529022790)
+    @Generated(hash = 1586289459)
     public OpenRecord(Long id, @NotNull String sn, int status, String image,
-            String image2, boolean uploadStatus, long createTime, int ICOrID) {
+            int sid, boolean uploadStatus, long createTime, String type) {
         this.id = id;
         this.sn = sn;
         this.status = status;
         this.image = image;
-        this.image2 = image2;
+        this.sid = sid;
         this.uploadStatus = uploadStatus;
         this.createTime = createTime;
-        this.ICOrID = ICOrID;
+        this.type = type;
     }
+
     @Generated(hash = 1513091491)
     public OpenRecord() {
     }
+
     public Long getId() {
         return this.id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getSn() {
         return this.sn;
     }
+
     public void setSn(String sn) {
         this.sn = sn;
     }
+
     public int getStatus() {
         return this.status;
     }
+
     public void setStatus(int status) {
         this.status = status;
     }
+
     public String getImage() {
         return this.image;
     }
+
     public void setImage(String image) {
         this.image = image;
     }
-    public String getImage2() {
-        return this.image2;
+
+    public int getSid() {
+        return this.sid;
     }
-    public void setImage2(String image2) {
-        this.image2 = image2;
+
+    public void setSid(int sid) {
+        this.sid = sid;
     }
+
     public boolean getUploadStatus() {
         return this.uploadStatus;
     }
+
     public void setUploadStatus(boolean uploadStatus) {
         this.uploadStatus = uploadStatus;
     }
+
     public long getCreateTime() {
         return this.createTime;
     }
+
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
-    public int getICOrID() {
-        return this.ICOrID;
+
+    public String getType() {
+        return this.type;
     }
-    public void setICOrID(int ICOrID) {
-        this.ICOrID = ICOrID;
+
+    public void setType(String type) {
+        this.type = type;
     }
+
+
+
+
 
 
   }

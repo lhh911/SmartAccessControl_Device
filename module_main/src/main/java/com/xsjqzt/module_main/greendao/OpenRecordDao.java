@@ -28,10 +28,10 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         public final static Property Sn = new Property(1, String.class, "sn", false, "SN");
         public final static Property Status = new Property(2, int.class, "status", false, "STATUS");
         public final static Property Image = new Property(3, String.class, "image", false, "IMAGE");
-        public final static Property Image2 = new Property(4, String.class, "image2", false, "IMAGE2");
+        public final static Property Sid = new Property(4, int.class, "sid", false, "SID");
         public final static Property UploadStatus = new Property(5, boolean.class, "uploadStatus", false, "UPLOAD_STATUS");
         public final static Property CreateTime = new Property(6, long.class, "createTime", false, "CREATE_TIME");
-        public final static Property ICOrID = new Property(7, int.class, "ICOrID", false, "ICOR_ID");
+        public final static Property Type = new Property(7, String.class, "type", false, "TYPE");
     }
 
 
@@ -51,10 +51,10 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
                 "\"SN\" TEXT NOT NULL ," + // 1: sn
                 "\"STATUS\" INTEGER NOT NULL ," + // 2: status
                 "\"IMAGE\" TEXT," + // 3: image
-                "\"IMAGE2\" TEXT," + // 4: image2
+                "\"SID\" INTEGER NOT NULL ," + // 4: sid
                 "\"UPLOAD_STATUS\" INTEGER NOT NULL ," + // 5: uploadStatus
                 "\"CREATE_TIME\" INTEGER NOT NULL ," + // 6: createTime
-                "\"ICOR_ID\" INTEGER NOT NULL );"); // 7: ICOrID
+                "\"TYPE\" TEXT);"); // 7: type
     }
 
     /** Drops the underlying database table. */
@@ -78,14 +78,14 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         if (image != null) {
             stmt.bindString(4, image);
         }
- 
-        String image2 = entity.getImage2();
-        if (image2 != null) {
-            stmt.bindString(5, image2);
-        }
+        stmt.bindLong(5, entity.getSid());
         stmt.bindLong(6, entity.getUploadStatus() ? 1L: 0L);
         stmt.bindLong(7, entity.getCreateTime());
-        stmt.bindLong(8, entity.getICOrID());
+ 
+        String type = entity.getType();
+        if (type != null) {
+            stmt.bindString(8, type);
+        }
     }
 
     @Override
@@ -103,14 +103,14 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         if (image != null) {
             stmt.bindString(4, image);
         }
- 
-        String image2 = entity.getImage2();
-        if (image2 != null) {
-            stmt.bindString(5, image2);
-        }
+        stmt.bindLong(5, entity.getSid());
         stmt.bindLong(6, entity.getUploadStatus() ? 1L: 0L);
         stmt.bindLong(7, entity.getCreateTime());
-        stmt.bindLong(8, entity.getICOrID());
+ 
+        String type = entity.getType();
+        if (type != null) {
+            stmt.bindString(8, type);
+        }
     }
 
     @Override
@@ -125,10 +125,10 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
             cursor.getString(offset + 1), // sn
             cursor.getInt(offset + 2), // status
             cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // image
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // image2
+            cursor.getInt(offset + 4), // sid
             cursor.getShort(offset + 5) != 0, // uploadStatus
             cursor.getLong(offset + 6), // createTime
-            cursor.getInt(offset + 7) // ICOrID
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // type
         );
         return entity;
     }
@@ -139,10 +139,10 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         entity.setSn(cursor.getString(offset + 1));
         entity.setStatus(cursor.getInt(offset + 2));
         entity.setImage(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setImage2(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setSid(cursor.getInt(offset + 4));
         entity.setUploadStatus(cursor.getShort(offset + 5) != 0);
         entity.setCreateTime(cursor.getLong(offset + 6));
-        entity.setICOrID(cursor.getInt(offset + 7));
+        entity.setType(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
      }
     
     @Override

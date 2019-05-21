@@ -483,11 +483,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void downIDCardData() {
         IDCardDao idCardDao = DbManager.getInstance().getDaoSession().getIDCardDao();
         IDCard idcard = idCardDao.queryBuilder().limit(1).orderDesc(IDCardDao.Properties.Sid).unique();
-
+        int sid = 0;
         if (idcard != null) {
-            int sid = idcard.getSid();
-            presenter.loadIDCards(sid);
+            sid = idcard.getSid();
         }
+        presenter.loadIDCards(sid);
+
     }
 
 
@@ -706,21 +707,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //保存记录到数据库
-    public void savaICCardRecord(int type) {
+    public void savaICOrIDCardRecord(int type,int sid ,String sn) {
 //        int type = 1;
         OpenRecord record = new OpenRecord();
         record.setCreateTime(new Date().getTime());
         record.setImage("");
-        record.setImage2("");
-        record.setSn("");
+        record.setSn(sn);
         record.setStatus(1);
         record.setUploadStatus(false);
+        record.setSid(sid);
+//        record.setICOrID(type);
 
-        if (type == 1) {
-            record.setICOrID(1);
-        } else {
-            record.setICOrID(2);
-        }
         DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
 
     }
@@ -797,6 +794,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 Message msg = Message.obtain();
                 msg.what = 1;
                 msg.arg1 = 1;
+                msg.obj = str;
                 doorHandler.sendMessage(msg);
             }
         } else if (str.length() > 18) {
@@ -806,6 +804,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 Message msg = Message.obtain();
                 msg.what = 1;
                 msg.arg1 = 2;
+                msg.obj = str;
                 doorHandler.sendMessage(msg);
             }
         } else {
@@ -864,8 +863,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     case 1:
                         // open door;
                         int type = msg.arg1;
+                        String sn = (String) msg.obj;
                         Gpio.RelayOnOff(1);
-                        savaICCardRecord(type);
+                        uploadRecord(type,sn);
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
                         break;
@@ -883,7 +883,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
+    //上传不带图片的记录
+    private void uploadRecord(int type ,String sn){
+        if(type == 1){
+            presenter.uploadICCardRecord(type,sn);
+        }else{
+            presenter.uploadIDCardRecord(type,sn);
+        }
+    }
 
-
+    @Override
+    public void uploadCardSuccess(int type, int id,String sn) {
+        savaICOrIDCardRecord(type,id ,sn);
+    }
 }
 
