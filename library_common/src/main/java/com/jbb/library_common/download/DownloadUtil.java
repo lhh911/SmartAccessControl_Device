@@ -8,6 +8,7 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
 import com.jbb.library_common.utils.FileUtil;
+import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.MyX509TrustManager;
 import com.jbb.library_common.utils.log.LogUtil;
 
@@ -49,14 +50,14 @@ public class DownloadUtil {
     public static String getTargetFile(Context mContext, String url) {
 
         String fileName = FileUtil.getFileName(url);
-//        fileName = MD5Util.md5(fileName);
-//        if(!fileName.endsWith(".apk")){
-//            fileName = fileName + ".apk";
-//        }
-        if (TextUtils.isEmpty(fileName)) {
-            fileName = UUID.randomUUID().toString();
+        fileName = MD5Util.md5(fileName);
+        if(!fileName.endsWith(".apk")){
+            fileName = fileName + ".apk";
         }
-        String filePath = FileUtil.getAppDownLoadFilePath(mContext);
+//        if (TextUtils.isEmpty(fileName)) {
+//            fileName = UUID.randomUUID().toString();
+//        }
+        String filePath = FileUtil.getAppCachePath(mContext);
         if (TextUtils.isEmpty(filePath)) {
             return "";
         } else {

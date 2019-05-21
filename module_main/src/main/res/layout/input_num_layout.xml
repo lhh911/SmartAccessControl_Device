@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/input_num_layout"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:visibility="gone"
+    android:layout_alignParentBottom="true"
+    android:background="@color/color_99000000"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/input_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/textview14"
+            android:text="@string/main_str_roompsw_tip"
+            android:textColor="@color/common_white" />
+
+        <EditText
+            android:id="@+id/room_psw_et"
+            android:layout_width="190dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/corners3_white_bg"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:textColor="@color/common_color_333333"
+            android:inputType="number"
+            android:imeOptions="actionDone"
+            android:singleLine="true"/>
+
+        <TextView
+            android:id="@+id/bottom_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:drawableLeft="@mipmap/icon_gth"
+            android:drawablePadding="6dp"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/str_main_roompsw_conform"
+            android:textColor="@color/common_white"
+            android:textSize="9dp" />
+
+
+    </LinearLayout>
+
+
+    <com.xsjqzt.module_main.widget.ImgTextView
+        android:id="@+id/success_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:cimageSize="23dp"
+        app:cmarginTop="12dp"
+        app:csrc="@mipmap/icon_success"
+        app:ctext="开门成功"
+        app:ctextColor="@color/color_0ABA07"
+        app:ctextSize="13" />
+
+
+    <com.xsjqzt.module_main.widget.ImgTextView
+        android:id="@+id/error_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:cimageSize="23dp"
+        app:cmarginTop="12dp"
+        app:csrc="@mipmap/icon_error"
+        app:ctext="密码错误"
+        app:ctextColor="@color/color_FF0000"
+        app:ctextSize="13" />
+
+</LinearLayout>

@@ -3,7 +3,9 @@ package com.xsjqzt.module_main.ui;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,14 +23,18 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView,SystemIn
 
     private TextView deviceNameTv,ipAddressTv,qrNumTv;
     private ImageView voiceIv,qrCodeIv;
+    private Button confirmBtn;
 
     @Override
     public void init() {
+        confirmBtn = findViewById(R.id.confirm_bind_btn);
         deviceNameTv = findViewById(R.id.device_name_tv);
         ipAddressTv = findViewById(R.id.ip_address_tv);
         qrNumTv = findViewById(R.id.serial_number_tv);
         voiceIv = findViewById(R.id.voice_iv);
         qrCodeIv = findViewById(R.id.qr_code_iv);
+
+        confirmBtn.setOnClickListener(this);
 
         createQrCode();
 
@@ -37,6 +43,13 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView,SystemIn
 
     }
 
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.confirm_bind_btn){
+            finish();
+        }
+    }
 
     @Override
     public SystemInfoPresenter initPresenter() {
@@ -84,5 +97,15 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView,SystemIn
 
             deviceNameTv.setText(garden_name + region_name + building_name + name);
         }
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

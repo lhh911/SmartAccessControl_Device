@@ -5,28 +5,13 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="btn1Click"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="btn2Click"/>
-    </LinearLayout>
 
 
     <com.youth.banner.Banner
         android:id="@+id/banner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="40dp"
         android:visibility="gone"
         app:delay_time="5000"/>
 
@@ -38,52 +23,36 @@
         android:visibility="gone"/>
 
 
+    <include layout="@layout/input_num_layout"/>
+
+
+   <include layout="@layout/call_video_layout"/>
+
+
+
     <LinearLayout
-        android:id="@+id/call_layout"
         android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:visibility="invisible"
-        android:layout_alignParentBottom="true"
-        android:background="@color/color_99000000"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/call_num_tv"
-            android:layout_width="185dp"
-            android:layout_height="37dp"
-            android:gravity="center"
-            android:textSize="22dp"
-            android:textColor="@color/common_white"
-            android:text=""
-            android:inputType="number"
-            android:imeOptions="actionDone"
-            android:singleLine="true"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn1Click"
+            android:text="密码开门"/>
 
-            <TextView
-                android:id="@+id/call_status_tv"
-                style="@style/textview13"
-                android:layout_marginTop="20dp"
-                android:text=""
-                android:textColor="@color/common_white" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn2Click"
+            android:text="IC卡身份证注册"/>
 
 
-
-            <TextView
-                android:id="@+id/call_tip_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="25dp"
-                android:drawableLeft="@mipmap/icon_gth"
-                android:drawablePadding="6dp"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="按OK键呼叫"
-                android:textColor="@color/common_white"
-                android:textSize="9dp" />
-
-
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn3Click"
+            android:text="设备信息"/>
     </LinearLayout>
 
 </RelativeLayout>

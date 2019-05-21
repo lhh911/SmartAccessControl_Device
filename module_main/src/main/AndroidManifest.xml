@@ -76,8 +76,7 @@
             android:theme="@style/TransparentTheme" />
         <activity
             android:name=".ui.SystemInfoActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/TransparentTheme" />
+            android:screenOrientation="portrait" />
 
         <!-- 极光接收别名tag设置时的回调消息 -->
         <receiver

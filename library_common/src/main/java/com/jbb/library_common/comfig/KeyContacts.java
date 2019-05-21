@@ -16,11 +16,8 @@ import android.content.Intent;
 /**
  * 类: KeyContacts
  * 描述: 用于存放常用字符串
- * 作者: nn
- * 时间: 2014-7-22 下午4:56:26
  */
 public class KeyContacts {
-
 
 
     /**公共参数**/
@@ -30,8 +27,6 @@ public class KeyContacts {
     public static final String KEY_TITLE = "title";
     public static final String KEY_URL = "url";
 
-    public static final String COMM_NUM0 = "0";
-    public static final String API_KEY = "API_KEY";
 
 
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key

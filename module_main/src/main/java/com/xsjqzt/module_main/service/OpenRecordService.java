@@ -15,6 +15,7 @@ import com.jbb.library_common.retrofit.other.NetException;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.jbb.library_common.utils.DeviceUtil;
+import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.OpenRecordDao;
@@ -122,8 +123,11 @@ public class OpenRecordService extends IntentService {
                     //修改记录
                     record.setUploadStatus(true);
                     DbManager.getInstance().getDaoSession().getOpenRecordDao().update(record);
-                }
 
+                    //删除文件
+                    FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+                }
+                //单线程不断取出queue中的记录，上传并修改状态
                 uploadRecord();
                 return null;
             }

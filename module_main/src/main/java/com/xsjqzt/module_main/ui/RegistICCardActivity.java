@@ -1,10 +1,13 @@
 package com.xsjqzt.module_main.ui;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Gpio;
 import android.os.Handler;
 import android.os.Message;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -25,6 +28,7 @@ import com.xsjqzt.module_main.view.RegistICCardIView;
 import com.xsjqzt.module_main.widget.ImgTextView;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
@@ -36,10 +40,12 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
     private TextView numTv;
     private LinearLayout qrCodeLayout;
 
+    private Button homeBtn;
+
     private String qrCodeNum = "abc888888889999";
     private int mType = 0; // 0 : IC卡注册 ，1 身份证注册
 
-
+    private MyHandler doorHandler;
     //串口
     private SerialHelper serialHelper;
     private String sPort = "/dev/ttyS3";
@@ -57,6 +63,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
 
     @Override
     public void init() {
+        homeBtn = findViewById(R.id.home_btn);
         registTipTv = findViewById(R.id.regist_tip_tv);
         imgTextView = findViewById(R.id.tip_layout);
         numTv = findViewById(R.id.serial_number_tv);
@@ -73,6 +80,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
         }
 //        numTv.setText(qrCodeNum);
 //        createQrCode();
+        homeBtn.setOnClickListener(this);
 
         startMeasuing();
     }
@@ -117,16 +125,18 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
 
     }
 
-
-
-
-
-
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
+        if(v.getId() == R.id.home_btn){
+            finish();
+        }
+    }
 
     //初始化nfc串口
     public void startMeasuing() {
         LogUtil.w("SerialPort  startMeasuing");
-
+        doorHandler = new MyHandler(this);
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
@@ -200,7 +210,6 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
     @Override
     protected void onResume() {
         super.onResume();
-        SimpleVideoPlayerManager.instance().resumeNiceVideoPlayer();
 
         open();
     }
@@ -208,26 +217,35 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
     @Override
     protected void onPause() {
         super.onPause();
-        SimpleVideoPlayerManager.instance().suspendNiceVideoPlayer();
-
         stopMeasuing();
     }
 
-    private Handler doorHandler = new Handler() {
+    public class MyHandler extends Handler {
+        private WeakReference<Activity> weakReference;
 
+        public MyHandler(Activity activity){
+            weakReference = new WeakReference<>(activity);
+        }
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-
-                case 3:
-                    String str = (String) msg.obj;
-
-                    parseData(str);
-                    break;
+            if(weakReference.get() != null) {
+                switch (msg.what) {
+                    case 3:
+                        String str = (String) msg.obj;
+                        parseData(str);
+                        break;
+                }
             }
         }
     };
 
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
 }

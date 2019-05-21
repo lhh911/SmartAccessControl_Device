@@ -61,7 +61,7 @@ public class TakePhotoUtil extends Dialog implements View.OnClickListener {
     public TakePhotoUtil(Context context, int themeResId) {
         super(context, themeResId);
         init(context);
-        tempFile = new File(FileUtil.getAppDownLoadFilePath(context), "headPhoto.jpg");
+        tempFile = new File(FileUtil.getAppPicturePath(context), "headPhoto.jpg");
     }
 
     public void setTempFile(File tempFile) {

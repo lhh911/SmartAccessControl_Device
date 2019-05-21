@@ -9,14 +9,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Gpio;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,6 +34,7 @@ import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
+import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
@@ -52,6 +57,7 @@ import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.receive.AppStartReceiver;
 import com.xsjqzt.module_main.view.MainView;
+import com.xsjqzt.module_main.widget.ImgTextView;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -70,6 +76,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -84,9 +92,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private Banner banner;
     private SimpleVideoPlayer videoPlayer;
 
-    //视频呼叫
-    private LinearLayout callLayout;
+    //视频呼叫layout
+    private LinearLayout callVideoLayout;
     private TextView callNumTv, callStatusTv, callTipTv;
+
+    //房号密码号输入layout
+    private LinearLayout roomNumLayout;//房号输入布局
+    private EditText roomNumEt;
+    private LinearLayout inputNumLayout;
+    private ImgTextView successLayout, errorLayout;
+    private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
+
 
     private int showType = 1;// 1 图片广告，2 视频广告
     private MyBroadcastReceiver mReceiver;
@@ -100,6 +116,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private SerialHelper serialHelper;
     private String sPort = "/dev/ttyS3";
     private int iBaudRate = 115200;
+
+    private int mType ;// 0 默认什么都没显示， 1 密码开锁布局显示，2 视频电话显示
+    private MyHandler doorHandler;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -125,10 +144,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void init() {
-        callLayout = findViewById(R.id.call_layout);
+        //视频通话
+        callVideoLayout = findViewById(R.id.call_video_layout);
         callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
         callTipTv = findViewById(R.id.call_tip_tv);
+
+        //房号输入
+        roomNumLayout = findViewById(R.id.input_num_layout);
+        roomNumEt = findViewById(R.id.room_psw_et);
+        TextView bottomTv = findViewById(R.id.bottom_tv);
+        inputNumLayout = findViewById(R.id.input_layout);
+        successLayout = findViewById(R.id.success_layout);
+        errorLayout = findViewById(R.id.error_layout);
+
+        Drawable drawable = getResources().getDrawable(R.mipmap.icon_gth);
+        drawable.setBounds(0, 0, CommUtil.dp2px(13), CommUtil.dp2px(13));
+        bottomTv.setCompoundDrawables(drawable, null, null, null);
+
 
         banner = findViewById(R.id.banner);
         videoPlayer = findViewById(R.id.videoplayer);
@@ -178,7 +211,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         videoPlayer.setVisibility(View.VISIBLE);
 //        AssetFileDescriptor assetFileDescriptor = getAssets().openFd("ad_movice.mp4");
 //        Uri mUri = Uri.parse("android.resource://" + getPackageName() + "/"+ R.raw.ad_movice);
-        String path = FileUtil.getAppDownLoadFilePath(this);
+        String path = FileUtil.getAppVideoPath(this);
         path = path + File.separator + "123.mp4";
 
         videoPlayer.setUp(path, null);//设置地址
@@ -187,12 +220,39 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     public void btn1Click(View view) {
-        goTo(RoomNumPswUnlockActivity.class);
+        roomNumLayout.setVisibility(View.VISIBLE);
+        showAnim(roomNumLayout);
+        mType = 1;
     }
 
     public void btn2Click(View view) {
         goTo(RegistICCardActivity.class);
     }
+
+    public void btn3Click(View view) {
+        goTo(SystemInfoActivity.class);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            if(mType == 1){
+                roomNumLayout.setVisibility(View.GONE);
+                dismissAnim(roomNumLayout);
+                mType = 0;
+            }else if(mType == 2){
+                callVideoLayout.setVisibility(View.GONE);
+                dismissAnim(callVideoLayout);
+                mType = 0;
+            }
+            return true;
+        }
+
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+
 
     @Override
     public void loadKeySuccess(String key) {
@@ -239,6 +299,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void error(Exception e) {
 
     }
+
 
 
     public class GlideImageLoader extends ImageLoader {
@@ -399,6 +460,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             public void run() {
                 //设置音量
+                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND);
 
                 //通知服务器设置成功
                 presenter.setVoice(volume);
@@ -440,13 +503,80 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
+    /**
+     *  检查输入的是房号还是开门密码
+     * @param inputNum  4位或6位位房号 ， 5位为开门密码
+     */
+    private void checkInput(String inputNum){
+        if(inputNum.length() == 5){//密码开门
+            roomNumLayout.setVisibility(View.VISIBLE);
+            callVideoLayout.setVisibility(View.GONE);
+            //请求接口验证密码
+
+            showSucOrError = 2;
+            setShowSucOrError();
+
+        }else if(inputNum.length() == 4 || inputNum.length() == 6){
+            roomNumLayout.setVisibility(View.GONE);
+            callVideoLayout.setVisibility(View.VISIBLE);
+            mType = 2;
+
+            //根据房号获取userid，再拨视频通话
+            callVideo(inputNum);
+        }else{
+            ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
+        }
+    }
+
+
+    //密码开门显示结果
+    private void setShowSucOrError() {
+        if (showSucOrError == 1) {//开门成功
+            inputNumLayout.setVisibility(View.GONE);
+            successLayout.setVisibility(View.VISIBLE);
+            errorLayout.setVisibility(View.GONE);
+        } else {
+            inputNumLayout.setVisibility(View.GONE);
+            successLayout.setVisibility(View.GONE);
+            errorLayout.setVisibility(View.VISIBLE);
+        }
+
+        starTime();
+    }
+
+    //密码开门时错误情况下3秒后退回输入状态
+    private void starTime() {
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        inputNumLayout.setVisibility(View.VISIBLE);
+                        successLayout.setVisibility(View.GONE);
+                        errorLayout.setVisibility(View.GONE);
+                        if (showSucOrError == 1) {
+                            hideRoomNumLayout();
+                        } else {
+                            mType = 1;
+                        }
+                    }
+                });
+            }
+        };
+
+        Timer timer = new Timer();
+        timer.schedule(task, 3000);
+    }
+
+
     //拨打视频通话
-    private void callVideo() {
-        String roomNum = callNumTv.getText().toString().trim();
+    private void callVideo(String userid) {
+//        String roomNum = callNumTv.getText().toString().trim();
         //通过房号获取到环信的账号名（接口）
 
         try {//单参数
-            EMClient.getInstance().callManager().makeVideoCall("test001","");
+            EMClient.getInstance().callManager().makeVideoCall(userid,"");
         } catch (EMServiceNotReadyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -545,26 +675,39 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void endCall() {
         try {
             EMClient.getInstance().callManager().endCall();
+            hideCallVideoLayout();
         } catch (EMNoActiveCallException e) {
             e.printStackTrace();
         }
     }
 
 
-    public void showAnim() {
+    public void showAnim(View view) {
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.callview_in);
-        callLayout.startAnimation(animation);
+        roomNumLayout.startAnimation(animation);
     }
 
-    public void dismissAnim() {
+    public void dismissAnim(View view) {
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.callview_out);
-        callLayout.startAnimation(animation);
+        view.startAnimation(animation);
+    }
+
+    private void hideCallVideoLayout(){
+        callVideoLayout.setVisibility(View.GONE);
+        dismissAnim(callVideoLayout);
+        mType = 0;
+    }
+
+    private void hideRoomNumLayout(){
+        roomNumLayout.setVisibility(View.GONE);
+        dismissAnim(roomNumLayout);
+        mType = 0;
     }
 
 
     //保存记录到数据库
-    public void savaICCardRecord() {
-        int type = 1;
+    public void savaICCardRecord(int type) {
+//        int type = 1;
         OpenRecord record = new OpenRecord();
         record.setCreateTime(new Date().getTime());
         record.setImage("");
@@ -583,7 +726,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    //设置定时闹钟任务，23：59：59执行，上传开门记录
+    //设置定时闹钟任务，2：30：00 执行，上传开门记录
     private void setAlarm() {
         Intent intent = new Intent(this, AlarmReceiver.class);
 //        Intent intent = new Intent();
@@ -591,13 +734,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         pi = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Calendar ca = Calendar.getInstance();
-        ca.set(Calendar.HOUR_OF_DAY, 23);
-        ca.set(Calendar.MINUTE, 59);
-        ca.set(Calendar.SECOND, 59);
+        ca.set(Calendar.HOUR_OF_DAY, 2);
+        ca.set(Calendar.MINUTE, 30);
+        ca.set(Calendar.SECOND, 00);
 
         long interval = 24 * 60 * 60 * 1000;
         am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, new Date().getTime(), 10000, pi);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
 
     }
 
@@ -605,6 +748,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //初始化nfc串口
     public void startMeasuing() {
         LogUtil.w("SerialPort  startMeasuing");
+        doorHandler = new MyHandler(this);
 
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
@@ -650,13 +794,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             ICCard iccard = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder()
                     .where(ICCardDao.Properties.Sn.eq(str)).unique();
             if (iccard != null) {
-                doorHandler.sendEmptyMessage(1);
+                Message msg = Message.obtain();
+                msg.what = 1;
+                msg.arg1 = 1;
+                doorHandler.sendMessage(msg);
             }
         } else if (str.length() > 18) {
             IDCard idcard = DbManager.getInstance().getDaoSession().getIDCardDao().queryBuilder()
                     .where(ICCardDao.Properties.Sn.eq(str)).unique();
             if (idcard != null) {
-                doorHandler.sendEmptyMessage(1);
+                Message msg = Message.obtain();
+                msg.what = 1;
+                msg.arg1 = 2;
+                doorHandler.sendMessage(msg);
             }
         } else {
             ToastUtil.showCustomToast("无法识别的卡，请用ic卡或身份证开门");
@@ -700,31 +850,40 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         stopMeasuing();
     }
 
-    private Handler doorHandler = new Handler() {
+    public class MyHandler extends Handler {
+        private WeakReference<Activity> weakReference;
+
+        public MyHandler(Activity activity){
+            weakReference = new WeakReference<>(activity);
+        }
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1:
-//
-                    // open door;
-                    Gpio.RelayOnOff(1);
-                    savaICCardRecord();
-                    doorHandler.removeMessages(2);
-                    doorHandler.sendEmptyMessageDelayed(2, 5000);
-                    break;
-                case 2:
-                    // close door;
-                    Gpio.RelayOnOff(0);
-                    break;
-                case 3:
-                    String str = (String) msg.obj;
+            if(weakReference.get() != null) {
+                switch (msg.what) {
+                    case 1:
+                        // open door;
+                        int type = msg.arg1;
+                        Gpio.RelayOnOff(1);
+                        savaICCardRecord(type);
+                        doorHandler.removeMessages(2);
+                        doorHandler.sendEmptyMessageDelayed(2, 5000);
+                        break;
+                    case 2:
+                        // close door;
+                        Gpio.RelayOnOff(0);
+                        break;
+                    case 3:
+                        String str = (String) msg.obj;
 
-                    parseData(str);
-                    break;
+                        parseData(str);
+                        break;
+                }
             }
         }
-    };
+    }
+
+
 
 }
 

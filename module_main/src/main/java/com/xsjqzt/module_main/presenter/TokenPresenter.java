@@ -5,6 +5,7 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
+import com.jbb.library_common.utils.ToastUtil;
 import com.xsjqzt.module_main.model.KeyResBean;
 import com.xsjqzt.module_main.model.RefreshTokenResBean;
 import com.xsjqzt.module_main.model.TokenResBean;
@@ -51,7 +52,6 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
 
     public void loadKey(String sn) {
 
-
         SubscribeUtils.subscribe2(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadKey(sn), KeyResBean.class, new NetListeren<KeyResBean>() {
             @Override
@@ -60,6 +60,7 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
                     if(bean.getCode() == 0)
                         mView.loadKeySuccess(bean.getData());
                     else{
+                        ToastUtil.showCustomToast(bean.getMessage());
                         mView.loadKeyFail();
                     }
                 }

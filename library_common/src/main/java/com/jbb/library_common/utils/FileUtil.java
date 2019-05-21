@@ -11,11 +11,16 @@ import com.jbb.library_common.comfig.AppConfig;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -62,37 +67,8 @@ public class FileUtil {
         return false;
     }
 
-    /**
-     * 方法: getTargetPicFile <p>
-     * 描述: TODO <p>
-     */
-    public static File getTargetPicFile(Context mContext, String url) {
-
-        String fileName = getFileName(url);
-        if (TextUtils.isEmpty(fileName)) {
-            fileName = UUID.randomUUID().toString() + ".jpg";
-        }
-        if (FileUtil.isExternalStorageCanUse()) {
-            File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator + AppConfig.SDCARD_DIR_PATH);
-            if (!tempPath.exists()) {
-                tempPath.mkdirs();
-            }
-            return new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + AppConfig.SDCARD_DIR_PATH + File.separator + fileName);
-        }
-        return null;
-    }
 
 
-    public static File getCacheFile() {
-        if (FileUtil.isExternalStorageCanUse()) {
-            File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator + AppConfig.SDCARD_DIR_PATH);
-            if (!tempPath.exists()) {
-                tempPath.mkdirs();
-            }
-            return new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + AppConfig.SDCARD_DIR_PATH );
-        }
-        return null;
-    }
 
     /**
      * 方法: getFileName <p>
@@ -107,74 +83,28 @@ public class FileUtil {
         return filename;
     }
 
-    /**
-     * 方法: isFileExit <p>
-     * 描述: 判断下载的url对应的文件是否存在 <p>
-     */
-    public static boolean isFileExit(String url, String desDir) {
-        String fileName = getFileName(url);
-        String filePath = desDir + File.separator + fileName;
-        File file = new File(filePath);
-        return file.exists();
-    }
 
 
-    /**
-     * 删除应用data下的cache缓存文件
-     *
-     * @param context
-     */
-    public static void cleanInternalCache(Context context) {
-        deleteFilesByDirectory(context.getCacheDir());
-    }
 
-    /**
-     * 删除SD卡cache缓存文件
-     *
-     * @param context
-     */
-    public static void cleanExternalCache(Context context) {
-        if (Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
-            deleteFilesByDirectory(context.getExternalCacheDir());
-        }
-    }
 
     /**
      * 删除某个文件夹下的文件
      *
      * @param dir
      */
-    public static boolean deleteFilesByDirectory(File dir) {
+    public static void deleteFilesByDirectory(File dir) {
         if (dir != null) {
             if (dir.isDirectory()) {
                 String[] children = dir.list();
                 for (int i = 0; i < children.length; i++) {
-                    boolean success = deleteFilesByDirectory(new File(dir, children[i]));
-                    if (!success) {
-                        return false;
-                    }
+                    deleteFilesByDirectory(new File(dir, children[i]));
                 }
             } else {
                 dir.delete();
             }
         }
-        return true;
     }
 
-    /**
-     * 得到APP的cache
-     *
-     * @param context
-     * @return
-     */
-    public static String getAppCache(Context context) {
-        if (Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
-            return getFormatSize(getFolderSize(context.getCacheDir()) + getFolderSize(context.getExternalCacheDir()));
-        }
-        return getFormatSize(getFolderSize(context.getCacheDir()));
-    }
 
     /**
      * 得到cache size大小
@@ -252,19 +182,46 @@ public class FileUtil {
                 + "TB";
     }
 
+
+
+
+
+
     /**
-     * app 下载文件目录
+     *  app缓存文件目录
      *
      * @param context
      * @return
      */
-    public static String getAppDownLoadFilePath(Context context) {
+    public static String getAppCachePath(Context context) {
         if (FileUtil.isExternalStorageCanUse()) {
             File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +AppConfig.SDCARD_DIR_PATH);
             if (!tempPath.exists()) {
                 tempPath.mkdirs();
             }
 
+            return tempPath.getPath();
+        } else if (FileUtil.isRootStorageCanUse()) {
+            return context.getCacheDir().getAbsolutePath();
+        } else {
+            //磁盘空间不足
+            return "";
+        }
+    }
+
+    /**
+     * app 图片路径文件目录
+     *
+     * @param context
+     * @return
+     */
+    public static String getAppPicturePath(Context context) {
+        if (FileUtil.isExternalStorageCanUse()) {
+            File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+                    + AppConfig.SDCARD_DIR_PATH +File.separator + AppConfig.SDCARD_DIR_PICTURE);
+            if (!tempPath.exists()) {
+                tempPath.mkdirs();
+            }
 
             return tempPath.getPath();
         } else if (FileUtil.isRootStorageCanUse()) {
@@ -276,67 +233,68 @@ public class FileUtil {
     }
 
 
-
-
     /**
-     * app 应用目录 避免被直接删除
-     * 1.皮肤包
-     * @return
+     * app 开门路径的存储路径,按当前日期建文件夹
+     *
      */
-    public static String getAppDirFilePath() {
-        return BaseApplication.getContext().getCacheDir().getAbsolutePath();
-    }
+    public static String getAppRecordPicturePath(Context context) {
+        if (FileUtil.isExternalStorageCanUse()) {
+            File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+                    + AppConfig.SDCARD_DIR_PATH + File.separator + AppConfig.SDCARD_DIR_PICTURE + File.separator + AppConfig.SDCARD_DIR_RECORDPICTURE );
+            if (!tempPath.exists()) {
+                tempPath.mkdirs();
+            }
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String fileName = format.format(Calendar.getInstance().getTimeInMillis());
 
+            tempPath = new File(tempPath ,fileName);
+            if(!tempPath.exists())
+                tempPath.mkdir();
 
-    /**
-     * 描述:删除文件
-     */
-    public static void deleteFile(List<String> fileList) {
-        Observable.fromArray(fileList).subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe(new Consumer<Object>() {
-                    @Override
-                    public void accept(Object s) throws Exception {
-
-                    }
-
-                });
-    }
-
-
-
-
-
-
-
-
-
-    /**
-     * @return
-     */
-
-    public static String getCachePath() {
-
-        String directoryPath = "";
-
-        //判断SD卡是否可用
-
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-
-            directoryPath = Environment.getExternalStorageDirectory().getPath();
+            return tempPath.getPath();
+        } else if (FileUtil.isRootStorageCanUse()) {
+            return context.getCacheDir().getAbsolutePath();
         } else {
-            //没内存卡就存机身内存
-            directoryPath = BaseApplication.getContext().getFilesDir().getPath();
+            //磁盘空间不足
+            return "";
         }
+    }
 
-        File file = new File(directoryPath,AppConfig.SDCARD_DIR_PATH + "/" + AppConfig.SDCARD_DIR_PATH );
-
-        if (!file.exists()) {//判断文件目录是否存在
-            file.mkdirs();
+    //创建开门记录时抓拍的图片文件路径
+    private static File createRecordFile(Context context){
+        String path = FileUtil.getAppRecordPicturePath(context);
+        File file = new File(path,(new Date().getTime() + ".jpg"));
+        try {
+            if (!file.exists())
+                file.createNewFile();
+        }catch(Exception e){
+            e.printStackTrace();
         }
+        return file;
+    }
 
-        return directoryPath;
 
+
+    /**
+     * app 视频路径文件目录
+     *
+     * @param context
+     * @return
+     */
+    public static String getAppVideoPath(Context context) {
+        if (FileUtil.isExternalStorageCanUse()) {
+            File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator +AppConfig.SDCARD_DIR_PATH +File.separator + AppConfig.SDCARD_DIR_VIDEO);
+            if (!tempPath.exists()) {
+                tempPath.mkdirs();
+            }
+
+            return tempPath.getPath();
+        } else if (FileUtil.isRootStorageCanUse()) {
+            return context.getCacheDir().getAbsolutePath();
+        } else {
+            //磁盘空间不足
+            return "";
+        }
     }
 
 
