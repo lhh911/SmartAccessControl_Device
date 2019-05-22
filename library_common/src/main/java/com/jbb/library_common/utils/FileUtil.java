@@ -233,8 +233,10 @@ public class FileUtil {
     }
 
 
+
+
     /**
-     * app 开门路径的存储路径,按当前日期建文件夹
+     * app 开门记录的存储路径,按当前日期建文件夹
      *
      */
     public static String getAppRecordPicturePath(Context context) {

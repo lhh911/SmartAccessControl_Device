@@ -17,6 +17,7 @@ public class IDCard {
     private int sid;//服务器表中id
 
     @NotNull
+    @Unique
     private String sn;//身份证号码
 
 

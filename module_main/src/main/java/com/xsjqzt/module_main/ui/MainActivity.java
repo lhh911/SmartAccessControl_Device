@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -24,7 +25,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.hyphenate.chat.EMCallStateChangeListener;
@@ -34,6 +34,7 @@ import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
+import com.jbb.library_common.utils.BitmapUtil;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
@@ -50,12 +51,10 @@ import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
-import com.xsjqzt.module_main.model.ICCardResBean;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
-import com.xsjqzt.module_main.receive.AppStartReceiver;
 import com.xsjqzt.module_main.view.MainView;
 import com.xsjqzt.module_main.widget.ImgTextView;
 import com.yanzhenjie.permission.Action;
@@ -67,10 +66,9 @@ import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
-import org.greenrobot.greendao.query.Query;
+import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -79,10 +77,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
+import cn.jpush.android.api.JPushInterface;
 import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
 
@@ -169,10 +164,33 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         registReceiver();
 
-        presenter.entranceDetail();
+//        presenter.entranceDetail();
 
         setAlarm();
         startMeasuing();
+
+        test();
+    }
+
+    private void test() {
+        List<ICCard> list = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().list();
+        StringBuffer sf = new StringBuffer();
+        sf.append("数据库的IC卡").append("\n");
+        for(ICCard card: list){
+            sf.append(card.getUser_name()+ "，"+card.getSn()+ "，"+ card.getSid()).append("\n");
+        }
+
+        new AlertDialog.Builder(this).setMessage(sf.toString()).show();
+
+        int type = 1;
+        String sn = "ic20190501";
+        if(type == 1){
+            presenter.uploadICCardRecord(type,sn);
+        }else{
+            presenter.uploadIDCardRecord(type,sn);
+        }
+
+
     }
 
     @Override
@@ -220,9 +238,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     public void btn1Click(View view) {
-        roomNumLayout.setVisibility(View.VISIBLE);
-        showAnim(roomNumLayout);
-        mType = 1;
+        showRoomNumOpen();
     }
 
     public void btn2Click(View view) {
@@ -268,22 +284,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-    @Override
-    public void entranceDetailSuccess(EntranceDetailsResBean bean) {
-        //当前进出口的详细信息
-    }
 
-//    @Override
-//    public void loadIDCardsSuccess(ICCardResBean bean) {
-//        //获取身份证数据，存储到数据库，供离线开门验证
-//
-//    }
-//
-//    @Override
-//    public void loadICCardsSuccess(ICCardResBean bean) {
-//        //获取IC卡数据，存储到数据库，供离线开门验证
-//
-//    }
+
 
     @Override
     public void showLoading() {
@@ -425,32 +427,41 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
-    private void handleNotity(Bundle bundle) {
+    private void handleNotity(final Bundle bundle) {
 
-        Observable.just(bundle)
-                .flatMap(new Function<Bundle, ObservableSource<?>>() {
-                    @Override
-                    public ObservableSource<?> apply(Bundle bundle) throws Exception {
-                        int type = bundle.getInt("type");
-                        if (type == 1) {//更新身份证
-                            downIDCardData();
-                        } else if (type == 2) {//更新ic卡信息
-                            downICCardData();
-                        } else if (type == 3) {
-                            setVoice(bundle.getInt("volume"));
-                        }
-                        return null;
-                    }
-                })
-                .subscribeOn(Schedulers.io())
-                .subscribe();
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
+//        Observable.fromArray(bundle)
+//                .flatMap(new Function<Bundle, ObservableSource<String>>() {
+//                    @Override
+//                    public ObservableSource<String> apply(Bundle bundle) throws Exception {
 //
-//            }
-//        }).start();
+//                        return Observable.just("");
+//                    }
+//                })
+//                .subscribeOn(Schedulers.io())
+//                .subscribe();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);
+                    JSONObject json = new JSONObject(extras);
+                    int type = json.optInt("type");
+
+                    if (type == 1) {//更新身份证
+                        downIDCardData();
+                    } else if (type == 2) {//更新ic卡信息
+                        downICCardData();
+                    } else if (type == 3) {//设置音量
+                        setVoice(json.getInt("volume"));
+                    }else if(type == 4){//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
+
+                    }
+                }catch (Exception e){
+
+                }
+            }
+        }).start();
 
 
     }
@@ -473,11 +484,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void downICCardData() {
         ICCardDao icCardDao = DbManager.getInstance().getDaoSession().getICCardDao();
         ICCard iccard = icCardDao.queryBuilder().limit(1).orderDesc(ICCardDao.Properties.Sid).unique();
-
+        int sid = 0;
         if (iccard != null) {
-            int sid = iccard.getSid();
-            presenter.loadICCards(sid);
+            sid = iccard.getSid();
         }
+        presenter.loadICCards(sid);
     }
 
     private void downIDCardData() {
@@ -693,12 +704,21 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         view.startAnimation(animation);
     }
 
+    //显示密码开门ui
+    private void showRoomNumOpen() {
+        roomNumLayout.setVisibility(View.VISIBLE);
+        roomNumEt.setText("");
+        showAnim(roomNumLayout);
+        mType = 1;
+    }
+
+    //掩藏视频通话ui
     private void hideCallVideoLayout(){
         callVideoLayout.setVisibility(View.GONE);
         dismissAnim(callVideoLayout);
         mType = 0;
     }
-
+    //掩藏密码开门ui
     private void hideRoomNumLayout(){
         roomNumLayout.setVisibility(View.GONE);
         dismissAnim(roomNumLayout);
@@ -709,13 +729,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //保存记录到数据库
     public void savaICOrIDCardRecord(int type,int sid ,String sn) {
 //        int type = 1;
+
+        String picturePath = FileUtil.getAppRecordPicturePath(this);
+        File file = new File(picturePath, new Date().getTime()+".jpg");
+        Utils.saveBitmap(file.getPath(),BitmapUtil.getViewBitmap(banner));
+
         OpenRecord record = new OpenRecord();
         record.setCreateTime(new Date().getTime());
-        record.setImage("");
+        record.setImage(file.getPath());
         record.setSn(sn);
         record.setStatus(1);
         record.setUploadStatus(false);
         record.setSid(sid);
+//        record.setType("默认");
 //        record.setICOrID(type);
 
         DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
@@ -737,7 +763,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         long interval = 24 * 60 * 60 * 1000;
         am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, new Date().getTime(), interval, pi);
 
     }
 
@@ -820,12 +846,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     public void open() {
-        try {
-            if (serialHelper != null)
-                serialHelper.open();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            if (serialHelper != null)
+//                serialHelper.open();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
 

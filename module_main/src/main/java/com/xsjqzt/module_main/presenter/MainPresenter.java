@@ -151,14 +151,14 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         });
     }
 
-    public void uploadIDCardRecord(final int type,final String sn) {
+    public void uploadIDCardRecord(final int type, final String sn) {
 
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .uploadIDCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn , 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+                .uploadIDCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
-                if(mView != null)
-                    mView.uploadCardSuccess(type, bean.getId(), sn);
+                if (mView != null)
+                    mView.uploadCardSuccess(type, bean.getData().getId(), sn);
             }
 
             @Override
@@ -177,39 +177,14 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
 
-    public void uploadICCardRecord(final int type,final String sn) {
+    public void uploadICCardRecord(final int type, final String sn) {
 
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadICCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
-                if(mView != null)
-                    mView.uploadCardSuccess(type, bean.getId(), sn);
-            }
-
-            @Override
-            public void onStart() {
-            }
-
-            @Override
-            public void onEnd() {
-            }
-
-            @Override
-            public void onError(Exception e) {
-                super.onError(e);
-            }
-        });
-    }
-
-    //获取当前进出口信息
-    public void entranceDetail() {
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .entranceDetail(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceDetailsResBean.class, new NetListeren<EntranceDetailsResBean>() {
-            @Override
-            public void onSuccess(EntranceDetailsResBean bean) {
                 if (mView != null)
-                    mView.entranceDetailSuccess(bean);
+                    mView.uploadCardSuccess(type, bean.getData().getId(), sn);
             }
 
             @Override
@@ -226,36 +201,59 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             }
         });
     }
+
+//    //获取当前进出口信息
+//    public void entranceDetail() {
+//        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+//                .entranceDetail(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceDetailsResBean.class, new NetListeren<EntranceDetailsResBean>() {
+//            @Override
+//            public void onSuccess(EntranceDetailsResBean bean) {
+//                if (mView != null)
+//                    mView.entranceDetailSuccess(bean);
+//            }
+//
+//            @Override
+//            public void onStart() {
+//            }
+//
+//            @Override
+//            public void onEnd() {
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                super.onError(e);
+//            }
+//        });
+//    }
 
 
     //获取身份证数据
-    public void loadIDCards(int sid ) {
+    public void loadIDCards(int sid) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid ), IDCardResBean.class, new NetListeren<IDCardResBean>() {
+                .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid), IDCardResBean.class, new NetListeren<IDCardResBean>() {
             @Override
-            public void onSuccess(IDCardResBean bean) {
+            public void onSuccess(final IDCardResBean info) {
 //                if (mView != null)
 //                    mView.loadIDCardsSuccess(bean);
                 //插入数据库
-                Observable.just(bean.getData())
-                        .flatMap(new Function<List<CardResBean>, ObservableSource<?>>() {
-                            @Override
-                            public ObservableSource<?> apply(List<CardResBean> idCards) throws Exception {
-                                List<IDCard> lists = new ArrayList<>();
-                                for(CardResBean bean : idCards){
-                                    IDCard card = new IDCard();
-                                    card.setSid(bean.getId());
-                                    card.setSn(bean.getSn());
-                                    card.setUser_id(bean.getUser_id());
-                                    card.setUser_name(bean.getUser_name());
-                                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<CardResBean> data = info.getData();
+                        List<IDCard> lists = new ArrayList<>();
+                        for (CardResBean bean : data) {
+                            IDCard card = new IDCard();
+                            card.setSid(bean.getId());
+                            card.setSn(bean.getSn());
+                            card.setUser_id(bean.getUser_id());
+                            card.setUser_name(bean.getUser_name());
+                            lists.add(card);
+                        }
 
-                                DbManager.getInstance().getDaoSession().getIDCardDao().insertInTx(lists);
-                                return null;
-                            }
-                        })
-                        .subscribeOn(Schedulers.io())
-                        .subscribe();
+                        DbManager.getInstance().getDaoSession().getIDCardDao().insertOrReplaceInTx(lists);
+                    }
+                }).start();
 
             }
 
@@ -279,27 +277,25 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid), ICCardResBean.class, new NetListeren<ICCardResBean>() {
             @Override
-            public void onSuccess(ICCardResBean bean) {
+            public void onSuccess(final ICCardResBean info) {
 
-                Observable.just(bean.getData())
-                        .flatMap(new Function<List<CardResBean>, ObservableSource<?>>() {
-                            @Override
-                            public ObservableSource<?> apply(List<CardResBean> icCards) throws Exception {
-                                List<ICCard> lists = new ArrayList<>();
-                                for(CardResBean bean : icCards){
-                                    ICCard card = new ICCard();
-                                    card.setSid(bean.getId());
-                                    card.setSn(bean.getSn());
-                                    card.setUser_id(bean.getUser_id());
-                                    card.setUser_name(bean.getUser_name());
-                                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<CardResBean> data = info.getData();
+                        List<ICCard> lists = new ArrayList<>();
+                        for (CardResBean bean : data) {
+                            ICCard card = new ICCard();
+                            card.setSid(bean.getId());
+                            card.setSn(bean.getSn());
+                            card.setUser_id(bean.getUser_id());
+                            card.setUser_name(bean.getUser_name());
+                            lists.add(card);
+                        }
 
-                                DbManager.getInstance().getDaoSession().getICCardDao().insertInTx(lists);
-                                return null;
-                            }
-                        })
-                        .subscribeOn(Schedulers.io())
-                        .subscribe();
+                        DbManager.getInstance().getDaoSession().getICCardDao().insertOrReplaceInTx(lists);
+                    }
+                }).start();
 
             }
 

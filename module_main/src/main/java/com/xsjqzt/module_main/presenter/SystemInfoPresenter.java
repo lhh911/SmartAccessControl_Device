@@ -13,7 +13,7 @@ import com.xsjqzt.module_main.view.SystemInfoIView;
 public class SystemInfoPresenter extends BaseMvpPresenter<SystemInfoIView> {
     public void loadDevice() {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadDevice(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceInfoResBean.class, new NetListeren<EntranceInfoResBean>() {
+                .entranceDetail(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceInfoResBean.class, new NetListeren<EntranceInfoResBean>() {
             @Override
             public void onSuccess(EntranceInfoResBean bean) {
                 if (mView != null) {

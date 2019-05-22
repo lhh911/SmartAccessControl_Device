@@ -28,9 +28,11 @@ import org.greenrobot.greendao.query.WhereCondition;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -46,7 +48,7 @@ import okhttp3.ResponseBody;
 
 public class OpenRecordService extends IntentService {
 
-    PriorityQueue<OpenRecord> queue = new PriorityQueue<>();
+    LinkedList<OpenRecord> queue = new LinkedList<>();
 
     public OpenRecordService() {
         super("OpenRecordService");
@@ -74,7 +76,7 @@ public class OpenRecordService extends IntentService {
 
         List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
                 .queryBuilder()
-                .where(OpenRecordDao.Properties.UploadStatus.eq(true))
+                .where(OpenRecordDao.Properties.UploadStatus.eq(false))
                 .list();
 
         if (!records.isEmpty()) {
@@ -89,47 +91,80 @@ public class OpenRecordService extends IntentService {
 
     private void uploadRecord() {
         OpenRecord record = queue.poll();
+        LogUtil.w("OpenRecordService = " + record.getImage() + "，" + record.getSid());
 
         if (record != null) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("id", record.getSn());
-            params.put("type", record.getType());
+            Map<String, RequestBody> params = new HashMap<>();
+            params.put("id", convertToRequestBody(record.getSid() + ""));
+//            params.put("type", convertToRequestBody(record.getType()));
+
             File file = new File(record.getImage());
             RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
             MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
 
 
             subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                        .uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
+                    .uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
 
         }
     }
 
 
     public void subscribe(Observable<ResponseBody> observable, final OpenRecord record) {
+        observable.flatMap(new Function<ResponseBody, Observable<BaseBean>>() {
 
-        observable.flatMap(new Function<ResponseBody, ObservableSource<?>>() {
             @Override
-            public ObservableSource<?> apply(ResponseBody response) throws Exception {
+            public Observable apply(ResponseBody response) throws Exception {
                 BaseBean baseBean = null;
                 String result = response.string();
                 baseBean = JSON.parseObject(result, BaseBean.class);
-
-                if(baseBean.getCode() == 0){
-                    //修改记录
-                    record.setUploadStatus(true);
-                    DbManager.getInstance().getDaoSession().getOpenRecordDao().update(record);
-
-                    //删除文件
-                    FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+                if (baseBean == null) {
+                    return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
                 }
-                //单线程不断取出queue中的记录，上传并修改状态
-                uploadRecord();
-                return null;
+
+                if (baseBean.getCode() == 0) {
+                    return Observable.just(baseBean);
+                } else {
+                    if (baseBean.getCode() == 2001 || baseBean.getCode() == 2002) {//2001 token 过期， 2002 Refresh Token 过期
+                        Intent it = new Intent(KeyContacts.ACTION_API_KEY_INVALID);
+                        it.putExtra("code", baseBean.getCode());
+                        BaseApplication.getContext().sendBroadcast(it);
+                    }
+                    return Observable.error(new NetException(baseBean.getCode(), baseBean.getMessage()));
+                }
             }
         })
-        .subscribe();
+        .subscribe(new Observer<BaseBean>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+            }
+
+            @Override
+            public void onNext(BaseBean o) {
+                record.setUploadStatus(true);
+                DbManager.getInstance().getDaoSession().getOpenRecordDao().update(record);
+                //删除文件
+                FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+                uploadRecord();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                uploadRecord();
+            }
+
+            @Override
+            public void onComplete() {
+            }
+        });
+
+
     }
 
+
+    private RequestBody convertToRequestBody(String param){
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), param);
+        return requestBody;
+    }
 
 }

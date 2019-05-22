@@ -9,7 +9,7 @@ public interface MainView extends BaseMvpView {
 
     void getTokenSuccess();
 
-    void entranceDetailSuccess(EntranceDetailsResBean bean);
+//    void entranceDetailSuccess(EntranceDetailsResBean bean);
 
     void uploadCardSuccess(int type, int id ,String sn);
 

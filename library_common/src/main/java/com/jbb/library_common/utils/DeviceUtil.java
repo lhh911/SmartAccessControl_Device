@@ -228,7 +228,8 @@ public class DeviceUtil {
      * @return
      */
     public static String getMacAddress(Context context) {
-        String mac = "02:00:00:00:00:00";
+        String mac = "";
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             mac = getMacDefault(context);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {

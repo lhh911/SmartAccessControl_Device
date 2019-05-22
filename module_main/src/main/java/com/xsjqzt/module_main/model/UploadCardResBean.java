@@ -3,17 +3,34 @@ package com.xsjqzt.module_main.model;
 import com.jbb.library_common.retrofit.other.BaseBean;
 
 public class UploadCardResBean extends BaseBean {
+
     /**
-     * id : 14
+     * data : {"id":37}
      */
 
-    private int id;
+    private DataBean data;
 
-    public int getId() {
-        return id;
+    public DataBean getData() {
+        return data;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setData(DataBean data) {
+        this.data = data;
+    }
+
+    public static class DataBean {
+        /**
+         * id : 37
+         */
+
+        private int id;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
 }

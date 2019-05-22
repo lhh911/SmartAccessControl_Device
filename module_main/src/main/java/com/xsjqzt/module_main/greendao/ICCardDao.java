@@ -46,7 +46,7 @@ public class ICCardDao extends AbstractDao<ICCard, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"ICCARD\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"SID\" INTEGER NOT NULL ," + // 1: sid
-                "\"SN\" TEXT NOT NULL ," + // 2: sn
+                "\"SN\" TEXT NOT NULL UNIQUE ," + // 2: sn
                 "\"USER_NAME\" TEXT," + // 3: user_name
                 "\"USER_ID\" INTEGER NOT NULL );"); // 4: user_id
     }

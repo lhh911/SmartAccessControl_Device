@@ -23,8 +23,8 @@ import java.util.TimerTask;
 
 public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> implements TokenView {
 
-//    private String sn1 = "12345678900001";//序列号1
-//    private String sn2 = "12345678900002";//序列号2
+
+    String macAddress = "20:47:DA:F3:E9:AE";//测试写死的mac地址，绑定3出入口
 
     @Override
     public void init() {
@@ -44,7 +44,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void initMac() {
         //获取加密key
-        String macAddress = DeviceUtil.getMacAddress(this);
+//        DeviceUtil.getMacAddress(this);
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
@@ -56,7 +56,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         UserInfoInstance.getInstance().setSn2(str2);
         UserInfoInstance.getInstance().setMacAddress(macAddress);
 
-        LogUtil.w("macAddress = " + macAddress);
+        LogUtil.w("序列号 macAddress = " + macAddress);
         LogUtil.w("序列号 sn1 = " + str1);
         LogUtil.w("序列号 sn1 = " + str2);
     }
@@ -64,24 +64,9 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
 
     private void bindDevice(){
-        //获取加密key
-//        String macAddress = DeviceUtil.getMacAddress(this);
-//        if(TextUtils.isEmpty(macAddress)) {
-//            ToastUtil.showCustomToast("mac地址为空");
-//            return;
-//        }
-//        String str1 = macAddress.substring(0,macAddress.length() /2);
-//        String str2 = macAddress.substring(macAddress.length() /2 , macAddress.length());
-////        sn1 =  MD5Util.md5(str1);
-////        sn2 =  MD5Util.md5(str2);
-//        sn1 =  str1;
-//        sn2 =  str2;
-//        LogUtil.w("macAddress = " + macAddress);
-//        LogUtil.w("序列号 sn1 = " + sn1);
-//        LogUtil.w("序列号 sn1 = " + sn2);
-//
-//        int eid = 2;
-//        presenter.bindDevice(sn1,sn2,eid);
+
+        int eid = 3;
+        presenter.bindDevice(UserInfoInstance.getInstance().getSn1(),UserInfoInstance.getInstance().getSn2() ,eid);
     }
 
     //获取加密key
