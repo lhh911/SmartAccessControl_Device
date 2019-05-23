@@ -7,6 +7,7 @@ public class AppConfig {
     public static final String SDCARD_DIR_PATH = "SmartAccessControl_Device";
     public static final String SDCARD_DIR_PICTURE = "picture";
     public static final String SDCARD_DIR_RECORDPICTURE = "recordPicture";
+    public static final String SDCARD_DIR_FACEPICTURE = "facePicture";
     public static final String SDCARD_DIR_VIDEO = "video";
 
     public static final int LOG_OFF = -100;

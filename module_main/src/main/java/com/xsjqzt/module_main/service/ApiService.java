@@ -9,6 +9,7 @@ import okhttp3.ResponseBody;
 import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.HEAD;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
@@ -16,6 +17,8 @@ import retrofit2.http.POST;
 import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Query;
+import retrofit2.http.Streaming;
+import retrofit2.http.Url;
 
 public interface ApiService {
 
@@ -75,7 +78,18 @@ public interface ApiService {
     @POST("entrance/data/iccards")
     Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("start_id") int sid );
 
+    //获取人脸注册数据
+    @FormUrlEncoded
+    @POST("entrance/data/user_faces")
+    Observable<ResponseBody> loadFaceImage(@Header("Authorization") String token ,@Field("status")int status);
 
+    //下载人脸图片
+    @Streaming
+    @GET
+    Observable<ResponseBody> downFaceImage(@Header("Authorization") String token , @Url String image);
 
-
+    //上传人脸照片状态
+    @FormUrlEncoded
+    @POST("entrance/data/user_faces")
+    Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status")int status,@Field("id")int id);
 }

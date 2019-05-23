@@ -1,5 +1,9 @@
 package com.xsjqzt.module_main.presenter;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+
 import com.jbb.library_common.basemvp.BaseMvpPresenter;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
@@ -10,6 +14,7 @@ import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.model.CardResBean;
+import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.ICCardResBean;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.IDCardResBean;
@@ -20,6 +25,7 @@ import com.xsjqzt.module_main.model.UploadCardResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
+import com.xsjqzt.module_main.service.FaceImageDownService;
 import com.xsjqzt.module_main.view.MainView;
 
 import java.io.File;
@@ -314,4 +320,37 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         });
     }
 
+    //拉取业主端注册的人脸图片，并注册到阅面
+    public void loadFaceImage(final Context context, int sid) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .loadFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), 1), FaceImageResBean.class, new NetListeren<FaceImageResBean>() {
+            @Override
+            public void onSuccess(final FaceImageResBean info) {
+                if(mView != null){
+                    ArrayList<FaceImageResBean.DataBean> data = info.getData();
+
+                    Intent it = new Intent(context,FaceImageDownService.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelableArrayList("data",data);
+                    it.putExtras(bundle);
+                    context.startService(it);
+                }
+
+
+            }
+
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onEnd() {
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+            }
+        });
+    }
 }

@@ -46,8 +46,10 @@ import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
+import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
@@ -455,7 +457,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     } else if (type == 3) {//设置音量
                         setVoice(json.getInt("volume"));
                     }else if(type == 4){//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
-
+                        downFaceImage();
                     }
                 }catch (Exception e){
 
@@ -464,6 +466,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }).start();
 
 
+    }
+
+    private void downFaceImage() {
+//        FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
+//        FaceImage faceImage = faceImageDao.queryBuilder().limit(1).orderDesc(ICCardDao.Properties.Sid).unique();
+//        int sid = 0;
+//        if (faceImage != null) {
+//            sid = faceImage.getSid();
+//        }
+        presenter.loadFaceImage(this,1);
     }
 
     private void setVoice(final int volume) {

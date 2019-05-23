@@ -262,6 +262,36 @@ public class FileUtil {
         }
     }
 
+
+    /**
+     * app 开门记录的存储路径,按当前日期建文件夹
+     *
+     */
+    public static String getAppFacePicturePath(Context context) {
+        if (FileUtil.isExternalStorageCanUse()) {
+            File tempPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+                    + AppConfig.SDCARD_DIR_PATH + File.separator + AppConfig.SDCARD_DIR_PICTURE + File.separator + AppConfig.SDCARD_DIR_FACEPICTURE);
+            if (!tempPath.exists()) {
+                tempPath.mkdirs();
+            }
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String fileName = format.format(Calendar.getInstance().getTimeInMillis());
+
+            tempPath = new File(tempPath ,fileName);
+            if(!tempPath.exists())
+                tempPath.mkdir();
+
+            return tempPath.getPath();
+        } else if (FileUtil.isRootStorageCanUse()) {
+            return context.getCacheDir().getAbsolutePath();
+        } else {
+            //磁盘空间不足
+            return "";
+        }
+    }
+
+
+
     //创建开门记录时抓拍的图片文件路径
     private static File createRecordFile(Context context){
         String path = FileUtil.getAppRecordPicturePath(context);
