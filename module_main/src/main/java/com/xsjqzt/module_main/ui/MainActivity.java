@@ -71,6 +71,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -798,7 +799,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                parseData(str);
             }
         };
-//        open();
     }
 
 
@@ -858,12 +858,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     public void open() {
-//        try {
-//            if (serialHelper != null)
-//                serialHelper.open();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            if (serialHelper != null)
+                serialHelper.open();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
