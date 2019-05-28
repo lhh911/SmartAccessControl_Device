@@ -45,6 +45,7 @@ import com.jbb.library_common.utils.log.LogUtil;
 import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.activity.FaceDemoActivity;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
@@ -250,6 +251,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void btn3Click(View view) {
         goTo(SystemInfoActivity.class);
+    }
+
+    public void btn4Click(View view) {
+        goTo(FaceDemoActivity.class);
     }
 
     @Override

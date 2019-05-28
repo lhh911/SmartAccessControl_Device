@@ -26,6 +26,7 @@ android {
                 JPUSH_CHANNEL: "developer-default", //暂时填写默认值即可.
         ]
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -53,7 +54,7 @@ dependencies {
 
     implementation project(':library_common')
     implementation project(':module_main')
+
     //解决方法数超过64k问题
     implementation 'com.android.support:multidex:1.0.3'
-
 }

@@ -39,6 +39,7 @@
             android:name=".ui.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"></activity>
+        <!---->
         <activity
             android:name=".ui.SplashActivity"
             android:screenOrientation="portrait"
@@ -54,6 +55,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
 
         <!-- 7.0 以上手机权限  一个应用提供自身文件给其它应用使用时解决方案 -->
         <provider
@@ -153,6 +155,36 @@
                 <action android:name="com.xsjqzt.app.timer_upload_openrecord"/>
             </intent-filter>
         </service>
+
+
+
+
+        <activity
+            android:name=".activity.FaceExamplesActivity"
+             />
+        <activity
+            android:name=".activity.MainActivity"
+            >
+        </activity>
+        <activity
+            android:name=".activity.register.IDCardRecognitionAcitvity"
+             />
+        <activity
+            android:name=".activity.FaceDemoActivity">
+        </activity>
+
+        <activity
+            android:name=".activity.register.RegistFromBatchPicActivity"
+             />
+        <activity
+            android:name=".activity.register.RegistFromCamAcitvity"
+             />
+        <activity
+            android:name=".activity.register.RegistFromPicActivity"
+             />
+        <activity
+            android:name=".activity.FaceRegistActivity"
+             />
     </application>
 
 </manifest>

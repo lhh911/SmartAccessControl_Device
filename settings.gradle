@@ -1,1 +1,1 @@
-include ':module_app', ':library_common', ':module_main', ':nicevideoplayer', ':easeui', ':serialport'
+include ':module_app', ':library_common', ':module_main', ':nicevideoplayer', ':easeui', ':serialport',"cameraview"

@@ -54,6 +54,12 @@
             android:layout_height="wrap_content"
             android:onClick="btn3Click"
             android:text="设备信息"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn4Click"
+            android:text="人脸识别开门"/>
     </LinearLayout>
 
 </RelativeLayout>

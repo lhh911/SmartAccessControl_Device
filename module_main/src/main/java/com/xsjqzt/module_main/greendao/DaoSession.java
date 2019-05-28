@@ -8,13 +8,13 @@ import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.identityscope.IdentityScopeType;
 import org.greenrobot.greendao.internal.DaoConfig;
 
-import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
+import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.greendao.entity.FaceImage;
 
-import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
+import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.OpenRecordDao;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 
@@ -27,13 +27,13 @@ import com.xsjqzt.module_main.greendao.FaceImageDao;
  */
 public class DaoSession extends AbstractDaoSession {
 
-    private final DaoConfig iCCardDaoConfig;
     private final DaoConfig iDCardDaoConfig;
+    private final DaoConfig iCCardDaoConfig;
     private final DaoConfig openRecordDaoConfig;
     private final DaoConfig faceImageDaoConfig;
 
-    private final ICCardDao iCCardDao;
     private final IDCardDao iDCardDao;
+    private final ICCardDao iCCardDao;
     private final OpenRecordDao openRecordDao;
     private final FaceImageDao faceImageDao;
 
@@ -41,11 +41,11 @@ public class DaoSession extends AbstractDaoSession {
             daoConfigMap) {
         super(db);
 
-        iCCardDaoConfig = daoConfigMap.get(ICCardDao.class).clone();
-        iCCardDaoConfig.initIdentityScope(type);
-
         iDCardDaoConfig = daoConfigMap.get(IDCardDao.class).clone();
         iDCardDaoConfig.initIdentityScope(type);
+
+        iCCardDaoConfig = daoConfigMap.get(ICCardDao.class).clone();
+        iCCardDaoConfig.initIdentityScope(type);
 
         openRecordDaoConfig = daoConfigMap.get(OpenRecordDao.class).clone();
         openRecordDaoConfig.initIdentityScope(type);
@@ -53,30 +53,30 @@ public class DaoSession extends AbstractDaoSession {
         faceImageDaoConfig = daoConfigMap.get(FaceImageDao.class).clone();
         faceImageDaoConfig.initIdentityScope(type);
 
-        iCCardDao = new ICCardDao(iCCardDaoConfig, this);
         iDCardDao = new IDCardDao(iDCardDaoConfig, this);
+        iCCardDao = new ICCardDao(iCCardDaoConfig, this);
         openRecordDao = new OpenRecordDao(openRecordDaoConfig, this);
         faceImageDao = new FaceImageDao(faceImageDaoConfig, this);
 
-        registerDao(ICCard.class, iCCardDao);
         registerDao(IDCard.class, iDCardDao);
+        registerDao(ICCard.class, iCCardDao);
         registerDao(OpenRecord.class, openRecordDao);
         registerDao(FaceImage.class, faceImageDao);
     }
     
     public void clear() {
-        iCCardDaoConfig.clearIdentityScope();
         iDCardDaoConfig.clearIdentityScope();
+        iCCardDaoConfig.clearIdentityScope();
         openRecordDaoConfig.clearIdentityScope();
         faceImageDaoConfig.clearIdentityScope();
     }
 
-    public ICCardDao getICCardDao() {
-        return iCCardDao;
-    }
-
     public IDCardDao getIDCardDao() {
         return iDCardDao;
+    }
+
+    public ICCardDao getICCardDao() {
+        return iCCardDao;
     }
 
     public OpenRecordDao getOpenRecordDao() {

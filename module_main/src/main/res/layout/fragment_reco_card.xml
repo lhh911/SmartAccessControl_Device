@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/bt_fr_select"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:text="选择证件照"></Button>
+
+    <ImageView
+        android:id="@+id/bt_fr_card"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@id/bt_fr_select"
+        android:layout_alignParentLeft="true"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:src="@drawable/face_card"></ImageView>
+
+    <Button
+        android:id="@+id/bt_fr_select2"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:text="选择对比照"></Button>
+
+    <ImageView
+        android:id="@+id/bt_fr_card2"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_below="@id/bt_fr_select2"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="-2dp"
+        android:layout_marginRight="0dp"
+        android:scaleType="centerInside"
+        android:src="@drawable/face_card2"></ImageView>
+
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bt_fr_card"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="20dp"
+        android:gravity="right"
+        android:text="相似度:"
+        android:textSize="20dp"></TextView>
+
+    <TextView
+        android:id="@+id/tv_fr_result"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bt_fr_card"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        android:textSize="20dp"></TextView>
+
+</RelativeLayout>

@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">智能门禁</string>
+    <string name="camera_permission_confirmation">相机权限</string>
+    <string name="face_liveness">活体识别</string>
+    <string name="face_track">人脸追踪</string>
+    <string name="face_regist">人脸注册</string>
+    <string name="face_reco">人脸识别</string>
+    <string name="aspect_ratio">配置</string>
+    <string name="confirm">确定</string>
+    <string name="add_face">添加</string>
+    <string name="tips1">请正脸面对</string>
+    <string name="tips2">请侧脸20°</string>
+    <string name="tips3">请请抬头20°</string>
+    <string name="tips4">请低头20°</string>
+    <string name="face_demo">demo演示</string>
+    <string name="face_examples">demo实例</string>
 </resources>

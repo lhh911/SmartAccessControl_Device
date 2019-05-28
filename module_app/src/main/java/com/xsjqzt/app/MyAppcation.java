@@ -16,7 +16,6 @@ import cn.jpush.android.api.JPushInterface;
 public class MyAppcation extends BaseApplication {
 
 
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -31,10 +30,7 @@ public class MyAppcation extends BaseApplication {
         ARouter.init(this);
 
         JPushInterface.init(getApplicationContext());
-
-
     }
-
 
 
     //解决方法数超过64k问题

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/bt_fc_conversion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="选择图片"></Button>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="(原始)float:"
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_float"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f2f2f2"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="to string:"
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_2string"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="string to float[]:"
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_string2f"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="to char[]:"
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_2char"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="char[] to float[] "
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_char2f"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f2f2f2"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="to byte[]:"
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_2byte"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="byte[] to float[] :"
+                android:textColor="@color/colorAccent"></TextView>
+
+            <TextView
+                android:id="@+id/tv_fc_byte2f"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#f2f2f2"
+                android:maxHeight="80dp"
+                android:scrollbars="horizontal"></TextView>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
