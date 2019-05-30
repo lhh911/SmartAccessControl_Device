@@ -33,21 +33,21 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         ActivityManager.getInstance().setAppStatus(KeyContacts.STATUS_NORMAL);
         EMHelper.getInstance().init(getApplicationContext());
 
-        /*
+
         UserInfoSerializUtil.initUserInstance();
         if(!UserInfoInstance.getInstance().hasLogin()){
             loadKey();
         }else{
             next(1500);
         }
-        */
-        next(1500);
+
+//        next(1500);
     }
 
 
     private void initMac() {
         //获取加密key
-//        DeviceUtil.getMacAddress(this);
+//        macAddress = DeviceUtil.getEthernetMac();
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;

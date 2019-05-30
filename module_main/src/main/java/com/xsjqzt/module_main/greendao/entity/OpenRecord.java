@@ -11,7 +11,7 @@ public class OpenRecord {
     private Long id;
 
     @NotNull
-    private String sn;
+    private String sn;//卡号或这 临时密码
 
     private int status;//（0 失败[不开门]，1 成功[开门]）
 
@@ -23,11 +23,11 @@ public class OpenRecord {
 
     private long createTime;//记录生成时间
 
-    private String type ; //照片来源 ，"": 默认拍照， "IPC": IPC抓拍拍照
+    private int type ; // 1 ic卡, 2 身份证，3 密码开门， 4 人脸开门
 
-    @Generated(hash = 1586289459)
+    @Generated(hash = 378785446)
     public OpenRecord(Long id, @NotNull String sn, int status, String image,
-            int sid, boolean uploadStatus, long createTime, String type) {
+            int sid, boolean uploadStatus, long createTime, int type) {
         this.id = id;
         this.sn = sn;
         this.status = status;
@@ -98,14 +98,13 @@ public class OpenRecord {
         this.createTime = createTime;
     }
 
-    public String getType() {
+    public int getType() {
         return this.type;
     }
 
-    public void setType(String type) {
+    public void setType(int type) {
         this.type = type;
     }
-
 
 
 
