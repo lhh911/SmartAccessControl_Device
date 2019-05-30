@@ -31,7 +31,7 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         public final static Property Sid = new Property(4, int.class, "sid", false, "SID");
         public final static Property UploadStatus = new Property(5, boolean.class, "uploadStatus", false, "UPLOAD_STATUS");
         public final static Property CreateTime = new Property(6, long.class, "createTime", false, "CREATE_TIME");
-        public final static Property Type = new Property(7, String.class, "type", false, "TYPE");
+        public final static Property Type = new Property(7, int.class, "type", false, "TYPE");
     }
 
 
@@ -54,7 +54,7 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
                 "\"SID\" INTEGER NOT NULL ," + // 4: sid
                 "\"UPLOAD_STATUS\" INTEGER NOT NULL ," + // 5: uploadStatus
                 "\"CREATE_TIME\" INTEGER NOT NULL ," + // 6: createTime
-                "\"TYPE\" TEXT);"); // 7: type
+                "\"TYPE\" INTEGER NOT NULL );"); // 7: type
     }
 
     /** Drops the underlying database table. */
@@ -81,11 +81,7 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         stmt.bindLong(5, entity.getSid());
         stmt.bindLong(6, entity.getUploadStatus() ? 1L: 0L);
         stmt.bindLong(7, entity.getCreateTime());
- 
-        String type = entity.getType();
-        if (type != null) {
-            stmt.bindString(8, type);
-        }
+        stmt.bindLong(8, entity.getType());
     }
 
     @Override
@@ -106,11 +102,7 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         stmt.bindLong(5, entity.getSid());
         stmt.bindLong(6, entity.getUploadStatus() ? 1L: 0L);
         stmt.bindLong(7, entity.getCreateTime());
- 
-        String type = entity.getType();
-        if (type != null) {
-            stmt.bindString(8, type);
-        }
+        stmt.bindLong(8, entity.getType());
     }
 
     @Override
@@ -128,7 +120,7 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
             cursor.getInt(offset + 4), // sid
             cursor.getShort(offset + 5) != 0, // uploadStatus
             cursor.getLong(offset + 6), // createTime
-            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7) // type
+            cursor.getInt(offset + 7) // type
         );
         return entity;
     }
@@ -142,7 +134,7 @@ public class OpenRecordDao extends AbstractDao<OpenRecord, Long> {
         entity.setSid(cursor.getInt(offset + 4));
         entity.setUploadStatus(cursor.getShort(offset + 5) != 0);
         entity.setCreateTime(cursor.getLong(offset + 6));
-        entity.setType(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setType(cursor.getInt(offset + 7));
      }
     
     @Override

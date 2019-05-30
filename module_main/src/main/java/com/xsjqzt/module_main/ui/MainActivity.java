@@ -879,7 +879,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      */
 
     public void savaICOrIDCardRecord(int type,int sid ,String sn) {
-//        int type = 1;
 
         String picturePath = FileUtil.getAppRecordPicturePath(this);
         File file = new File(picturePath, new Date().getTime()+".jpg");
@@ -892,8 +891,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         record.setStatus(1);
         record.setUploadStatus(false);
         record.setSid(sid);
-//        record.setType("默认");
-//        record.setICOrID(type);
+        record.setType(type);
 
         DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
 
