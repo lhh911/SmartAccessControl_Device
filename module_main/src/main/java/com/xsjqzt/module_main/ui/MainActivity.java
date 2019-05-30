@@ -17,6 +17,7 @@ import android.os.Gpio;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -97,8 +98,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
     private EditText roomNumEt;
-    private LinearLayout inputNumLayout;
-    private ImgTextView successLayout, errorLayout;
+    private LinearLayout inputNumLayout;//输入框父布局
+    private ImgTextView successLayout, errorLayout;//成功和识别布局
     private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
 
 
@@ -117,6 +118,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private int mType ;// 0 默认什么都没显示， 1 密码开锁布局显示，2 视频电话显示
     private MyHandler doorHandler;
+
+    private boolean inputLayoutShow;//底部输入布局是否显示出来，显示出来后10秒无操作自动掩藏
+    private long startShowTime;//记录底部布局显示的开始时间，10秒无操作自动掩藏
+    private Timer inputLayoutShowTime;//10秒内检查操作定时器
+    private TimerTask inputLayoutShowTask;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -172,7 +178,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         setAlarm();
         startMeasuing();
 
-        test();
+//        test();
     }
 
     private void test() {
@@ -256,20 +262,65 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if(mType == 1){
-                roomNumLayout.setVisibility(View.GONE);
-                dismissAnim(roomNumLayout);
-                mType = 0;
+                hideRoomNumLayout();
             }else if(mType == 2){
-                callVideoLayout.setVisibility(View.GONE);
-                dismissAnim(callVideoLayout);
-                mType = 0;
+                hideCallVideoLayout();
             }
+            return true;
+        }else if(keyCode == KeyEvent.KEYCODE_0){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"0");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_1){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"1");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_2){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"2");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_3){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"3");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_4){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"4");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_5){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"5");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_6){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"6");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_7){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"7");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_8){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"8");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_9){
+            String oldNum = roomNumEt.getText().toString().trim();
+            setInputData(oldNum,"9");
+            showRoomNumOpen();
+        }else if(keyCode == KeyEvent.KEYCODE_DEL){//删除
+            deleteInputData();
+        }else if(keyCode == KeyEvent.KEYCODE_ENTER){
+            String inputNum = roomNumEt.getText().toString().trim();
+            if(TextUtils.isEmpty(inputNum))
+                return true;
+
+            checkInput(inputNum);
             return true;
         }
 
-
         return super.onKeyDown(keyCode, event);
     }
+
 
 
 
@@ -534,17 +585,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      */
     private void checkInput(String inputNum){
         if(inputNum.length() == 5){//密码开门
-            roomNumLayout.setVisibility(View.VISIBLE);
-            callVideoLayout.setVisibility(View.GONE);
-            //请求接口验证密码
+            //请求接口验证密码是否正确，是就开门
 
             showSucOrError = 2;
             setShowSucOrError();
 
         }else if(inputNum.length() == 4 || inputNum.length() == 6){
-            roomNumLayout.setVisibility(View.GONE);
-            callVideoLayout.setVisibility(View.VISIBLE);
-            mType = 2;
+            showCallVideoLayout();
 
             //根据房号获取userid，再拨视频通话
             callVideo(inputNum);
@@ -560,6 +607,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             inputNumLayout.setVisibility(View.GONE);
             successLayout.setVisibility(View.VISIBLE);
             errorLayout.setVisibility(View.GONE);
+
+            Message msg = Message.obtain();
+            msg.what = 1;
+            msg.arg1 = 3;
+            doorHandler.sendMessage(msg);
         } else {
             inputNumLayout.setVisibility(View.GONE);
             successLayout.setVisibility(View.GONE);
@@ -577,14 +629,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        inputNumLayout.setVisibility(View.VISIBLE);
-                        successLayout.setVisibility(View.GONE);
-                        errorLayout.setVisibility(View.GONE);
                         if (showSucOrError == 1) {
                             hideRoomNumLayout();
                         } else {
                             mType = 1;
                         }
+                        inputNumLayout.setVisibility(View.VISIBLE);
+                        successLayout.setVisibility(View.GONE);
+                        errorLayout.setVisibility(View.GONE);
                     }
                 });
             }
@@ -596,12 +648,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //拨打视频通话
-    private void callVideo(String userid) {
-//        String roomNum = callNumTv.getText().toString().trim();
+    private void callVideo(String inputNum) {
+
         //通过房号获取到环信的账号名（接口）
 
+        callNumTv.setText(inputNum);
         try {//单参数
-            EMClient.getInstance().callManager().makeVideoCall(userid,"");
+            EMClient.getInstance().callManager().makeVideoCall(inputNum,"");
         } catch (EMServiceNotReadyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -717,21 +770,100 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         view.startAnimation(animation);
     }
 
-    //显示密码开门ui
-    private void showRoomNumOpen() {
-        roomNumLayout.setVisibility(View.VISIBLE);
-        roomNumEt.setText("");
-        showAnim(roomNumLayout);
-        mType = 1;
+    private void deleteInputData() {
+        String num = roomNumEt.getText().toString().trim();
+        if(num.length() > 0){
+            String str = num.substring(0,num.length()-1);
+            roomNumEt.setText(str);
+        }
     }
 
-    //掩藏视频通话ui
+    private void setInputData(String oldNum, String inputNum) {
+        roomNumEt.setText(oldNum+inputNum);
+    }
+
+    //显示密码输入框开门ui
+    private void showRoomNumOpen() {
+
+        startShowTime = System.currentTimeMillis();
+        startShowLayoutTime();
+        if(!inputLayoutShow) {
+            roomNumLayout.setVisibility(View.VISIBLE);
+            inputNumLayout.setVisibility(View.VISIBLE);
+            successLayout.setVisibility(View.GONE);
+            errorLayout.setVisibility(View.GONE);
+            roomNumEt.setText("");
+            showAnim(roomNumLayout);
+
+            callVideoLayout.setVisibility(View.GONE);
+            mType = 1;
+            inputLayoutShow = true;
+        }
+
+    }
+
+    //开启任务检查布局在十秒内是否有其他操作，没有就掩藏底部输入布局
+    private void startShowLayoutTime() {
+        if(inputLayoutShowTime == null)
+            inputLayoutShowTime = new Timer();
+
+        if(inputLayoutShowTask == null) {
+            inputLayoutShowTask = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            long endTime = System.currentTimeMillis();
+                            if (endTime - startShowTime >= 10000) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        hideRoomInputLayout();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            };
+        }
+        inputLayoutShowTime.cancel();
+        inputLayoutShowTime.schedule(inputLayoutShowTask, 10000);
+
+    }
+
+    //掩藏所有底部输入布局
+    private void hideRoomInputLayout(){
+        roomNumLayout.setVisibility(View.GONE);
+        inputNumLayout.setVisibility(View.VISIBLE);
+        successLayout.setVisibility(View.GONE);
+        errorLayout.setVisibility(View.GONE);
+        roomNumEt.setText("");
+
+        callVideoLayout.setVisibility(View.GONE);
+        callStatusTv.setText("呼叫中");
+        callNumTv.setText("");
+
+        inputLayoutShow = false;
+        mType = 0;
+    }
+
+    //单独显示视频通话ui
+    private void showCallVideoLayout(){
+        roomNumLayout.setVisibility(View.GONE);
+        callVideoLayout.setVisibility(View.VISIBLE);
+        showAnim(callVideoLayout);
+        mType = 0;
+    }
+
+    //单独掩藏视频通话ui
     private void hideCallVideoLayout(){
         callVideoLayout.setVisibility(View.GONE);
         dismissAnim(callVideoLayout);
         mType = 0;
     }
-    //掩藏密码开门ui
+    //单独掩藏密码开门ui
     private void hideRoomNumLayout(){
         roomNumLayout.setVisibility(View.GONE);
         dismissAnim(roomNumLayout);
@@ -739,7 +871,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    //保存记录到数据库
+    /**
+     *  保存记录到数据库
+     * @param type 1 IC卡开门，2 身份证开门，3 密码开门
+     * @param sn  ic卡，身份证开门时的卡号
+     * @param sid 服务器上对应记录的id，上传记录图片时用
+     */
+
     public void savaICOrIDCardRecord(int type,int sid ,String sn) {
 //        int type = 1;
 
@@ -776,7 +914,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         long interval = 24 * 60 * 60 * 1000;
         am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, new Date().getTime(), interval, pi);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
 
     }
 
@@ -921,11 +1059,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
-    //上传不带图片的记录
+    /**
+     *   上传不带图片的记录
+     * @param type 1 IC卡开门，2 身份证开门，3 密码开门
+     * @param sn  ic卡，身份证开门时的卡号
+     */
+
     private void uploadRecord(int type ,String sn){
-        if(type == 1){
+        if(type == 1){//IC卡开门
             presenter.uploadICCardRecord(type,sn);
-        }else{
+        }else if(type == 2){//身份证开门
+            presenter.uploadIDCardRecord(type,sn);
+        }else if(type == 3){//密码开门
             presenter.uploadIDCardRecord(type,sn);
         }
     }

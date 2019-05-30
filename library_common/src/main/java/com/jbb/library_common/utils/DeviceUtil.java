@@ -319,4 +319,27 @@ public class DeviceUtil {
     }
 
 
+    /**
+     * 获取以太网地址
+     */
+
+    public static String getEthernetMac() {
+        BufferedReader reader = null;
+        String ethernetMac ;
+        try {
+            reader = new BufferedReader(new FileReader("sys/class/net/eth0/address"));
+            ethernetMac = reader.readLine();
+
+            return ethernetMac;
+        } catch (Exception e) {
+        } finally {
+            try {
+                if (reader != null)
+                    reader.close();
+            } catch (IOException e) {
+            }
+        }
+        return "";
+    }
+
 }

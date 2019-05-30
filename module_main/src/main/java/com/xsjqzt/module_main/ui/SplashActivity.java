@@ -44,7 +44,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void initMac() {
         //获取加密key
-//        DeviceUtil.getMacAddress(this);
+//      macAddress = DeviceUtil.getEthernetMac();
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
