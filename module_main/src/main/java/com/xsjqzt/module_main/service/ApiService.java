@@ -76,6 +76,10 @@ public interface ApiService {
     @POST("entrance/data/iccards")
     Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("update_time") int update_time);
 
+    //获取临时开门密码数据
+    @POST("entrance/data/invite_codes")
+    Observable<ResponseBody> downOpenCode(@Header("Authorization") String token, @Query("update_time") int update_time);
+
     //获取人脸注册数据
     @FormUrlEncoded
     @POST("entrance/data/user_faces")
@@ -90,4 +94,6 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("entrance/data/user_faces")
     Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status") int status, @Field("user_id") int user_id, @Field("code") String code);
+
+
 }
