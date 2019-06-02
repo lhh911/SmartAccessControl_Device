@@ -24,6 +24,7 @@ public class DaoMaster extends AbstractDaoMaster {
         FaceImageDao.createTable(db, ifNotExists);
         ICCardDao.createTable(db, ifNotExists);
         IDCardDao.createTable(db, ifNotExists);
+        OpenCodeDao.createTable(db, ifNotExists);
         OpenRecordDao.createTable(db, ifNotExists);
     }
 
@@ -32,6 +33,7 @@ public class DaoMaster extends AbstractDaoMaster {
         FaceImageDao.dropTable(db, ifExists);
         ICCardDao.dropTable(db, ifExists);
         IDCardDao.dropTable(db, ifExists);
+        OpenCodeDao.dropTable(db, ifExists);
         OpenRecordDao.dropTable(db, ifExists);
     }
 
@@ -54,6 +56,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(FaceImageDao.class);
         registerDaoClass(ICCardDao.class);
         registerDaoClass(IDCardDao.class);
+        registerDaoClass(OpenCodeDao.class);
         registerDaoClass(OpenRecordDao.class);
     }
 

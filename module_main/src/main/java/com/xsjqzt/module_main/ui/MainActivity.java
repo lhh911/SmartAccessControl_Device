@@ -51,9 +51,11 @@ import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
+import com.xsjqzt.module_main.greendao.OpenCodeDao;
 import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
+import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.FaceSuccessEventBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
@@ -108,14 +110,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private EditText roomNumEt;
     private LinearLayout inputNumLayout;//输入框父布局
 //    private ImgTextView successLayout, errorLayout;//成功和识别布局
-    private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
+//    private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
 
 
     private int showType = 1;// 1 图片广告，2 视频广告
     private MyBroadcastReceiver mReceiver;
 
-    private String sn1;//序列号1
-    private String sn2;//序列号2
+//    private String sn1;//序列号1
+//    private String sn2;//序列号2
     private PendingIntent pi;
     private AlarmManager am;
 
@@ -353,8 +355,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         UserInfoInstance.getInstance().setKey(key);
         //获取token
         //获取token的key，生成规则：skey = md5(sn1+sn2+key)
-        String skey = MD5Util.md5(sn1 + sn2 + key);
-        presenter.getToken(sn1, skey);
+        String skey = MD5Util.md5(UserInfoInstance.getInstance().getSn1() + UserInfoInstance.getInstance().getSn2() + key);
+        presenter.getToken(UserInfoInstance.getInstance().getSn1(), skey);
     }
 
     @Override
@@ -527,11 +529,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     } else if (type == 2) {//更新ic卡信息
                         downICCardData();
                     } else if (type == 3) {//临时密码
-
+                        downOpenCode();
                     } else if (type == 4) {//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
                         downFaceImage();
                     } else if (type == 5) {//设置音量
                         setVoice(json.getInt("volume"));
+                    }else if(type == 6){//设备重启
+
                     }
                 } catch (Exception e) {
 
@@ -541,6 +545,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     }
+
+    private void downOpenCode() {
+        OpenCodeDao openCodeDao = DbManager.getInstance().getDaoSession().getOpenCodeDao();
+        OpenCode unique = openCodeDao.queryBuilder().limit(1).orderDesc(OpenCodeDao.Properties.Update_time).unique();
+        int update_time = 0;
+        if (unique != null) {
+            update_time = unique.getUpdate_time();
+        }
+        presenter.downOpenCode( update_time);
+    }
+
 
     private void downFaceImage() {
         FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
@@ -593,7 +608,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (UserInfoInstance.getInstance().hasLogin())//没登录需要登录下
             return;
         //获取加密key
-        presenter.loadKey(sn1);
+        presenter.loadKey(UserInfoInstance.getInstance().getSn1());
     }
 
     private void refreshToken() {
@@ -609,10 +624,23 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void checkInput(String inputNum) {
         if (inputNum.length() == 5) {//密码开门
             //请求接口验证密码是否正确，是就开门
+            OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
+                    .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
 
-            showSucOrError = 2;
-            setShowSucOrError();
+            if(openCode != null) {
+                int expiry_time = openCode.getExpiry_time();
+                long now = System.currentTimeMillis();
+                if (expiry_time < (now / 1000)) {//过期了
+//                    showSucOrError = 2;
+                    setShowSucOrError(false);
+                }else{
+//                    showSucOrError = 1;
+                    setShowSucOrError(true);
+                }
 
+            }else{
+                setShowSucOrError(false);
+            }
         } else if (inputNum.length() == 4 || inputNum.length() == 6) {
             showCallVideoLayout();
 
@@ -625,8 +653,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //密码开门显示结果
-    private void setShowSucOrError() {
-        if (showSucOrError == 1) {//开门成功
+    private void setShowSucOrError(boolean success) {
+        if (success) {//开门成功
 //            inputNumLayout.setVisibility(View.GONE);
 //            successLayout.setVisibility(View.VISIBLE);
 //            errorLayout.setVisibility(View.GONE);
@@ -646,29 +674,29 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //密码开门时错误情况下3秒后退回输入状态
-    private void starTime() {
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (showSucOrError == 1) {
-                            hideRoomNumLayout();
-                        } else {
-                            mType = 1;
-                        }
-                        inputNumLayout.setVisibility(View.VISIBLE);
+//    private void starTime() {
+//        TimerTask task = new TimerTask() {
+//            @Override
+//            public void run() {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        if (showSucOrError == 1) {
+//                            hideRoomNumLayout();
+//                        } else {
+//                            mType = 1;
+//                        }
+//                        inputNumLayout.setVisibility(View.VISIBLE);
 //                        successLayout.setVisibility(View.GONE);
 //                        errorLayout.setVisibility(View.GONE);
-                    }
-                });
-            }
-        };
-
-        Timer timer = new Timer();
-        timer.schedule(task, 3000);
-    }
+//                    }
+//                });
+//            }
+//        };
+//
+//        Timer timer = new Timer();
+//        timer.schedule(task, 3000);
+//    }
 
 
     //拨打视频通话
