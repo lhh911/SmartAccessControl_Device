@@ -123,6 +123,7 @@ public class ScreenShotUtil {
             }
             Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
             bitmap.setPixels(pixels ,0, width, 0, 0, width, height);
+//            return bitmap;
             return addBorder(bitmap,colorStr);
         } catch (Exception e) {
             return null;

@@ -3,10 +3,13 @@ package com.xsjqzt.module_main.receive;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
+import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.OpenRecordService;
 import com.xsjqzt.module_main.ui.SplashActivity;
 

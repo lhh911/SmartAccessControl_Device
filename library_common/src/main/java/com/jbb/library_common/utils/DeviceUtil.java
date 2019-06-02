@@ -292,7 +292,7 @@ public class DeviceUtil {
      * @param context
      * @return
      */
-    private static String getMacDefault(Context context) {
+    public static String getMacDefault(Context context) {
         String mac = "";
         if (context == null) {
             return mac;

@@ -106,12 +106,13 @@
                 <category android:name="com.xsjqzt.app" />
             </intent-filter>
         </receiver>
+<!--
 
-        <!-- 设置环信应用的AppKey -->
+        &lt;!&ndash; 设置环信应用的AppKey &ndash;&gt;
         <meta-data
             android:name="EASEMOB_APPKEY"
             android:value="1107190424084593#quanzhangtong" />
-        <!-- 声明SDK所需的service SDK核心功能 -->
+        &lt;!&ndash; 声明SDK所需的service SDK核心功能 &ndash;&gt;
         <service
             android:name="com.hyphenate.chat.EMChatService"
             android:exported="true" />
@@ -119,20 +120,21 @@
             android:name="com.hyphenate.chat.EMJobService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!-- 声明SDK所需的receiver -->
+        &lt;!&ndash; 声明SDK所需的receiver &ndash;&gt;
         <receiver android:name="com.hyphenate.chat.EMMonitorReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
 
                 <data android:scheme="package" />
             </intent-filter>
-            <!-- 可选filter -->
+            &lt;!&ndash; 可选filter &ndash;&gt;
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
 
+-->
         <!-- 开机启动 -->
         <receiver
             android:name=".receive.AppStartReceiver"
@@ -144,7 +146,11 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
-
+        <receiver android:name=".receive.NetStatusReceiver">
+            <intent-filter >
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".receive.AlarmReceiver"/>
 
         <service
@@ -153,6 +159,8 @@
                 <action android:name="com.xsjqzt.app.timer_upload_openrecord"/>
             </intent-filter>
         </service>
+        <service android:name=".service.DownAllDataService"/>
+        <service android:name=".service.FaceImageDownService"/>
     </application>
 
 </manifest>

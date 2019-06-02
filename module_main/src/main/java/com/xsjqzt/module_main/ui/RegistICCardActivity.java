@@ -2,7 +2,6 @@ package com.xsjqzt.module_main.ui;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.os.Gpio;
 import android.os.Handler;
 import android.os.Message;
 import android.view.KeyEvent;
@@ -17,12 +16,7 @@ import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.ScreenShotUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
-import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.R;
-import com.xsjqzt.module_main.greendao.DbManager;
-import com.xsjqzt.module_main.greendao.ICCardDao;
-import com.xsjqzt.module_main.greendao.entity.ICCard;
-import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.presenter.RegistICCardPresenter;
 import com.xsjqzt.module_main.view.RegistICCardIView;
 import com.xsjqzt.module_main.widget.ImgTextView;
@@ -174,18 +168,18 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
     private void parseData(String str) {
         ToastUtil.showCustomToast(str);
 //        LogUtil.w("nfc数据 = " + str);
-        qrCodeNum  = str.substring(2,20);
-//        qrCodeNum  = str;
+//        qrCodeNum  = str.substring(0,20);
+        qrCodeNum  = str;
         numTv.setText(qrCodeNum);
 
-        if (str.length() > 10) {//ic卡
+        if (mType == 2) {//ic卡
             createQrCode();
             setSuccess();
-        } else if (str.length() > 18) {
+        } else if (mType == 1) {
             createQrCode();
             setSuccess();
         } else {
-            ToastUtil.showCustomToast("无法识别的卡，请用ic卡或身份证开门");
+            ToastUtil.showCustomToast("未注册或无法识别的卡，请用ic卡或身份证开门");
             setError();
         }
     }

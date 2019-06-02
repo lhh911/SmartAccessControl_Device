@@ -13,108 +13,82 @@ public class FaceImage {
 
     @NotNull
     @Unique
-    private int sid;//服务器表中id
+    private int user_id;//服务器表中id
 
     @NotNull
-    private String image;//
+    private String code;//阅面注册唯一识别码
 
-    private String ymimage;//阅面注册成功后的识别图片
-
+    private String image;//后台业主上传的人脸图片
 
     private int status;// 人脸图片状态，1 待检验，2 有效， 3无效
 
-    private boolean hasregist;// 是否已经注册成功阅面
+    private int update_time;//
 
-
-    private String mobile;//
-
-
-    @Generated(hash = 1497177014)
-    public FaceImage(Long id, int sid, @NotNull String image, String ymimage,
-            int status, boolean hasregist, String mobile) {
+    @Generated(hash = 1837546406)
+    public FaceImage(Long id, int user_id, @NotNull String code, String image,
+            int status, int update_time) {
         this.id = id;
-        this.sid = sid;
+        this.user_id = user_id;
+        this.code = code;
         this.image = image;
-        this.ymimage = ymimage;
         this.status = status;
-        this.hasregist = hasregist;
-        this.mobile = mobile;
+        this.update_time = update_time;
     }
-
 
     @Generated(hash = 1755518208)
     public FaceImage() {
     }
 
-
     public Long getId() {
         return this.id;
     }
-
 
     public void setId(Long id) {
         this.id = id;
     }
 
-
-    public int getSid() {
-        return this.sid;
+    public int getUser_id() {
+        return this.user_id;
     }
 
-
-    public void setSid(int sid) {
-        this.sid = sid;
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
     }
 
+    public String getCode() {
+        return this.code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getImage() {
         return this.image;
     }
 
-
     public void setImage(String image) {
         this.image = image;
     }
-
-
-    public String getYmimage() {
-        return this.ymimage;
-    }
-
-
-    public void setYmimage(String ymimage) {
-        this.ymimage = ymimage;
-    }
-
 
     public int getStatus() {
         return this.status;
     }
 
-
     public void setStatus(int status) {
         this.status = status;
     }
 
+    public int getUpdate_time() {
+        return this.update_time;
+    }
 
-    public boolean getHasregist() {
-        return this.hasregist;
+    public void setUpdate_time(int update_time) {
+        this.update_time = update_time;
     }
 
 
-    public void setHasregist(boolean hasregist) {
-        this.hasregist = hasregist;
-    }
 
-
-    public String getMobile() {
-        return this.mobile;
-    }
-
-
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
-    }
 
 
   }

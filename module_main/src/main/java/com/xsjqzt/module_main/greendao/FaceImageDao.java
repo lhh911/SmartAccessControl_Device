@@ -25,12 +25,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
      */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property Sid = new Property(1, int.class, "sid", false, "SID");
-        public final static Property Image = new Property(2, String.class, "image", false, "IMAGE");
-        public final static Property Ymimage = new Property(3, String.class, "ymimage", false, "YMIMAGE");
+        public final static Property User_id = new Property(1, int.class, "user_id", false, "USER_ID");
+        public final static Property Code = new Property(2, String.class, "code", false, "CODE");
+        public final static Property Image = new Property(3, String.class, "image", false, "IMAGE");
         public final static Property Status = new Property(4, int.class, "status", false, "STATUS");
-        public final static Property Hasregist = new Property(5, boolean.class, "hasregist", false, "HASREGIST");
-        public final static Property Mobile = new Property(6, String.class, "mobile", false, "MOBILE");
+        public final static Property Update_time = new Property(5, int.class, "update_time", false, "UPDATE_TIME");
     }
 
 
@@ -47,12 +46,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"FACE_IMAGE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "\"SID\" INTEGER NOT NULL UNIQUE ," + // 1: sid
-                "\"IMAGE\" TEXT NOT NULL ," + // 2: image
-                "\"YMIMAGE\" TEXT," + // 3: ymimage
+                "\"USER_ID\" INTEGER NOT NULL UNIQUE ," + // 1: user_id
+                "\"CODE\" TEXT NOT NULL ," + // 2: code
+                "\"IMAGE\" TEXT," + // 3: image
                 "\"STATUS\" INTEGER NOT NULL ," + // 4: status
-                "\"HASREGIST\" INTEGER NOT NULL ," + // 5: hasregist
-                "\"MOBILE\" TEXT);"); // 6: mobile
+                "\"UPDATE_TIME\" INTEGER NOT NULL );"); // 5: update_time
     }
 
     /** Drops the underlying database table. */
@@ -69,20 +67,15 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
-        stmt.bindLong(2, entity.getSid());
-        stmt.bindString(3, entity.getImage());
+        stmt.bindLong(2, entity.getUser_id());
+        stmt.bindString(3, entity.getCode());
  
-        String ymimage = entity.getYmimage();
-        if (ymimage != null) {
-            stmt.bindString(4, ymimage);
+        String image = entity.getImage();
+        if (image != null) {
+            stmt.bindString(4, image);
         }
         stmt.bindLong(5, entity.getStatus());
-        stmt.bindLong(6, entity.getHasregist() ? 1L: 0L);
- 
-        String mobile = entity.getMobile();
-        if (mobile != null) {
-            stmt.bindString(7, mobile);
-        }
+        stmt.bindLong(6, entity.getUpdate_time());
     }
 
     @Override
@@ -93,20 +86,15 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
         if (id != null) {
             stmt.bindLong(1, id);
         }
-        stmt.bindLong(2, entity.getSid());
-        stmt.bindString(3, entity.getImage());
+        stmt.bindLong(2, entity.getUser_id());
+        stmt.bindString(3, entity.getCode());
  
-        String ymimage = entity.getYmimage();
-        if (ymimage != null) {
-            stmt.bindString(4, ymimage);
+        String image = entity.getImage();
+        if (image != null) {
+            stmt.bindString(4, image);
         }
         stmt.bindLong(5, entity.getStatus());
-        stmt.bindLong(6, entity.getHasregist() ? 1L: 0L);
- 
-        String mobile = entity.getMobile();
-        if (mobile != null) {
-            stmt.bindString(7, mobile);
-        }
+        stmt.bindLong(6, entity.getUpdate_time());
     }
 
     @Override
@@ -118,12 +106,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
     public FaceImage readEntity(Cursor cursor, int offset) {
         FaceImage entity = new FaceImage( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getInt(offset + 1), // sid
-            cursor.getString(offset + 2), // image
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // ymimage
+            cursor.getInt(offset + 1), // user_id
+            cursor.getString(offset + 2), // code
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // image
             cursor.getInt(offset + 4), // status
-            cursor.getShort(offset + 5) != 0, // hasregist
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6) // mobile
+            cursor.getInt(offset + 5) // update_time
         );
         return entity;
     }
@@ -131,12 +118,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
     @Override
     public void readEntity(Cursor cursor, FaceImage entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setSid(cursor.getInt(offset + 1));
-        entity.setImage(cursor.getString(offset + 2));
-        entity.setYmimage(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setUser_id(cursor.getInt(offset + 1));
+        entity.setCode(cursor.getString(offset + 2));
+        entity.setImage(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
         entity.setStatus(cursor.getInt(offset + 4));
-        entity.setHasregist(cursor.getShort(offset + 5) != 0);
-        entity.setMobile(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setUpdate_time(cursor.getInt(offset + 5));
      }
     
     @Override

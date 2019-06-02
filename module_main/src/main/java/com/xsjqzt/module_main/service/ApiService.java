@@ -72,16 +72,16 @@ public interface ApiService {
 
     //获取身份证数据
     @POST("entrance/data/idcards")
-    Observable<ResponseBody> loadIDCards(@Header("Authorization") String token, @Query("start_id") int sid );
+    Observable<ResponseBody> loadIDCards(@Header("Authorization") String token, @Query("update_time") int update_time );
 
     //获取IC卡数据
     @POST("entrance/data/iccards")
-    Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("start_id") int sid );
+    Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("update_time") int update_time );
 
     //获取人脸注册数据
     @FormUrlEncoded
     @POST("entrance/data/user_faces")
-    Observable<ResponseBody> loadFaceImage(@Header("Authorization") String token ,@Field("status")int status);
+    Observable<ResponseBody> loadFaceImage(@Header("Authorization") String token ,@Field("update_time")int update_time);
 
     //下载人脸图片
     @Streaming
@@ -91,5 +91,5 @@ public interface ApiService {
     //上传人脸照片状态
     @FormUrlEncoded
     @POST("entrance/data/user_faces")
-    Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status")int status,@Field("id")int id);
+    Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status")int status,@Field("user_id")int user_id, @Field("code") String code);
 }
