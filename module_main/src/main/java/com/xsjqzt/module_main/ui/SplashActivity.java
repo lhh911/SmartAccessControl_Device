@@ -4,11 +4,9 @@ import android.content.Intent;
 import android.text.TextUtils;
 
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
-import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
@@ -33,21 +31,20 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         ActivityManager.getInstance().setAppStatus(KeyContacts.STATUS_NORMAL);
         EMHelper.getInstance().init(getApplicationContext());
 
-
         UserInfoSerializUtil.initUserInstance();
         if(!UserInfoInstance.getInstance().hasLogin()){
             loadKey();
+//            bindDevice();
         }else{
             next(1500);
         }
-
 //        next(1500);
     }
 
 
     private void initMac() {
-        //获取加密key
-//        macAddress = DeviceUtil.getEthernetMac();
+//      String wifiaddr = DeviceUtil.getMacDefault(this);
+//        macAddress = DeviceUtil.getEthernetMac().replaceAll(":","");
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
@@ -59,6 +56,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         UserInfoInstance.getInstance().setSn2(str2);
         UserInfoInstance.getInstance().setMacAddress(macAddress);
 
+//        LogUtil.w("序列号 wifiaddr = " + wifiaddr);
         LogUtil.w("序列号 macAddress = " + macAddress);
         LogUtil.w("序列号 sn1 = " + str1);
         LogUtil.w("序列号 sn1 = " + str2);

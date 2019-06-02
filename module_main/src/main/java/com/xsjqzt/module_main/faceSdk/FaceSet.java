@@ -11,8 +11,11 @@ import com.xsjqzt.module_main.activity.base.ExApplication;
 import com.xsjqzt.module_main.dataSource.DataSource;
 import com.xsjqzt.module_main.dataSource.UserDataUtil;
 import com.xsjqzt.module_main.modle.FaceResult;
+import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.modle.User;
 import com.xsjqzt.module_main.util.ThreadPoolManager;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -653,7 +656,10 @@ public class FaceSet {
                 identifyPerson = faceTrack.identifyPerson(i);
                 int confidence = faceTrack.getRecognitionConfidence();
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
-                if(identifyPerson >= 0)context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
+                if(identifyPerson >= 0) {
+//                    context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
+                    EventBus.getDefault().post(new FaceSuccessEventBean());
+                }
             }
         } else {
             ymFace.setIdentifiedPerson(-1, 0);

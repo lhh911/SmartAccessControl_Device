@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/input_num_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:background="@color/color_99000000"
+
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/parent_ll"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:id="@+id/status_iv"
+            android:layout_width="23dp"
+            android:layout_height="23dp"
+            android:src="@mipmap/icon_success" />
+
+
+        <TextView
+            android:id="@+id/status_tv"
+            style="@style/textview15"
+            android:layout_marginTop="20dp"
+            android:text="开门成功"
+            android:textColor="@color/color_0ABA07"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

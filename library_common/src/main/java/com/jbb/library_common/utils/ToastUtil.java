@@ -1,13 +1,17 @@
 package com.jbb.library_common.utils;
 
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jbb.library_common.BaseApplication;
+import com.jbb.library_common.R;
 
 
 public class ToastUtil {
 
-//    private static Toast customToast;
+    private static Toast customToast;
 
 
     /**
@@ -32,17 +36,13 @@ public class ToastUtil {
     }
 
 //    public static void showBottomCustomToast(String msg) {
-//        if (customToast == null) {
-//            customToast = new Toast(NnApplication.getContext());
-//            View view = LayoutInflater.from(NnApplication.getContext()).inflate(R.layout.toast_view, null);
+//            customToast = new Toast(BaseApplication.getContext());
+//            View view = LayoutInflater.from(BaseApplication.getContext()).inflate(R.layout.toast_view, null);
 //            TextView message = (TextView) view.findViewById(R.id.toast_message_tv);
 //            message.setText(msg);
 //            customToast.setView(view);
 //            customToast.setDuration(Toast.LENGTH_SHORT);
-//        } else {
-//            ((TextView) customToast.getView().findViewById(R.id.toast_message_tv)).setText(msg);
-//        }
-//        customToast.show();
+//            customToast.show();
 //    }
 
 //    public static void showLongToast(String msg) {

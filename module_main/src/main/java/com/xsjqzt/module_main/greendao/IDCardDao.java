@@ -27,8 +27,9 @@ public class IDCardDao extends AbstractDao<IDCard, Long> {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Sid = new Property(1, int.class, "sid", false, "SID");
         public final static Property Sn = new Property(2, String.class, "sn", false, "SN");
-        public final static Property User_name = new Property(3, String.class, "user_name", false, "USER_NAME");
-        public final static Property User_id = new Property(4, int.class, "user_id", false, "USER_ID");
+        public final static Property Update_time = new Property(3, int.class, "update_time", false, "UPDATE_TIME");
+        public final static Property User_name = new Property(4, String.class, "user_name", false, "USER_NAME");
+        public final static Property User_id = new Property(5, int.class, "user_id", false, "USER_ID");
     }
 
 
@@ -47,8 +48,9 @@ public class IDCardDao extends AbstractDao<IDCard, Long> {
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"SID\" INTEGER NOT NULL ," + // 1: sid
                 "\"SN\" TEXT NOT NULL UNIQUE ," + // 2: sn
-                "\"USER_NAME\" TEXT," + // 3: user_name
-                "\"USER_ID\" INTEGER NOT NULL );"); // 4: user_id
+                "\"UPDATE_TIME\" INTEGER NOT NULL ," + // 3: update_time
+                "\"USER_NAME\" TEXT," + // 4: user_name
+                "\"USER_ID\" INTEGER NOT NULL );"); // 5: user_id
     }
 
     /** Drops the underlying database table. */
@@ -67,12 +69,13 @@ public class IDCardDao extends AbstractDao<IDCard, Long> {
         }
         stmt.bindLong(2, entity.getSid());
         stmt.bindString(3, entity.getSn());
+        stmt.bindLong(4, entity.getUpdate_time());
  
         String user_name = entity.getUser_name();
         if (user_name != null) {
-            stmt.bindString(4, user_name);
+            stmt.bindString(5, user_name);
         }
-        stmt.bindLong(5, entity.getUser_id());
+        stmt.bindLong(6, entity.getUser_id());
     }
 
     @Override
@@ -85,12 +88,13 @@ public class IDCardDao extends AbstractDao<IDCard, Long> {
         }
         stmt.bindLong(2, entity.getSid());
         stmt.bindString(3, entity.getSn());
+        stmt.bindLong(4, entity.getUpdate_time());
  
         String user_name = entity.getUser_name();
         if (user_name != null) {
-            stmt.bindString(4, user_name);
+            stmt.bindString(5, user_name);
         }
-        stmt.bindLong(5, entity.getUser_id());
+        stmt.bindLong(6, entity.getUser_id());
     }
 
     @Override
@@ -104,8 +108,9 @@ public class IDCardDao extends AbstractDao<IDCard, Long> {
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // sid
             cursor.getString(offset + 2), // sn
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // user_name
-            cursor.getInt(offset + 4) // user_id
+            cursor.getInt(offset + 3), // update_time
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // user_name
+            cursor.getInt(offset + 5) // user_id
         );
         return entity;
     }
@@ -115,8 +120,9 @@ public class IDCardDao extends AbstractDao<IDCard, Long> {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setSid(cursor.getInt(offset + 1));
         entity.setSn(cursor.getString(offset + 2));
-        entity.setUser_name(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setUser_id(cursor.getInt(offset + 4));
+        entity.setUpdate_time(cursor.getInt(offset + 3));
+        entity.setUser_name(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setUser_id(cursor.getInt(offset + 5));
      }
     
     @Override

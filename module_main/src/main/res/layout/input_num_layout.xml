@@ -51,7 +51,7 @@
 
     </LinearLayout>
 
-
+<!--
     <com.xsjqzt.module_main.widget.ImgTextView
         android:id="@+id/success_layout"
         android:layout_width="wrap_content"
@@ -75,6 +75,6 @@
         app:csrc="@mipmap/icon_error"
         app:ctext="密码错误"
         app:ctextColor="@color/color_FF0000"
-        app:ctextSize="13" />
+        app:ctextSize="13" />-->
 
 </LinearLayout>

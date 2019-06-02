@@ -11,12 +11,12 @@ import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.model.CardResBean;
 import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.ICCardResBean;
-import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.IDCardResBean;
 import com.xsjqzt.module_main.model.KeyResBean;
 import com.xsjqzt.module_main.model.RefreshTokenResBean;
@@ -28,18 +28,8 @@ import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.service.FaceImageDownService;
 import com.xsjqzt.module_main.view.MainView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 
 public class MainPresenter extends BaseMvpPresenter<MainView> {
 
@@ -235,29 +225,35 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
 
     //获取身份证数据
-    public void loadIDCards(int sid) {
+    public void loadIDCards(int update_time) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid), IDCardResBean.class, new NetListeren<IDCardResBean>() {
+                .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), IDCardResBean.class, new NetListeren<IDCardResBean>() {
             @Override
             public void onSuccess(final IDCardResBean info) {
-//                if (mView != null)
-//                    mView.loadIDCardsSuccess(bean);
                 //插入数据库
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         List<CardResBean> data = info.getData();
+                        if(data == null ||data.isEmpty())
+                            return;
                         List<IDCard> lists = new ArrayList<>();
                         for (CardResBean bean : data) {
-                            IDCard card = new IDCard();
-                            card.setSid(bean.getId());
-                            card.setSn(bean.getSn());
-                            card.setUser_id(bean.getUser_id());
-                            card.setUser_name(bean.getUser_name());
-                            lists.add(card);
+                            if(bean.isIs_delete()){
+                                IDCard unique = DbManager.getInstance().getDaoSession().getIDCardDao().queryBuilder().where(IDCardDao.Properties.Sn.eq(bean.getSn())).unique();
+                                if(unique != null)
+                                    DbManager.getInstance().getDaoSession().getIDCardDao().delete(unique);
+                            }else{
+                                IDCard card = new IDCard();
+                                card.setSid(bean.getId());
+                                card.setSn(bean.getSn());
+                                card.setUser_id(bean.getUser_id());
+                                card.setUser_name(bean.getUser_name());
+                                lists.add(card);
+                            }
                         }
-
-                        DbManager.getInstance().getDaoSession().getIDCardDao().insertOrReplaceInTx(lists);
+                        if(lists.size() > 0)
+                            DbManager.getInstance().getDaoSession().getIDCardDao().insertOrReplaceInTx(lists);
                     }
                 }).start();
 
@@ -279,9 +275,9 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     //获取身份证数据
-    public void loadICCards(int sid) {
+    public void loadICCards(int update_time) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sid), ICCardResBean.class, new NetListeren<ICCardResBean>() {
+                .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), ICCardResBean.class, new NetListeren<ICCardResBean>() {
             @Override
             public void onSuccess(final ICCardResBean info) {
 
@@ -289,17 +285,25 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                     @Override
                     public void run() {
                         List<CardResBean> data = info.getData();
+                        if(data == null ||data.isEmpty())
+                            return;
                         List<ICCard> lists = new ArrayList<>();
                         for (CardResBean bean : data) {
-                            ICCard card = new ICCard();
-                            card.setSid(bean.getId());
-                            card.setSn(bean.getSn());
-                            card.setUser_id(bean.getUser_id());
-                            card.setUser_name(bean.getUser_name());
-                            lists.add(card);
+                            if(bean.isIs_delete()){
+                                ICCard unique = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().where(IDCardDao.Properties.Sn.eq(bean.getSn())).unique();
+                                if(unique != null)
+                                    DbManager.getInstance().getDaoSession().getICCardDao().delete(unique);
+                            }else {
+                                ICCard card = new ICCard();
+                                card.setSid(bean.getId());
+                                card.setSn(bean.getSn());
+                                card.setUser_id(bean.getUser_id());
+                                card.setUser_name(bean.getUser_name());
+                                lists.add(card);
+                            }
                         }
-
-                        DbManager.getInstance().getDaoSession().getICCardDao().insertOrReplaceInTx(lists);
+                        if(lists.size() > 0)
+                            DbManager.getInstance().getDaoSession().getICCardDao().insertOrReplaceInTx(lists);
                     }
                 }).start();
 
@@ -321,12 +325,11 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     //拉取业主端注册的人脸图片，并注册到阅面
-    public void loadFaceImage(final Context context, int sid) {
+    public void loadFaceImage(final Context context, int update_time) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .loadFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), 1), FaceImageResBean.class, new NetListeren<FaceImageResBean>() {
+                .loadFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), FaceImageResBean.class, new NetListeren<FaceImageResBean>() {
             @Override
             public void onSuccess(final FaceImageResBean info) {
-                if(mView != null){
                     ArrayList<FaceImageResBean.DataBean> data = info.getData();
 
                     Intent it = new Intent(context,FaceImageDownService.class);
@@ -334,8 +337,6 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                     bundle.putParcelableArrayList("data",data);
                     it.putExtras(bundle);
                     context.startService(it);
-                }
-
 
             }
 

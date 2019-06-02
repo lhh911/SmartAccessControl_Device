@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -39,7 +40,6 @@
             android:name=".ui.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"></activity>
-        <!---->
         <activity
             android:name=".ui.SplashActivity"
             android:screenOrientation="portrait"
@@ -55,7 +55,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
 
         <!-- 7.0 以上手机权限  一个应用提供自身文件给其它应用使用时解决方案 -->
         <provider
@@ -108,12 +107,13 @@
                 <category android:name="com.xsjqzt.app" />
             </intent-filter>
         </receiver>
+<!--
 
-        <!-- 设置环信应用的AppKey -->
+        &lt;!&ndash; 设置环信应用的AppKey &ndash;&gt;
         <meta-data
             android:name="EASEMOB_APPKEY"
             android:value="1107190424084593#quanzhangtong" />
-        <!-- 声明SDK所需的service SDK核心功能 -->
+        &lt;!&ndash; 声明SDK所需的service SDK核心功能 &ndash;&gt;
         <service
             android:name="com.hyphenate.chat.EMChatService"
             android:exported="true" />
@@ -121,20 +121,21 @@
             android:name="com.hyphenate.chat.EMJobService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!-- 声明SDK所需的receiver -->
+        &lt;!&ndash; 声明SDK所需的receiver &ndash;&gt;
         <receiver android:name="com.hyphenate.chat.EMMonitorReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
 
                 <data android:scheme="package" />
             </intent-filter>
-            <!-- 可选filter -->
+            &lt;!&ndash; 可选filter &ndash;&gt;
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
 
+-->
         <!-- 开机启动 -->
         <receiver
             android:name=".receive.AppStartReceiver"
@@ -146,7 +147,11 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
-
+        <receiver android:name=".receive.NetStatusReceiver">
+            <intent-filter >
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".receive.AlarmReceiver"/>
 
         <service
@@ -155,36 +160,8 @@
                 <action android:name="com.xsjqzt.app.timer_upload_openrecord"/>
             </intent-filter>
         </service>
-
-
-
-
-        <activity
-            android:name=".activity.FaceExamplesActivity"
-             />
-        <activity
-            android:name=".activity.MainActivity"
-            >
-        </activity>
-        <activity
-            android:name=".activity.register.IDCardRecognitionAcitvity"
-             />
-        <activity
-            android:name=".activity.FaceDemoActivity">
-        </activity>
-
-        <activity
-            android:name=".activity.register.RegistFromBatchPicActivity"
-             />
-        <activity
-            android:name=".activity.register.RegistFromCamAcitvity"
-             />
-        <activity
-            android:name=".activity.register.RegistFromPicActivity"
-             />
-        <activity
-            android:name=".activity.FaceRegistActivity"
-             />
+        <service android:name=".service.DownAllDataService"/>
+        <service android:name=".service.FaceImageDownService"/>
     </application>
 
 </manifest>

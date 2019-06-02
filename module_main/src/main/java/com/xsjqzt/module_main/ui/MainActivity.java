@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Gpio;
 import android.os.Handler;
@@ -46,6 +47,7 @@ import com.jbb.library_common.utils.log.LogUtil;
 import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
@@ -54,12 +56,15 @@ import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
-import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.modle.FaceResult;
+import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
+import com.xsjqzt.module_main.receive.NetStatusReceiver;
+import com.xsjqzt.module_main.service.DownAllDataService;
+import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.view.MainView;
-import com.xsjqzt.module_main.widget.ImgTextView;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -69,10 +74,14 @@ import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -99,7 +108,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private LinearLayout roomNumLayout;//房号输入布局
     private EditText roomNumEt;
     private LinearLayout inputNumLayout;//输入框父布局
-    private ImgTextView successLayout, errorLayout;//成功和识别布局
+//    private ImgTextView successLayout, errorLayout;//成功和识别布局
     private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
 
 
@@ -116,13 +125,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private String sPort = "/dev/ttyS3";
     private int iBaudRate = 115200;
 
-    private int mType ;// 0 默认什么都没显示， 1 密码开锁布局显示，2 视频电话显示
+    private int mType;// 0 默认什么都没显示， 1 密码开锁布局显示，2 视频电话显示
     private MyHandler doorHandler;
 
     private boolean inputLayoutShow;//底部输入布局是否显示出来，显示出来后10秒无操作自动掩藏
     private long startShowTime;//记录底部布局显示的开始时间，10秒无操作自动掩藏
-    private Timer inputLayoutShowTime;//10秒内检查操作定时器
-    private TimerTask inputLayoutShowTask;
+//    private Timer inputLayoutShowTime;//10秒内检查操作定时器
+//    private TimerTask inputLayoutShowTask;
+    private InutLayoutShowTimeRunnable inutLayoutShowTimeRunnable;
+    private NetStatusReceiver netStatusReceiver;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -159,8 +170,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         roomNumEt = findViewById(R.id.room_psw_et);
         TextView bottomTv = findViewById(R.id.bottom_tv);
         inputNumLayout = findViewById(R.id.input_layout);
-        successLayout = findViewById(R.id.success_layout);
-        errorLayout = findViewById(R.id.error_layout);
+//        successLayout = findViewById(R.id.success_layout);
+//        errorLayout = findViewById(R.id.error_layout);
 
         Drawable drawable = getResources().getDrawable(R.mipmap.icon_gth);
         drawable.setBounds(0, 0, CommUtil.dp2px(13), CommUtil.dp2px(13));
@@ -178,25 +189,34 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         setAlarm();
         startMeasuing();
 
+        loadCardData();
+
+        EventBus.getDefault().register(this);
 //        test();
+    }
+
+    private void loadCardData() {
+//        downICCardData();
+//        downIDCardData();
+        startService(new Intent(this,DownAllDataService.class));
     }
 
     private void test() {
         List<ICCard> list = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().list();
         StringBuffer sf = new StringBuffer();
         sf.append("数据库的IC卡").append("\n");
-        for(ICCard card: list){
-            sf.append(card.getUser_name()+ "，"+card.getSn()+ "，"+ card.getSid()).append("\n");
+        for (ICCard card : list) {
+            sf.append(card.getUser_name() + "，" + card.getSn() + "，" + card.getSid()).append("\n");
         }
 
         new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
         int type = 1;
         String sn = "ic20190501";
-        if(type == 1){
-            presenter.uploadICCardRecord(type,sn);
-        }else{
-            presenter.uploadIDCardRecord(type,sn);
+        if (type == 1) {
+            presenter.uploadICCardRecord(type, sn);
+        } else {
+            presenter.uploadIDCardRecord(type, sn);
         }
 
 
@@ -251,67 +271,74 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     public void btn2Click(View view) {
-        goTo(RegistICCardActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("mType", 1);
+        goTo(RegistICCardActivity.class, bundle);
     }
 
     public void btn3Click(View view) {
         goTo(SystemInfoActivity.class);
     }
 
+    public void btn4Click(View view) {
+//        goTo(FaceDemoActivity.class);
+    }
+
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if(mType == 1){
+            if (mType == 1) {
                 hideRoomNumLayout();
-            }else if(mType == 2){
+            } else if (mType == 2) {
                 hideCallVideoLayout();
             }
             return true;
-        }else if(keyCode == KeyEvent.KEYCODE_0){
+        } else if (keyCode == KeyEvent.KEYCODE_0) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"0");
+            setInputData(oldNum, "0");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_1){
+        } else if (keyCode == KeyEvent.KEYCODE_1) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"1");
+            setInputData(oldNum, "1");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_2){
+        } else if (keyCode == KeyEvent.KEYCODE_2) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"2");
+            setInputData(oldNum, "2");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_3){
+        } else if (keyCode == KeyEvent.KEYCODE_3) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"3");
+            setInputData(oldNum, "3");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_4){
+        } else if (keyCode == KeyEvent.KEYCODE_4) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"4");
+            setInputData(oldNum, "4");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_5){
+        } else if (keyCode == KeyEvent.KEYCODE_5) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"5");
+            setInputData(oldNum, "5");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_6){
+        } else if (keyCode == KeyEvent.KEYCODE_6) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"6");
+            setInputData(oldNum, "6");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_7){
+        } else if (keyCode == KeyEvent.KEYCODE_7) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"7");
+            setInputData(oldNum, "7");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_8){
+        } else if (keyCode == KeyEvent.KEYCODE_8) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"8");
+            setInputData(oldNum, "8");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_9){
+        } else if (keyCode == KeyEvent.KEYCODE_9) {
             String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum,"9");
+            setInputData(oldNum, "9");
             showRoomNumOpen();
-        }else if(keyCode == KeyEvent.KEYCODE_DEL){//删除
+        } else if (keyCode == KeyEvent.KEYCODE_DEL) {//删除
             deleteInputData();
-        }else if(keyCode == KeyEvent.KEYCODE_ENTER){
+        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
             String inputNum = roomNumEt.getText().toString().trim();
-            if(TextUtils.isEmpty(inputNum))
+            if (TextUtils.isEmpty(inputNum))
                 return true;
 
             checkInput(inputNum);
@@ -320,8 +347,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         return super.onKeyDown(keyCode, event);
     }
-
-
 
 
     @Override
@@ -339,8 +364,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-
-
     @Override
     public void showLoading() {
 
@@ -355,6 +378,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void error(Exception e) {
 
     }
+
 
 
 
@@ -375,16 +399,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
+
         SimpleVideoPlayerManager.instance().releaseNiceVideoPlayer();
 
         if (mReceiver != null)
             unregisterReceiver(mReceiver);
+        if (netStatusReceiver != null)
+            unregisterReceiver(netStatusReceiver);
+
         if (am != null)
             am.cancel(pi);
 
@@ -455,6 +482,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
         mReceiver = new MyBroadcastReceiver();
         registerReceiver(mReceiver, filter);
+
+        IntentFilter filter2 = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        netStatusReceiver = new NetStatusReceiver();
+        registerReceiver(netStatusReceiver,filter2);
     }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
@@ -497,12 +529,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         downICCardData();
                     } else if (type == 3) {//临时密码
 
-                    }else if(type == 4){//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
+                    } else if (type == 4) {//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
                         downFaceImage();
-                    }else if(type == 5){//设置音量
+                    } else if (type == 5) {//设置音量
                         setVoice(json.getInt("volume"));
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
             }
@@ -512,13 +544,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void downFaceImage() {
-//        FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
-//        FaceImage faceImage = faceImageDao.queryBuilder().limit(1).orderDesc(ICCardDao.Properties.Sid).unique();
-//        int sid = 0;
-//        if (faceImage != null) {
-//            sid = faceImage.getSid();
-//        }
-        presenter.loadFaceImage(this,1);
+        FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
+        FaceImage faceImage = faceImageDao.queryBuilder().limit(1).orderDesc(FaceImageDao.Properties.Update_time).unique();
+        int update_time = 0;
+        if (faceImage != null) {
+            update_time = faceImage.getUpdate_time();
+        }
+        presenter.loadFaceImage(this, update_time);
     }
 
     private void setVoice(final int volume) {
@@ -538,22 +570,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void downICCardData() {
         ICCardDao icCardDao = DbManager.getInstance().getDaoSession().getICCardDao();
-        ICCard iccard = icCardDao.queryBuilder().limit(1).orderDesc(ICCardDao.Properties.Sid).unique();
-        int sid = 0;
+        ICCard iccard = icCardDao.queryBuilder().limit(1).orderDesc(ICCardDao.Properties.Update_time).unique();
+        int update_time = 0;
         if (iccard != null) {
-            sid = iccard.getSid();
+            update_time = iccard.getUpdate_time();
         }
-        presenter.loadICCards(sid);
+        presenter.loadICCards(update_time);
     }
 
     private void downIDCardData() {
         IDCardDao idCardDao = DbManager.getInstance().getDaoSession().getIDCardDao();
-        IDCard idcard = idCardDao.queryBuilder().limit(1).orderDesc(IDCardDao.Properties.Sid).unique();
-        int sid = 0;
+        IDCard idcard = idCardDao.queryBuilder().limit(1).orderDesc(IDCardDao.Properties.Update_time).unique();
+        int update_time = 0;
         if (idcard != null) {
-            sid = idcard.getSid();
+            update_time = idcard.getUpdate_time();
         }
-        presenter.loadIDCards(sid);
+        presenter.loadIDCards(update_time);
 
     }
 
@@ -571,22 +603,23 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     /**
-     *  检查输入的是房号还是开门密码
-     * @param inputNum  4位或6位位房号 ， 5位为开门密码
+     * 检查输入的是房号还是开门密码
+     *
+     * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
-    private void checkInput(String inputNum){
-        if(inputNum.length() == 5){//密码开门
+    private void checkInput(String inputNum) {
+        if (inputNum.length() == 5) {//密码开门
             //请求接口验证密码是否正确，是就开门
 
             showSucOrError = 2;
             setShowSucOrError();
 
-        }else if(inputNum.length() == 4 || inputNum.length() == 6){
+        } else if (inputNum.length() == 4 || inputNum.length() == 6) {
             showCallVideoLayout();
 
             //根据房号获取userid，再拨视频通话
             callVideo(inputNum);
-        }else{
+        } else {
             ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
         }
     }
@@ -595,21 +628,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //密码开门显示结果
     private void setShowSucOrError() {
         if (showSucOrError == 1) {//开门成功
-            inputNumLayout.setVisibility(View.GONE);
-            successLayout.setVisibility(View.VISIBLE);
-            errorLayout.setVisibility(View.GONE);
-
+//            inputNumLayout.setVisibility(View.GONE);
+//            successLayout.setVisibility(View.VISIBLE);
+//            errorLayout.setVisibility(View.GONE);
+            hideRoomNumLayout();
             Message msg = Message.obtain();
             msg.what = 1;
             msg.arg1 = 3;
             doorHandler.sendMessage(msg);
         } else {
-            inputNumLayout.setVisibility(View.GONE);
-            successLayout.setVisibility(View.GONE);
-            errorLayout.setVisibility(View.VISIBLE);
+            MyToast.showToast("密码错误",R.mipmap.icon_error,"#FF0000");
+//            inputNumLayout.setVisibility(View.GONE);
+//            successLayout.setVisibility(View.GONE);
+//            errorLayout.setVisibility(View.VISIBLE);
         }
 
-        starTime();
+//        starTime();
     }
 
     //密码开门时错误情况下3秒后退回输入状态
@@ -626,8 +660,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mType = 1;
                         }
                         inputNumLayout.setVisibility(View.VISIBLE);
-                        successLayout.setVisibility(View.GONE);
-                        errorLayout.setVisibility(View.GONE);
+//                        successLayout.setVisibility(View.GONE);
+//                        errorLayout.setVisibility(View.GONE);
                     }
                 });
             }
@@ -645,7 +679,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         callNumTv.setText(inputNum);
         try {//单参数
-            EMClient.getInstance().callManager().makeVideoCall(inputNum,"");
+            EMClient.getInstance().callManager().makeVideoCall(inputNum, "");
         } catch (EMServiceNotReadyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -763,14 +797,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void deleteInputData() {
         String num = roomNumEt.getText().toString().trim();
-        if(num.length() > 0){
-            String str = num.substring(0,num.length()-1);
+        if (num.length() > 0) {
+            String str = num.substring(0, num.length() - 1);
             roomNumEt.setText(str);
         }
     }
 
     private void setInputData(String oldNum, String inputNum) {
-        roomNumEt.setText(oldNum+inputNum);
+        roomNumEt.setText(oldNum + inputNum);
     }
 
     //显示密码输入框开门ui
@@ -778,11 +812,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         startShowTime = System.currentTimeMillis();
         startShowLayoutTime();
-        if(!inputLayoutShow) {
+        if (!inputLayoutShow) {
             roomNumLayout.setVisibility(View.VISIBLE);
-            inputNumLayout.setVisibility(View.VISIBLE);
-            successLayout.setVisibility(View.GONE);
-            errorLayout.setVisibility(View.GONE);
+//            inputNumLayout.setVisibility(View.VISIBLE);
+//            successLayout.setVisibility(View.GONE);
+//            errorLayout.setVisibility(View.GONE);
             roomNumEt.setText("");
             showAnim(roomNumLayout);
 
@@ -795,41 +829,46 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //开启任务检查布局在十秒内是否有其他操作，没有就掩藏底部输入布局
     private void startShowLayoutTime() {
-        if(inputLayoutShowTime == null)
-            inputLayoutShowTime = new Timer();
 
-        if(inputLayoutShowTask == null) {
-            inputLayoutShowTask = new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            long endTime = System.currentTimeMillis();
-                            if (endTime - startShowTime >= 10000) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        hideRoomInputLayout();
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            };
+        if (inutLayoutShowTimeRunnable != null && inutLayoutShowTimeRunnable != null) {
+            doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
         }
-        inputLayoutShowTime.cancel();
-        inputLayoutShowTime.schedule(inputLayoutShowTask, 10000);
+
+        if (inutLayoutShowTimeRunnable == null) {
+            inutLayoutShowTimeRunnable = new InutLayoutShowTimeRunnable(this);
+        }
+
+        doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10000);
+
 
     }
 
+    public class InutLayoutShowTimeRunnable implements Runnable {
+        WeakReference<Activity> weakReference = null;
+
+        public InutLayoutShowTimeRunnable(Activity activity) {
+            weakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            if (weakReference.get() != null) {
+                long endTime = System.currentTimeMillis();
+                if (endTime - startShowTime >= 10000) {
+                    hideRoomInputLayout();
+
+                }
+            }
+        }
+    }
+
+
     //掩藏所有底部输入布局
-    private void hideRoomInputLayout(){
+    private void hideRoomInputLayout() {
         roomNumLayout.setVisibility(View.GONE);
-        inputNumLayout.setVisibility(View.VISIBLE);
-        successLayout.setVisibility(View.GONE);
-        errorLayout.setVisibility(View.GONE);
+//        inputNumLayout.setVisibility(View.VISIBLE);
+//        successLayout.setVisibility(View.GONE);
+//        errorLayout.setVisibility(View.GONE);
         roomNumEt.setText("");
 
         callVideoLayout.setVisibility(View.GONE);
@@ -841,7 +880,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //单独显示视频通话ui
-    private void showCallVideoLayout(){
+    private void showCallVideoLayout() {
         roomNumLayout.setVisibility(View.GONE);
         callVideoLayout.setVisibility(View.VISIBLE);
         showAnim(callVideoLayout);
@@ -849,13 +888,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //单独掩藏视频通话ui
-    private void hideCallVideoLayout(){
+    private void hideCallVideoLayout() {
         callVideoLayout.setVisibility(View.GONE);
         dismissAnim(callVideoLayout);
         mType = 0;
     }
+
     //单独掩藏密码开门ui
-    private void hideRoomNumLayout(){
+    private void hideRoomNumLayout() {
         roomNumLayout.setVisibility(View.GONE);
         dismissAnim(roomNumLayout);
         mType = 0;
@@ -863,17 +903,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     /**
-     *  保存记录到数据库
+     * 保存记录到数据库
+     *
      * @param type 1 IC卡开门，2 身份证开门，3 密码开门，  4 人脸开门
-     * @param sn  ic卡，身份证开门时的卡号
-     * @param sid 服务器上对应记录的id，上传记录图片时用
+     * @param sn   ic卡，身份证开门时的卡号
+     * @param sid  服务器上对应记录的id，上传记录图片时用
      */
 
-    public void savaICOrIDCardRecord(int type,int sid ,String sn) {
+    public void savaICOrIDCardRecord(int type, int sid, String sn) {
 
         String picturePath = FileUtil.getAppRecordPicturePath(this);
-        File file = new File(picturePath, new Date().getTime()+".jpg");
-        Utils.saveBitmap(file.getPath(),BitmapUtil.getViewBitmap(banner));
+        File file = new File(picturePath, new Date().getTime() + ".jpg");
+        Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
 
         OpenRecord record = new OpenRecord();
         record.setCreateTime(new Date().getTime());
@@ -917,12 +958,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
+                String cardNo = null;
+                try {
+                    cardNo = new String(paramComBean.bRec,"US-ASCII");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                LogUtil.w("nfc数据原始 = " + cardNo);
                 String str = bytesToHex(paramComBean.bRec);
 
                 //对比数据库，开门
                 Message msg = Message.obtain();
                 msg.what = 3;
                 msg.obj = str;
+//                msg.obj = "ic20190501";
                 doorHandler.sendMessage(msg);
 //                parseData(str);
             }
@@ -938,7 +987,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      */
     public static String bytesToHex(byte[] bytes) {
         StringBuffer sb = new StringBuffer();
+
         for (int i = 0; i < bytes.length; i++) {
+            byte b = bytes[i];
+            if(b == 0)
+                continue;
             String hex = Integer.toHexString(bytes[i] & 0xFF);
             if (hex.length() < 2) {
                 sb.append(0);
@@ -952,30 +1005,32 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void parseData(String str) {
         ToastUtil.showCustomToast(str);
         LogUtil.w("nfc数据 = " + str);
-
-        if (str.length() > 10) {//ic卡
-            ICCard iccard = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder()
-                    .where(ICCardDao.Properties.Sn.eq(str)).unique();
-            if (iccard != null) {
-                Message msg = Message.obtain();
-                msg.what = 1;
-                msg.arg1 = 1;
-                msg.obj = str;
-                doorHandler.sendMessage(msg);
-            }
-        } else if (str.length() > 18) {
-            IDCard idcard = DbManager.getInstance().getDaoSession().getIDCardDao().queryBuilder()
-                    .where(ICCardDao.Properties.Sn.eq(str)).unique();
-            if (idcard != null) {
-                Message msg = Message.obtain();
-                msg.what = 1;
-                msg.arg1 = 2;
-                msg.obj = str;
-                doorHandler.sendMessage(msg);
-            }
-        } else {
-            ToastUtil.showCustomToast("无法识别的卡，请用ic卡或身份证开门");
+//        str = str.substring(0, 20);
+        //ic卡
+        ICCard iccard = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder()
+                .where(ICCardDao.Properties.Sn.eq(str)).unique();
+        if (iccard != null) {
+            Message msg = Message.obtain();
+            msg.what = 1;
+            msg.arg1 = 1;
+            msg.obj = str;
+            doorHandler.sendMessage(msg);
+            return;
         }
+
+        IDCard idcard = DbManager.getInstance().getDaoSession().getIDCardDao().queryBuilder()
+                .where(IDCardDao.Properties.Sn.eq(str)).unique();
+        if (idcard != null) {
+            Message msg = Message.obtain();
+            msg.what = 1;
+            msg.arg1 = 2;
+            msg.obj = str;
+            doorHandler.sendMessage(msg);
+            return;
+        }
+
+        ToastUtil.showCustomToast("未注册的卡或无法识别的卡，请用已注册的ic卡或身份证开门");
+
     }
 
 
@@ -1018,20 +1073,21 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public class MyHandler extends Handler {
         private WeakReference<Activity> weakReference;
 
-        public MyHandler(Activity activity){
+        public MyHandler(Activity activity) {
             weakReference = new WeakReference<>(activity);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            if(weakReference.get() != null) {
+            if (weakReference.get() != null) {
                 switch (msg.what) {
                     case 1:
                         // open door;
                         int type = msg.arg1;
                         String sn = (String) msg.obj;
                         Gpio.RelayOnOff(1);
-                        uploadRecord(type,sn);
+                        uploadRecord(type, sn);
+                        MyToast.showToast("开门成功",R.mipmap.icon_success,"#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
                         break;
@@ -1044,30 +1100,62 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                         parseData(str);
                         break;
+
                 }
             }
         }
     }
 
     /**
-     *   上传不带图片的记录
+     * 上传不带图片的记录
+     *
      * @param type 1 IC卡开门，2 身份证开门，3 密码开门
-     * @param sn  ic卡，身份证开门时的卡号
+     * @param sn   ic卡，身份证开门时的卡号
      */
 
-    private void uploadRecord(int type ,String sn){
-        if(type == 1){//IC卡开门
-            presenter.uploadICCardRecord(type,sn);
-        }else if(type == 2){//身份证开门
-            presenter.uploadIDCardRecord(type,sn);
-        }else if(type == 3){//密码开门
-            presenter.uploadIDCardRecord(type,sn);
+    private void uploadRecord(int type, String sn) {
+        if (type == 1) {//IC卡开门
+            presenter.uploadICCardRecord(type, sn);
+        } else if (type == 2) {//身份证开门
+            presenter.uploadIDCardRecord(type, sn);
+        } else if (type == 3) {//密码开门
+            presenter.uploadIDCardRecord(type, sn);
+        } else if (type == 4) {//人脸开门
+            presenter.uploadIDCardRecord(type, sn);
         }
     }
 
     @Override
-    public void uploadCardSuccess(int type, int id,String sn) {
-        savaICOrIDCardRecord(type,id ,sn);
+    public void uploadCardSuccess(int type, int id, String sn) {
+        savaICOrIDCardRecord(type, id, sn);
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void faceOpenSuccess( FaceSuccessEventBean bean){
+        Message msg = Message.obtain();
+        msg.what = 1;
+        msg.arg1 = 4;
+        msg.obj = "人脸开门";
+        doorHandler.sendMessage(msg);
+    }
+
+
+    /**
+     *  人脸图片注册到阅面，
+     * @param bitmap 图片
+     * @param name  人脸名称
+     */
+    public void faceRegistByPicture(Bitmap bitmap,String name){
+        FaceSet faceSet = new FaceSet(getApplication());
+        faceSet.startTrack(0);
+        FaceResult faceResult = faceSet.registByBitmap(bitmap, name);
+        if (faceResult == null) return;
+        if (faceResult.code == 0) {
+            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
+            int personId = faceResult.personId;
+            LogUtil.w("人脸的中唯⼀一标识 personId = " + personId);
+        }
+    }
+
 }
 

@@ -36,4 +36,12 @@ public class ExApplication extends BaseApplication {
     public static Context getContext() {
         return context;
     }
+
+
+//    //解决方法数超过64k问题
+//    @Override
+//    protected void attachBaseContext(Context base) {
+//        super.attachBaseContext(base);
+//        MultiDex.install(this);
+//    }
 }

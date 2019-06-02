@@ -10,6 +10,8 @@ public class CardResBean {
 
     private int id;
     private String sn;
+    private boolean is_delete;
+    private int update_time;
     private int user_id;
     private String user_name;
 
@@ -27,6 +29,22 @@ public class CardResBean {
 
     public void setSn(String sn) {
         this.sn = sn;
+    }
+
+    public boolean isIs_delete() {
+        return is_delete;
+    }
+
+    public void setIs_delete(boolean is_delete) {
+        this.is_delete = is_delete;
+    }
+
+    public int getUpdate_time() {
+        return update_time;
+    }
+
+    public void setUpdate_time(int update_time) {
+        this.update_time = update_time;
     }
 
     public int getUser_id() {

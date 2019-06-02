@@ -1,9 +1,9 @@
 package com.xsjqzt.module_main.greendao.entity;
 
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.NotNull;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Unique;
 
 @Entity
@@ -18,19 +18,20 @@ public class ICCard {
     @Unique
     private String sn;//ic卡号码
 
+    private int update_time;
 
     private String user_name;//
-
 
     private int user_id;//
 
 
-    @Generated(hash = 1936218565)
-    public ICCard(Long id, int sid, @NotNull String sn, String user_name,
-            int user_id) {
+    @Generated(hash = 266464354)
+    public ICCard(Long id, int sid, @NotNull String sn, int update_time,
+            String user_name, int user_id) {
         this.id = id;
         this.sid = sid;
         this.sn = sn;
+        this.update_time = update_time;
         this.user_name = user_name;
         this.user_id = user_id;
     }
@@ -88,6 +89,16 @@ public class ICCard {
 
     public void setUser_id(int user_id) {
         this.user_id = user_id;
+    }
+
+
+    public int getUpdate_time() {
+        return this.update_time;
+    }
+
+
+    public void setUpdate_time(int update_time) {
+        this.update_time = update_time;
     }
 
   }

@@ -6,7 +6,6 @@ import android.os.Parcelable;
 import com.jbb.library_common.retrofit.other.BaseBean;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class FaceImageResBean extends BaseBean implements Parcelable{
     private ArrayList<DataBean> data;
@@ -56,19 +55,24 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
          * mobile : 13724108079
          */
 
-        private int id;
+        private int user_id;
         private String image;
         private int status;
-        private String mobile;
+        private int update_time;
+        private boolean is_delete;
+        private String code;
 
         public DataBean() {
         }
 
+
         protected DataBean(Parcel in) {
-            id = in.readInt();
+            user_id = in.readInt();
             image = in.readString();
+            is_delete = in.readByte()!=0;
             status = in.readInt();
-            mobile = in.readString();
+            update_time = in.readInt();
+            code = in.readString();
         }
 
         public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
@@ -83,12 +87,28 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
             }
         };
 
-        public int getId() {
-            return id;
+        @Override
+        public int describeContents() {
+            return 0;
         }
 
-        public void setId(int id) {
-            this.id = id;
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(user_id);
+            dest.writeString(image);
+            dest.writeInt(status);
+            dest.writeInt(update_time);
+            dest.writeString(code);
+            dest.writeByte((byte) (is_delete==true?1:0));
+        }
+
+
+        public int getUser_id() {
+            return user_id;
+        }
+
+        public void setUser_id(int user_id) {
+            this.user_id = user_id;
         }
 
         public String getImage() {
@@ -107,25 +127,28 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
             this.status = status;
         }
 
-        public String getMobile() {
-            return mobile;
+        public int getUpdate_time() {
+            return update_time;
         }
 
-        public void setMobile(String mobile) {
-            this.mobile = mobile;
+        public void setUpdate_time(int update_time) {
+            this.update_time = update_time;
         }
 
-        @Override
-        public int describeContents() {
-            return 0;
+        public String getCode() {
+            return code;
         }
 
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(id);
-            dest.writeString(image);
-            dest.writeInt(status);
-            dest.writeString(mobile);
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public boolean isIs_delete() {
+            return is_delete;
+        }
+
+        public void setIs_delete(boolean is_delete) {
+            this.is_delete = is_delete;
         }
     }
 }
