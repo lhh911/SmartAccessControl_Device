@@ -14,6 +14,8 @@ import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.utils.CommUtil;
 import com.xsjqzt.module_main.R;
 
+import java.io.IOException;
+
 public class MyToast {
 
     public static void showToast(String str, int id,String color) {
@@ -33,4 +35,15 @@ public class MyToast {
         customToast.setDuration(Toast.LENGTH_LONG);
         customToast.show();
     }
+
+    //重启
+    public static void reboot() {
+        try {
+            Process exec = Runtime.getRuntime().exec(new String[]{"su", "-c", "reboot -p"});
+            int i = exec.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

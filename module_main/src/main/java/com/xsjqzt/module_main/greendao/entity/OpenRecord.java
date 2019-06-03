@@ -11,7 +11,7 @@ public class OpenRecord {
     private Long id;
 
     @NotNull
-    private String sn;//卡号或这 临时密码
+    private String sn;//卡号或这 临时密码,人脸开门时对应userid
 
     private int status;//（0 失败[不开门]，1 成功[开门]）
 

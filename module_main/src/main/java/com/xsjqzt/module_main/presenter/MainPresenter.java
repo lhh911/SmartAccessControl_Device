@@ -352,4 +352,52 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         });
 
     }
+
+    public void uploadCodeRecord(final int type, final String code) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .uploadCodeRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), code, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+            @Override
+            public void onSuccess(UploadCardResBean bean) {
+                if (mView != null)
+                    mView.uploadCardSuccess(type, bean.getData().getId(), code);
+            }
+
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onEnd() {
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+            }
+        });
+    }
+
+    public void uploadFaceRecord(final int type, final int user_id) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .uploadFaceRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+            @Override
+            public void onSuccess(UploadCardResBean bean) {
+                if (mView != null)
+                    mView.uploadCardSuccess(type, bean.getData().getId(), String.valueOf(user_id));
+            }
+
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onEnd() {
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+            }
+        });
+    }
 }

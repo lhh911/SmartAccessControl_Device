@@ -46,7 +46,7 @@ public interface ApiService {
     Observable<ResponseBody> setVoice(@Header("Authorization") String token, @Field("volume") int volume);
 
 
-    //上传IC卡开门记录图片
+    //上传开门记录图片
     @Multipart
     @POST("entrance/upload/upload_image")
     Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token, @PartMap Map<String, RequestBody> params, @Part MultipartBody.Part file);
@@ -62,6 +62,15 @@ public interface ApiService {
     @POST("entrance/upload/idcard_record")
     Observable<ResponseBody> uploadIDCardRecordNoImage(@Header("Authorization") String token, @Field("sn") String sn, @Field("status") int status);
 
+    //上传密码开门记录不含图片
+    @FormUrlEncoded
+    @POST("entrance/upload/invent_code_record")
+    Observable<ResponseBody> uploadCodeRecord(@Header("Authorization") String token, @Field("code") String code, @Field("status") int status);
+
+    //上传人脸开门记录不含图片
+    @FormUrlEncoded
+    @POST("entrance/upload/face_record")
+    Observable<ResponseBody> uploadFaceRecord(@Header("Authorization") String token, @Field("user_id")int user_id, @Field("status") int status);
 
 
     //获取当前进出口信息

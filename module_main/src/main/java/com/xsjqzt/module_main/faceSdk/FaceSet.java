@@ -658,7 +658,7 @@ public class FaceSet {
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if(identifyPerson >= 0) {
 //                    context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
-                    EventBus.getDefault().post(new FaceSuccessEventBean());
+                    EventBus.getDefault().post(new FaceSuccessEventBean(1));
                 }
             }
         } else {

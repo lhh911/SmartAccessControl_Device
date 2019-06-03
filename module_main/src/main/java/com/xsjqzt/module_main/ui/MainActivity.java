@@ -620,14 +620,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 long now = System.currentTimeMillis();
                 if (expiry_time < (now / 1000)) {//过期了
 //                    showSucOrError = 2;
-                    setShowSucOrError(false);
+                    setShowSucOrError(false,inputNum);
                 }else{
 //                    showSucOrError = 1;
-                    setShowSucOrError(true);
+                    setShowSucOrError(true,inputNum);
                 }
 
             }else{
-                setShowSucOrError(false);
+                setShowSucOrError(false,inputNum);
             }
         } else if (inputNum.length() == 4 || inputNum.length() == 6) {
             showCallVideoLayout();
@@ -641,7 +641,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //密码开门显示结果
-    private void setShowSucOrError(boolean success) {
+    private void setShowSucOrError(boolean success,String code) {
         if (success) {//开门成功
 //            inputNumLayout.setVisibility(View.GONE);
 //            successLayout.setVisibility(View.VISIBLE);
@@ -650,6 +650,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             Message msg = Message.obtain();
             msg.what = 1;
             msg.arg1 = 3;
+            msg.obj = code;
             doorHandler.sendMessage(msg);
         } else {
             MyToast.showToast("密码错误",R.mipmap.icon_error,"#FF0000");
@@ -925,23 +926,27 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param sid  服务器上对应记录的id，上传记录图片时用
      */
 
-    public void savaICOrIDCardRecord(int type, int sid, String sn) {
+    public void savaICOrIDCardRecord(final int type, final int sid, final String sn) {
 
-        String picturePath = FileUtil.getAppRecordPicturePath(this);
-        File file = new File(picturePath, new Date().getTime() + ".jpg");
-        Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
+                File file = new File(picturePath, new Date().getTime() + ".jpg");
+                Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
 
-        OpenRecord record = new OpenRecord();
-        record.setCreateTime(new Date().getTime());
-        record.setImage(file.getPath());
-        record.setSn(sn);
-        record.setStatus(1);
-        record.setUploadStatus(false);
-        record.setSid(sid);
-        record.setType(type);
+                OpenRecord record = new OpenRecord();
+                record.setCreateTime(new Date().getTime());
+                record.setImage(file.getPath());
+                record.setSn(sn);
+                record.setStatus(1);
+                record.setUploadStatus(false);
+                record.setSid(sid);
+                record.setType(type);
+                DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
+            }
+        }).start();
 
-
-        DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
 
     }
 
@@ -1125,7 +1130,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * 上传不带图片的记录
      *
      * @param type 1 IC卡开门，2 身份证开门，3 密码开门
-     * @param sn   ic卡，身份证开门时的卡号
+     * @param sn   ic卡，身份证开门时的卡号, 密码开门临时密码，人脸开门user_id
      */
 
     private void uploadRecord(int type, String sn) {
@@ -1134,9 +1139,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         } else if (type == 2) {//身份证开门
             presenter.uploadIDCardRecord(type, sn);
         } else if (type == 3) {//密码开门
-            presenter.uploadIDCardRecord(type, sn);
+            presenter.uploadCodeRecord(type, sn);
         } else if (type == 4) {//人脸开门
-            presenter.uploadIDCardRecord(type, sn);
+            presenter.uploadFaceRecord(type, Integer.parseInt(sn));//sn对应user_id
         }
     }
 
@@ -1150,7 +1155,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         Message msg = Message.obtain();
         msg.what = 1;
         msg.arg1 = 4;
-        msg.obj = "人脸开门";
+        msg.obj = String.valueOf(bean.user_id);
         doorHandler.sendMessage(msg);
     }
 
