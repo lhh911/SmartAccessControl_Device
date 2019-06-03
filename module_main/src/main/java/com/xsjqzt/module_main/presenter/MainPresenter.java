@@ -19,7 +19,6 @@ import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.model.CardResBean;
 import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.ICCardResBean;
-import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.IDCardResBean;
 import com.xsjqzt.module_main.model.KeyResBean;
 import com.xsjqzt.module_main.model.PswCodeResBean;
@@ -30,21 +29,10 @@ import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.service.FaceImageDownService;
-import com.xsjqzt.module_main.ui.MainActivity;
 import com.xsjqzt.module_main.view.MainView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 
 public class MainPresenter extends BaseMvpPresenter<MainView> {
 
@@ -363,5 +351,53 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
         });
 
+    }
+
+    public void uploadCodeRecord(final int type, final String code) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .uploadCodeRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), code, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+            @Override
+            public void onSuccess(UploadCardResBean bean) {
+                if (mView != null)
+                    mView.uploadCardSuccess(type, bean.getData().getId(), code);
+            }
+
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onEnd() {
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+            }
+        });
+    }
+
+    public void uploadFaceRecord(final int type, final int user_id) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .uploadFaceRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+            @Override
+            public void onSuccess(UploadCardResBean bean) {
+                if (mView != null)
+                    mView.uploadCardSuccess(type, bean.getData().getId(), String.valueOf(user_id));
+            }
+
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onEnd() {
+            }
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+            }
+        });
     }
 }

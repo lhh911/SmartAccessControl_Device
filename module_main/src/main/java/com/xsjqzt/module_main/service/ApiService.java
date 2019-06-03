@@ -7,10 +7,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.http.Field;
-import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.HEAD;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -48,22 +46,31 @@ public interface ApiService {
     Observable<ResponseBody> setVoice(@Header("Authorization") String token, @Field("volume") int volume);
 
 
-    //上传IC卡开门记录图片
+    //上传开门记录图片
     @Multipart
     @POST("entrance/upload/upload_image")
-    Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token , @PartMap Map<String , RequestBody> params, @Part MultipartBody.Part file);
+    Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token, @PartMap Map<String, RequestBody> params, @Part MultipartBody.Part file);
 
 
     //上传IC卡开门记录不含图片
     @FormUrlEncoded
     @POST("entrance/upload/iccard_record")
-    Observable<ResponseBody> uploadICCardRecordNoImage(@Header("Authorization") String token , @Field("sn") String sn, @Field("status") int status);
+    Observable<ResponseBody> uploadICCardRecordNoImage(@Header("Authorization") String token, @Field("sn") String sn, @Field("status") int status);
 
     //上传ID卡开门记录不含图片
     @FormUrlEncoded
     @POST("entrance/upload/idcard_record")
-    Observable<ResponseBody> uploadIDCardRecordNoImage(@Header("Authorization") String token , @Field("sn") String sn, @Field("status") int status);
+    Observable<ResponseBody> uploadIDCardRecordNoImage(@Header("Authorization") String token, @Field("sn") String sn, @Field("status") int status);
 
+    //上传密码开门记录不含图片
+    @FormUrlEncoded
+    @POST("entrance/upload/invent_code_record")
+    Observable<ResponseBody> uploadCodeRecord(@Header("Authorization") String token, @Field("code") String code, @Field("status") int status);
+
+    //上传人脸开门记录不含图片
+    @FormUrlEncoded
+    @POST("entrance/upload/face_record")
+    Observable<ResponseBody> uploadFaceRecord(@Header("Authorization") String token, @Field("user_id") int user_id, @Field("status") int status);
 
 
     //获取当前进出口信息
@@ -72,30 +79,30 @@ public interface ApiService {
 
     //获取身份证数据
     @POST("entrance/data/idcards")
-    Observable<ResponseBody> loadIDCards(@Header("Authorization") String token, @Query("update_time") int update_time );
+    Observable<ResponseBody> loadIDCards(@Header("Authorization") String token, @Query("update_time") int update_time);
 
     //获取IC卡数据
     @POST("entrance/data/iccards")
-    Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("update_time") int update_time );
+    Observable<ResponseBody> loadICCards(@Header("Authorization") String token, @Query("update_time") int update_time);
 
     //获取临时开门密码数据
     @POST("entrance/data/invite_codes")
-    Observable<ResponseBody> downOpenCode(@Header("Authorization") String token, @Query("update_time") int update_time );
+    Observable<ResponseBody> downOpenCode(@Header("Authorization") String token, @Query("update_time") int update_time);
 
     //获取人脸注册数据
     @FormUrlEncoded
     @POST("entrance/data/user_faces")
-    Observable<ResponseBody> loadFaceImage(@Header("Authorization") String token ,@Field("update_time")int update_time);
+    Observable<ResponseBody> loadFaceImage(@Header("Authorization") String token, @Field("update_time") int update_time);
 
     //下载人脸图片
     @Streaming
     @GET
-    Observable<ResponseBody> downFaceImage(@Header("Authorization") String token , @Url String image);
+    Observable<ResponseBody> downFaceImage(@Header("Authorization") String token, @Url String image);
 
     //上传人脸照片状态
     @FormUrlEncoded
-    @POST("entrance/data/user_faces")
-    Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status")int status,@Field("user_id")int user_id, @Field("code") String code);
+    @POST("entrance/upload/faces_status")
+    Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status") int status, @Field("user_id") int user_id, @Field("code") String code);
 
 
 }
