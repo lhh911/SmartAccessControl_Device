@@ -49,6 +49,7 @@ import okhttp3.ResponseBody;
 public class OpenRecordService extends IntentService {
 
     LinkedList<OpenRecord> queue = new LinkedList<>();
+    private boolean isStart = false;
 
     public OpenRecordService() {
         super("OpenRecordService");
@@ -68,6 +69,9 @@ public class OpenRecordService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(isStart)
+            return;
+        isStart = true;
         queryAllRecord();
     }
 

@@ -146,11 +146,11 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receive.NetStatusReceiver">
+       <!-- <receiver android:name=".receive.NetStatusReceiver">
             <intent-filter >
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
-        </receiver>
+        </receiver>-->
         <receiver android:name=".receive.AlarmReceiver"/>
 
         <service

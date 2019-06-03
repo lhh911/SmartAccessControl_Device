@@ -55,6 +55,7 @@ import okhttp3.ResponseBody;
 public class FaceImageDownService extends IntentService {
 
     LinkedList<FaceImageResBean.DataBean> queue = new LinkedList<>();
+    private boolean isStart = false;
 
     public FaceImageDownService() {
         super("FaceImageDownService");
@@ -86,7 +87,9 @@ public class FaceImageDownService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         //三步：下载人脸图片，注册阅面，后将注册状态成功与否传给后台，
-
+        if(isStart)
+            return;
+        isStart = true;
         downImage();
     }
 
