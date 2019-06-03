@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DownAllDataService extends IntentService {
-
+    private boolean isStart = false;
 
     public DownAllDataService() {
         super("DownAllDataService");
@@ -51,11 +51,14 @@ public class DownAllDataService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LogUtil.w("DownAllDataService");
+        LogUtil.w("FaceImageDownService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if(isStart)
+            return;
+        isStart = true;
         //下载ic卡，id卡，人脸
         downICCard();
         downIDCard();

@@ -1,6 +1,5 @@
 package com.xsjqzt.module_main.ui;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -46,7 +45,6 @@ import com.jbb.library_common.utils.log.LogUtil;
 import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.R;
-import com.xsjqzt.module_main.activity.FaceDemoActivity;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
@@ -61,7 +59,6 @@ import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
-import com.xsjqzt.module_main.receive.NetStatusReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.view.MainView;
@@ -87,8 +84,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import cn.jpush.android.api.JPushInterface;
 import tp.xmaihh.serialport.SerialHelper;
@@ -115,8 +110,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int showType = 1;// 1 图片广告，2 视频广告
     private MyBroadcastReceiver mReceiver;
 
-//    private String sn1;//序列号1
-//    private String sn2;//序列号2
     private PendingIntent pi;
     private AlarmManager am;
 
@@ -133,7 +126,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //    private Timer inputLayoutShowTime;//10秒内检查操作定时器
 //    private TimerTask inputLayoutShowTask;
     private InutLayoutShowTimeRunnable inutLayoutShowTimeRunnable;
-    private NetStatusReceiver netStatusReceiver;
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -184,12 +177,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         registReceiver();
 
-//        presenter.entranceDetail();
 
         setAlarm();
         startMeasuing();
 
-        loadCardData();
+//        loadCardData();
 
         EventBus.getDefault().register(this);
 //        test();
@@ -198,7 +190,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void loadCardData() {
 //        downICCardData();
 //        downIDCardData();
-        startService(new Intent(this,DownAllDataService.class));
+//        startService(new Intent(this,DownAllDataService.class));
     }
 
     private void test() {
@@ -281,7 +273,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     public void btn4Click(View view) {
-        goTo(FaceDemoActivity.class);
+//        goTo(FaceDemoActivity.class);
     }
 
 
@@ -355,7 +347,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         //获取token
         //获取token的key，生成规则：skey = md5(sn1+sn2+key)
         String skey = MD5Util.md5(UserInfoInstance.getInstance().getSn1() + UserInfoInstance.getInstance().getSn2() + key);
-        presenter.getToken(UserInfoInstance.getInstance().getSn1() , skey);
+        presenter.getToken(UserInfoInstance.getInstance().getSn1(), skey);
     }
 
     @Override
@@ -409,8 +401,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         if (mReceiver != null)
             unregisterReceiver(mReceiver);
-        if (netStatusReceiver != null)
-            unregisterReceiver(netStatusReceiver);
+
 
         if (am != null)
             am.cancel(pi);
@@ -477,16 +468,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void registReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(KeyContacts.ACTION_API_KEY_INVALID);
-        filter.addAction(Manifest.permission.ACCESS_NETWORK_STATE);
-        filter.addAction(Manifest.permission.CHANGE_NETWORK_STATE);
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+//        filter.addAction(Manifest.permission.CHANGE_NETWORK_STATE);
         filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
         mReceiver = new MyBroadcastReceiver();
         registerReceiver(mReceiver, filter);
 
-        IntentFilter filter2 = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        netStatusReceiver = new NetStatusReceiver();
-        registerReceiver(netStatusReceiver,filter2);
+
     }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
@@ -501,10 +489,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     UserInfoInstance.getInstance().reset();
                     login();
                 }
-            } else if (intent.getAction() == Manifest.permission.ACCESS_NETWORK_STATE || intent.getAction() == Manifest.permission.CHANGE_NETWORK_STATE) {
+            } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION ) {
                 //监听网络变化
                 if (Utils.getNetWorkState(MainActivity.this)) {
                     LogUtil.w("NetWorkState = " + true);
+                    startService(new Intent(context, DownAllDataService.class));
                     login();
                 }
             } else if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
@@ -686,8 +675,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                            mType = 1;
 //                        }
 //                        inputNumLayout.setVisibility(View.VISIBLE);
-////                        successLayout.setVisibility(View.GONE);
-////                        errorLayout.setVisibility(View.GONE);
+//                        successLayout.setVisibility(View.GONE);
+//                        errorLayout.setVisibility(View.GONE);
 //                    }
 //                });
 //            }
@@ -1083,7 +1072,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-        open();
+//        open();
     }
 
     @Override
@@ -1166,22 +1155,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    /**
-     *  人脸图片注册到阅面，
-     * @param bitmap 图片
-     * @param name  人脸名称
-     */
-//    public void faceRegistByPicture(Bitmap bitmap,String name){
-//        FaceSet faceSet = new FaceSet(getApplication());
-//        faceSet.startTrack(0);
-//        FaceResult faceResult = faceSet.registByBitmap(bitmap, name);
-//        if (faceResult == null) return;
-//        if (faceResult.code == 0) {
-//            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-//            int personId = faceResult.personId;
-//            LogUtil.w("人脸的中唯⼀一标识 personId = " + personId);
-//        }
-//    }
 
 }
 

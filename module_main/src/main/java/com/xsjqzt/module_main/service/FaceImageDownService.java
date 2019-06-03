@@ -41,6 +41,7 @@ import okhttp3.ResponseBody;
 public class FaceImageDownService extends IntentService {
 
     LinkedList<FaceImageResBean.DataBean> queue = new LinkedList<>();
+    private boolean isStart = false;
 
     public FaceImageDownService() {
         super("FaceImageDownService");
@@ -72,7 +73,9 @@ public class FaceImageDownService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         //三步：下载人脸图片，注册阅面，后将注册状态成功与否传给后台，
-
+        if(isStart)
+            return;
+        isStart = true;
         downImage();
     }
 
@@ -165,20 +168,19 @@ public class FaceImageDownService extends IntentService {
     public void registYM(String facePath, int user_id,FaceImageResBean.DataBean dataBean) {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
-        int personId = 0;
+
         int status = 0;
         String code = "";//识别码
-
         FaceSet faceSet = new FaceSet(getApplication());
         faceSet.startTrack(0);
         FaceResult faceResult = faceSet.registByBitmap(bitmap, user_id+"");
         if (faceResult == null) return;
         if (faceResult.code == 0) {//成功
             //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-            personId = faceResult.personId;
-            LogUtil.w("人脸的中唯⼀一标识 personId = " + personId);
+            code = faceResult.personId +"";
+            LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
             status = 2;
-            code = "";
+
         }else{//失败
             status = 3;
         }
