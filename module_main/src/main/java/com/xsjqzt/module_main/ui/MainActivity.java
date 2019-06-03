@@ -1072,7 +1072,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-//        open();
+        open();
     }
 
     @Override
