@@ -274,6 +274,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void btn4Click(View view) {
 //        goTo(FaceDemoActivity.class);
+        String inputNum = roomNumEt.getText().toString().trim();
+        if (TextUtils.isEmpty(inputNum))
+            return ;
+
+        checkInput(inputNum);
     }
 
 

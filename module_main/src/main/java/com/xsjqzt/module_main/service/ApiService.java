@@ -70,7 +70,7 @@ public interface ApiService {
     //上传人脸开门记录不含图片
     @FormUrlEncoded
     @POST("entrance/upload/face_record")
-    Observable<ResponseBody> uploadFaceRecord(@Header("Authorization") String token, @Field("user_id")int user_id, @Field("status") int status);
+    Observable<ResponseBody> uploadFaceRecord(@Header("Authorization") String token, @Field("user_id") int user_id, @Field("status") int status);
 
 
     //获取当前进出口信息
@@ -101,7 +101,7 @@ public interface ApiService {
 
     //上传人脸照片状态
     @FormUrlEncoded
-    @POST("entrance/data/user_faces")
+    @POST("entrance/upload/faces_status")
     Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status") int status, @Field("user_id") int user_id, @Field("code") String code);
 
 
