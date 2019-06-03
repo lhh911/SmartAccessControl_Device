@@ -22,7 +22,7 @@ import java.util.TimerTask;
 public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> implements TokenView {
 
 
-    String macAddress = "20:47:DA:F3:E9:AE";//测试写死的mac地址，绑定3出入口
+    String macAddress = "2047DAF3E9AE";//测试写死的mac地址，绑定3出入口
 
     @Override
     public void init() {
@@ -49,8 +49,8 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
         }
-        String str1 = macAddress.substring(0,macAddress.length() /2);
-        String str2 = macAddress.substring(macAddress.length() /2 , macAddress.length());
+        String str1 = macAddress;
+        String str2 = MD5Util.md5(macAddress).substring(0 , 4);
 
         UserInfoInstance.getInstance().setSn1(str1);
         UserInfoInstance.getInstance().setSn2(str2);
@@ -66,7 +66,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void bindDevice(){
 
-        int eid = 4;
+        int eid = 5;
         presenter.bindDevice(UserInfoInstance.getInstance().getSn1(),UserInfoInstance.getInstance().getSn2() ,eid);
     }
 
@@ -143,7 +143,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     public void getTokenSuccess() {
-        next(50);
+        next(3000);
     }
 
     @Override
