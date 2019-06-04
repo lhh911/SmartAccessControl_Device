@@ -23,6 +23,7 @@ import com.xsjqzt.module_main.widget.ImgTextView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.math.BigInteger;
 
 import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
@@ -135,6 +136,10 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
             @Override
             protected void onDataReceived(ComBean paramComBean) {
                 String str = bytesToHex(paramComBean.bRec);
+                LogUtil.w("nfc 十六进制 = " + str);
+                BigInteger bi = new BigInteger(str, 16);//转十进制
+                str = bi.toString();
+                LogUtil.w("nfc 十进制 = " + str);
 
                 //对比数据库，开门
                 Message msg = Message.obtain();
@@ -156,9 +161,9 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < bytes.length; i++) {
             String hex = Integer.toHexString(bytes[i] & 0xFF);
-            if (hex.length() < 2) {
-                sb.append(0);
-            }
+//            if (hex.length() < 2) {
+//                sb.append(0);
+//            }
             sb.append(hex);
         }
         return sb.toString();

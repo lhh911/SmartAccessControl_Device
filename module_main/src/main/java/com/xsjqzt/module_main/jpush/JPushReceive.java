@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.utils.log.LogUtil;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -33,12 +34,12 @@ public class JPushReceive extends BroadcastReceiver {
 //            LogUtil.d(TAG, "接受到推送下来的自定义消息");
 
         } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
-//            LogUtil.d(TAG, "接受到推送下来的通知");
+            LogUtil.d(TAG, "接受到推送下来的通知");
 
             receivingNotification(context,bundle);
 
         } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
-//            LogUtil.d(TAG, "用户点击打开了通知");
+            LogUtil.d(TAG, "用户点击打开了通知");
 
             openNotification(context,bundle);
 
@@ -48,12 +49,12 @@ public class JPushReceive extends BroadcastReceiver {
     }
 
     private void receivingNotification(Context context, Bundle bundle){
-//        String title = bundle.getString(JPushInterface.EXTRA_NOTIFICATION_TITLE);
-//        LogUtil.d(TAG, " title : " + title);
-//        String message = bundle.getString(JPushInterface.EXTRA_ALERT);
-//        LogUtil.d(TAG, "message : " + message);
-//        String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
-//        LogUtil.d(TAG, "extras : " + extras);
+        String title = bundle.getString(JPushInterface.EXTRA_NOTIFICATION_TITLE);
+        LogUtil.d(TAG, " title : " + title);
+        String message = bundle.getString(JPushInterface.EXTRA_ALERT);
+        LogUtil.d(TAG, "message : " + message);
+        String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
+        LogUtil.d(TAG, "extras : " + extras);
 
         Intent it = new Intent();
         it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);

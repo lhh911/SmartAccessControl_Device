@@ -80,6 +80,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -983,14 +984,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
-                String cardNo = null;
-                try {
-                    cardNo = new String(paramComBean.bRec,"US-ASCII");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                LogUtil.w("nfc数据原始 = " + cardNo);
                 String str = bytesToHex(paramComBean.bRec);
+                LogUtil.w("nfc 十六进制 = " + str);
+                BigInteger bi = new BigInteger(str, 16);//转十进制
+                str = bi.toString();
+                LogUtil.w("nfc 十进制 = " + str);
 
                 //对比数据库，开门
                 Message msg = Message.obtain();
@@ -1014,13 +1012,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < bytes.length; i++) {
-            byte b = bytes[i];
-            if(b == 0)
-                continue;
+
             String hex = Integer.toHexString(bytes[i] & 0xFF);
-            if (hex.length() < 2) {
-                sb.append(0);
-            }
+//            if (hex.length() < 2) {
+//                sb.append(0);
+//            }
             sb.append(hex);
         }
         return sb.toString();
