@@ -123,7 +123,8 @@ public class DownAllDataService extends IntentService {
             public void onSuccess(final FaceImageResBean info) {
 
                 ArrayList<FaceImageResBean.DataBean> data = info.getData();
-
+                if(data == null || data.isEmpty())
+                    return;
                 Intent it = new Intent(DownAllDataService.this, FaceImageDownService.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("data", data);
@@ -165,6 +166,7 @@ public class DownAllDataService extends IntentService {
                         card.setSn(bean.getSn());
                         card.setUser_id(bean.getUser_id());
                         card.setUser_name(bean.getUser_name());
+                        card.setUpdate_time(bean.getUpdate_time());
                         lists.add(card);
                     }
                 }
@@ -207,6 +209,7 @@ public class DownAllDataService extends IntentService {
                         card.setSn(bean.getSn());
                         card.setUser_id(bean.getUser_id());
                         card.setUser_name(bean.getUser_name());
+                        card.setUpdate_time(bean.getUpdate_time());
                         lists.add(card);
                     }
                 }

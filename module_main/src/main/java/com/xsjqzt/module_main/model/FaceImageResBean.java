@@ -3,11 +3,12 @@ package com.xsjqzt.module_main.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.jbb.library_common.retrofit.other.BaseBean;
 
 import java.util.ArrayList;
 
-public class FaceImageResBean extends BaseBean implements Parcelable{
+public class FaceImageResBean extends BaseBean implements Parcelable {
     private ArrayList<DataBean> data;
 
     public FaceImageResBean() {
@@ -60,7 +61,8 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
         private int status;
         private int update_time;
         private boolean is_delete;
-        private String code;
+        @JSONField(name = "code")
+        private String codeX;
 
         public DataBean() {
         }
@@ -69,10 +71,10 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
         protected DataBean(Parcel in) {
             user_id = in.readInt();
             image = in.readString();
-            is_delete = in.readByte()!=0;
             status = in.readInt();
             update_time = in.readInt();
-            code = in.readString();
+            is_delete = in.readByte() != 0;
+            codeX = in.readString();
         }
 
         public static final Creator<DataBean> CREATOR = new Creator<DataBean>() {
@@ -98,10 +100,9 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
             dest.writeString(image);
             dest.writeInt(status);
             dest.writeInt(update_time);
-            dest.writeString(code);
-            dest.writeByte((byte) (is_delete==true?1:0));
+            dest.writeByte((byte) (is_delete ? 1 : 0));
+            dest.writeString(codeX);
         }
-
 
         public int getUser_id() {
             return user_id;
@@ -135,20 +136,20 @@ public class FaceImageResBean extends BaseBean implements Parcelable{
             this.update_time = update_time;
         }
 
-        public String getCode() {
-            return code;
-        }
-
-        public void setCode(String code) {
-            this.code = code;
-        }
-
         public boolean isIs_delete() {
             return is_delete;
         }
 
         public void setIs_delete(boolean is_delete) {
             this.is_delete = is_delete;
+        }
+
+        public String getCodeX() {
+            return codeX;
+        }
+
+        public void setCodeX(String codeX) {
+            this.codeX = codeX;
         }
     }
 }

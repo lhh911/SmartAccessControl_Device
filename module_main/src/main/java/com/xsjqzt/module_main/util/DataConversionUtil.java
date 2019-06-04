@@ -29,4 +29,16 @@ public class DataConversionUtil {
         }
         return byteBuffer.array();
     }
+
+
+    public static String floatToString(float[] floats) {
+        if (floats == null || floats.length < 1)
+            return "";
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < floats.length; i++) {
+            stringBuilder.append(floats[i] + "_");
+        }
+        return stringBuilder.substring(0, stringBuilder.length() - 1);
+
+    }
 }

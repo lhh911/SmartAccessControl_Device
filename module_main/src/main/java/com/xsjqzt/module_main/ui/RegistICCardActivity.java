@@ -27,6 +27,7 @@ import java.math.BigInteger;
 
 import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
+import tp.xmaihh.serialport.utils.ByteUtil;
 
 public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,RegistICCardPresenter> implements RegistICCardIView {
     private TextView registTipTv;
@@ -135,11 +136,12 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
-                String str = bytesToHex(paramComBean.bRec);
+//                String str = bytesToHex(paramComBean.bRec);
+                String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
-                BigInteger bi = new BigInteger(str, 16);//转十进制
-                str = bi.toString();
-                LogUtil.w("nfc 十进制 = " + str);
+//                BigInteger bi = new BigInteger(str, 16);//转十进制
+//                str = bi.toString();
+//                LogUtil.w("nfc 十进制 = " + str);
 
                 //对比数据库，开门
                 Message msg = Message.obtain();
@@ -168,6 +170,48 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
         }
         return sb.toString();
     }
+
+    private String parseIC(byte[] bRec){
+        android.util.Log.d("wlDebug", " = " + ByteUtil.ByteArrToHex(bRec));
+        byte[] cardData = new byte[4];
+        cardData[0] = bRec[8];
+        cardData[1] = bRec[7];
+        cardData[2] = bRec[6];
+        cardData[3] = bRec[5];
+        String _str = ByteUtil.ByteArrToHex(cardData);
+        BigInteger cardID = new BigInteger(_str, 16);
+        android.util.Log.d("wlDebug", "_str = " + _str + "cardID = " + cardID.toString());
+
+        return cardID.toString();
+    }
+
+
+    public String parseCard(ComBean comBean){
+        String cardID = "";
+        if (comBean.bRec[1] == 0x08) {
+            byte[] cardData = new byte[4];
+            cardData[0] = comBean.bRec[8];
+            cardData[1] = comBean.bRec[7];
+            cardData[2] = comBean.bRec[6];
+            cardData[3] = comBean.bRec[5];
+            String _str = ByteUtil.ByteArrToHex(cardData);
+            cardID = new BigInteger(_str, 16).toString();
+        } else if (comBean.bRec[1] == 0x0c) {
+            byte[] cardData = new byte[8];
+            cardData[0] = comBean.bRec[12];
+            cardData[1] = comBean.bRec[11];
+            cardData[2] = comBean.bRec[10];
+            cardData[3] = comBean.bRec[9];
+            cardData[4] = comBean.bRec[8];
+            cardData[5] = comBean.bRec[7];
+            cardData[6] = comBean.bRec[6];
+            cardData[7] = comBean.bRec[5];
+            String _str = ByteUtil.ByteArrToHex(cardData);
+            cardID = new BigInteger(_str, 16).toString();
+        }
+        return cardID;
+    }
+
 
 
     private void parseData(String str) {

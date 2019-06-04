@@ -304,7 +304,8 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             @Override
             public void onSuccess(final FaceImageResBean info) {
                 ArrayList<FaceImageResBean.DataBean> data = info.getData();
-
+                if(data == null || data.isEmpty())
+                    return;
                 Intent it = new Intent(context, FaceImageDownService.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelableArrayList("data", data);

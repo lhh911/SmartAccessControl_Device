@@ -162,6 +162,38 @@
         </service>
         <service android:name=".service.DownAllDataService"/>
         <service android:name=".service.FaceImageDownService"/>
+
+
+
+
+
+        <activity
+            android:name=".activity.FaceExamplesActivity"
+            />
+        <activity
+            android:name=".activity.MainActivity"
+            >
+        </activity>
+        <activity
+            android:name=".activity.register.IDCardRecognitionAcitvity"
+            />
+        <activity
+            android:name=".activity.FaceDemoActivity">
+        </activity>
+
+        <activity
+            android:name=".activity.register.RegistFromBatchPicActivity"
+            />
+        <activity
+            android:name=".activity.register.RegistFromCamAcitvity"
+            />
+        <activity
+            android:name=".activity.register.RegistFromPicActivity"
+            />
+        <activity
+            android:name=".activity.FaceRegistActivity"
+            />
+
     </application>
 
 </manifest>

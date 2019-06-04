@@ -45,13 +45,14 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void initMac() {
 //      String wifiaddr = DeviceUtil.getMacDefault(this);
-//        macAddress = DeviceUtil.getEthernetMac().replaceAll(":","");
+        macAddress = DeviceUtil.getEthernetMac();
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
         }
+        macAddress = macAddress.replaceAll(":","").toUpperCase();
         String str1 = macAddress;
-        String str2 = MD5Util.md5(macAddress).substring(0 , 4);
+        String str2 = MD5Util.md5(macAddress).substring(0 , 4).toUpperCase();
 
         UserInfoInstance.getInstance().setSn1(str1);
         UserInfoInstance.getInstance().setSn2(str2);
@@ -67,7 +68,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void bindDevice(){
 
-        int eid = 5;
+        int eid = 6;
         presenter.bindDevice(UserInfoInstance.getInstance().getSn1(),UserInfoInstance.getInstance().getSn2() ,eid);
     }
 
@@ -144,7 +145,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     public void getTokenSuccess() {
-        next(50);
+        next(3000);
     }
 
     @Override

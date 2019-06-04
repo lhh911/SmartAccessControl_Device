@@ -22,6 +22,7 @@ import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.FaceResult;
+import com.xsjqzt.module_main.util.DataConversionUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -73,7 +74,7 @@ public class FaceImageDownService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         //三步：下载人脸图片，注册阅面，后将注册状态成功与否传给后台，
-        if(isStart)
+        if (isStart)
             return;
         isStart = true;
         downImage();
@@ -84,10 +85,10 @@ public class FaceImageDownService extends IntentService {
 
 
         if (poll != null) {
-            if (TextUtils.isEmpty(poll.getCode())) {//未注册
+            if (TextUtils.isEmpty(poll.getCodeX())) {//未注册
                 subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                         .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                                InterfaceConfig.BASEURL+poll.getImage()), poll.getUser_id() ,poll);
+                                InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
 
             } else {//已注册，插入人脸数据
                 insert(poll);
@@ -114,7 +115,7 @@ public class FaceImageDownService extends IntentService {
 
                     @Override
                     public void onNext(InputStream inputStream) {
-                        writeFile(inputStream, user_id , dataBean);
+                        writeFile(inputStream, user_id, dataBean);
                     }
 
                     @Override
@@ -130,7 +131,7 @@ public class FaceImageDownService extends IntentService {
     }
 
 
-    private void writeFile(InputStream inputString, int user_id,FaceImageResBean.DataBean dataBean) {
+    private void writeFile(InputStream inputString, int user_id, FaceImageResBean.DataBean dataBean) {
         //存到本地文件，按日期建文件夹
         String facePath = FileUtil.getAppFacePicturePath(this);
         File file = new File(facePath, new Date().getTime() + ".jpg");
@@ -160,12 +161,12 @@ public class FaceImageDownService extends IntentService {
             } catch (Exception e) {
             }
         }
-        registYM(file.getPath(), user_id,dataBean);
+        registYM(file.getPath(), user_id, dataBean);
     }
 
 
     //注册阅面，成功与否上传人脸识别状态
-    public void registYM(String facePath, int user_id,FaceImageResBean.DataBean dataBean) {
+    public void registYM(String facePath, int user_id, FaceImageResBean.DataBean dataBean) {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
 
@@ -173,26 +174,29 @@ public class FaceImageDownService extends IntentService {
         String code = "";//识别码
         FaceSet faceSet = new FaceSet(getApplication());
         faceSet.startTrack(0);
-        FaceResult faceResult = faceSet.registByBitmap(bitmap, user_id+"");
+        FaceResult faceResult = faceSet.registByBitmap(bitmap, user_id + "");
         if (faceResult == null) return;
         if (faceResult.code == 0) {//成功
             //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-            code = faceResult.personId +"";
+            code = DataConversionUtil.floatToString(faceResult.rect);
             LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
             status = 2;
 
-        }else{//失败
+        } else {//失败
             status = 3;
         }
-        if(status == 2){
+        if (status == 2) {
             insert(dataBean);
         }
         updateFacesStatus(status, user_id ,code);
         downImage();//继续下一个
     }
 
+
+
+
     //上传人脸识别状态
-    public void updateFacesStatus(int status, int user_id,String code) {
+    public void updateFacesStatus(int status, int user_id, String code) {
         SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
                 .updateFacesStatus(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), status, user_id, code), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
@@ -218,7 +222,7 @@ public class FaceImageDownService extends IntentService {
 
     private void insert(FaceImageResBean.DataBean data) {
         FaceImage faceImage = new FaceImage();
-        faceImage.setCode(data.getCode());
+        faceImage.setCode(data.getCodeX());
         faceImage.setImage(data.getImage());
         faceImage.setStatus(data.getStatus());
         faceImage.setUpdate_time(data.getUpdate_time());
