@@ -11,6 +11,7 @@ import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.OpenCodeDao;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
@@ -275,7 +276,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 List<ICCard> lists = new ArrayList<>();
                 for (CardResBean bean : data) {
                     if (bean.isIs_delete()) {
-                        ICCard unique = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().where(IDCardDao.Properties.Sn.eq(bean.getSn())).unique();
+                        ICCard unique = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().where(ICCardDao.Properties.Sn.eq(bean.getSn())).unique();
                         if (unique != null)
                             DbManager.getInstance().getDaoSession().getICCardDao().delete(unique);
                     } else {
