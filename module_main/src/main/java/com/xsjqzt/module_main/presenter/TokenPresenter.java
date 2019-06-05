@@ -1,6 +1,7 @@
 package com.xsjqzt.module_main.presenter;
 
 import com.jbb.library_common.basemvp.BaseMvpPresenter;
+import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
@@ -143,6 +144,19 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
             @Override
             public void onError(Exception e) {
                 super.onError(e);
+            }
+        });
+    }
+
+
+
+
+    public void registrationId(String registrationId) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
+            @Override
+            public void onSuccess(BaseBean bean) {
+
             }
         });
     }

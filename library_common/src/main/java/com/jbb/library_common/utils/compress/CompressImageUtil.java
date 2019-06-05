@@ -14,9 +14,6 @@ import java.io.FileOutputStream;
 /**
  * 压缩照片
  *
- * @author JPH
- *         Date 2015-08-26 下午1:44:26
- *         Version:1.0.3
  */
 public class CompressImageUtil {
     private CompressConfig config;
@@ -46,8 +43,6 @@ public class CompressImageUtil {
      *
      * @param bitmap  内存中的图片
      * @param imgPath 图片的保存路径
-     * @author JPH
-     * @date 2014-12-5下午11:30:43
      */
     private void compressImageByQuality(final Bitmap bitmap, final String imgPath, final CompressListener listener) {
         if (bitmap == null) {
@@ -76,12 +71,12 @@ public class CompressImageUtil {
                 //					bitmap.recycle();//回收内存中的图片
                 //				}
                 try {
-                    File thumbnailFile = getThumbnailFile(new File(imgPath));
-                    FileOutputStream fos = new FileOutputStream(thumbnailFile);//将压缩后的图片保存的本地上指定路径中
+//                    File thumbnailFile = getThumbnailFile(new File(imgPath));//另外创建缓存路径
+                    FileOutputStream fos = new FileOutputStream(new File(imgPath));//将压缩后的图片保存的本地上指定路径中
                     fos.write(baos.toByteArray());
                     fos.flush();
                     fos.close();
-                    sendMsg(true, thumbnailFile.getPath(), null, listener);
+                    sendMsg(true, imgPath, null, listener);
                 } catch (Exception e) {
                     sendMsg(false, imgPath, "质量压缩失败", listener);
                     e.printStackTrace();
@@ -95,8 +90,6 @@ public class CompressImageUtil {
      *
      * @param imgPath
      * @return
-     * @author JPH
-     * @date 2014-12-5下午11:30:59
      */
     private void compressImageByPixel(String imgPath, CompressListener listener) throws FileNotFoundException {
         if (imgPath == null) {
@@ -126,10 +119,10 @@ public class CompressImageUtil {
         if (config.isEnableQualityCompress()) {
             compressImageByQuality(bitmap, imgPath, listener);//压缩好比例大小后再进行质量压缩
         } else {
-            File thumbnailFile = getThumbnailFile(new File(imgPath));
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(thumbnailFile));
+//            File thumbnailFile = getThumbnailFile(new File(imgPath));//chau
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(new File(imgPath)));
 
-            listener.onCompressSuccess(thumbnailFile.getPath());
+            listener.onCompressSuccess(imgPath);
         }
     }
 
@@ -153,6 +146,7 @@ public class CompressImageUtil {
         });
     }
 
+    //新建压缩后的存储路径
     private File getThumbnailFile(File file) {
         if (file == null || !file.exists()) {
             return file;

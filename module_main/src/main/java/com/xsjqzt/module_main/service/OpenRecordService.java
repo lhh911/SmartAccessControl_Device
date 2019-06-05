@@ -10,6 +10,7 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.HttpRespStatus;
 import com.jbb.library_common.retrofit.other.NetException;
+import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
@@ -17,11 +18,15 @@ import com.xsjqzt.module_main.greendao.OpenRecordDao;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.HashMap;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -55,7 +60,7 @@ public class OpenRecordService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if(isStart)
+        if (isStart)
             return;
         isStart = true;
         queryAllRecord();
@@ -73,28 +78,47 @@ public class OpenRecordService extends IntentService {
             LogUtil.w("OpenRecordService  records.size = " + records.size());
 
             queue.addAll(records);
-            uploadRecord();
+
+            try {
+                uploadRecord();
+            } catch (Exception e) {
+                LogUtil.w("上传图片异常：" + e.getMessage() + "-----" + e.getCause());
+                e.printStackTrace();
+            }
+
         }
 
 
     }
+
 
     private void uploadRecord() {
         OpenRecord record = queue.poll();
         LogUtil.w("OpenRecordService = " + record.getImage() + "，" + record.getSid());
 
         if (record != null) {
-            Map<String, RequestBody> params = new HashMap<>();
-            params.put("id", convertToRequestBody(record.getSid() + ""));
-//            params.put("type", convertToRequestBody(record.getType()));
 
+//            Map<String, RequestBody> params = new HashMap<>();
+//            params.put("id", convertToRequestBody(record.getSid() + ""));
+////            params.put("type", convertToRequestBody(record.getType()));
+//            File file = new File(record.getImage());
+//            RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+//            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+
+            //1.创建MultipartBody.Builder对象
             File file = new File(record.getImage());
             RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+
+            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);//表单类型 
+            builder.addFormDataPart("id", record.getSid() + "");
+            builder.addFormDataPart("image", file.getName(), requestFile);
+
+            List<MultipartBody.Part> parts = builder.build().parts();
 
 
-            subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                    .uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
+            subscribe(RetrofitManager.getInstance().getService(ApiService.class).uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), parts), record);
+//            subscribe(RetrofitManager.getInstance().getService(ApiService.class).uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
 
         }
     }
@@ -124,37 +148,107 @@ public class OpenRecordService extends IntentService {
                 }
             }
         })
-        .subscribe(new Observer<BaseBean>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-            }
+                .subscribe(new Observer<BaseBean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
 
-            @Override
-            public void onNext(BaseBean o) {
-                record.setUploadStatus(true);
-                DbManager.getInstance().getDaoSession().getOpenRecordDao().update(record);
-                //删除文件
-                FileUtil.deleteFilesByDirectory(new File(record.getImage()));
-                uploadRecord();
-            }
+                    @Override
+                    public void onNext(BaseBean o) {
+                        record.setUploadStatus(true);
+                        DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
+                        //删除文件
+                        FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+                        LogUtil.w("上传成功：" + record.getImage());
+                        uploadRecord();
+                    }
 
-            @Override
-            public void onError(Throwable e) {
-                uploadRecord();
-            }
+                    @Override
+                    public void onError(Throwable e) {
+                        uploadRecord();
+                    }
 
-            @Override
-            public void onComplete() {
-            }
-        });
+                    @Override
+                    public void onComplete() {
+                    }
+                });
 
 
     }
 
 
-    private RequestBody convertToRequestBody(String param){
+    private RequestBody convertToRequestBody(String param) {
         RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), param);
         return requestBody;
     }
+
+
+    public static void uploadForOctetstream(final String urlStr, final String filePath, final NetListeren listener) {
+
+
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(urlStr);
+
+            final String httpMethod = "POST";
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setUseCaches(false);
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(30000);
+            conn.setRequestMethod(httpMethod);
+            conn.setRequestProperty("Content-Type", "application/octet-stream");
+            conn.setRequestProperty("API_KEY", UserInfoInstance.getInstance().getKey());
+
+
+            FileInputStream inputStream = new FileInputStream(filePath);
+            long length = inputStream.getChannel().size();
+
+//                    conn.setChunkedStreamingMode(MAX_BUFFER_SIZE);//未知输出流长度，达到最大缓存就直接发送
+            conn.connect();
+
+            OutputStream sendStream = null;
+            try {
+                sendStream = conn.getOutputStream();
+
+                int count = 0;
+                byte[] buffer = new byte[8 * 1024]; // 8k
+                while ((count = inputStream.read(buffer)) != -1) {
+                    sendStream.write(buffer, 0, count);
+                }
+
+                sendStream.flush();
+            } finally {
+                inputStream.close();
+                sendStream.close();
+
+            }
+
+            String responseString;
+            InputStream inStream = null;
+            try {
+                inStream = conn.getInputStream();
+
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead = 0;
+                // write bytes to file
+                while ((bytesRead = inStream.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
+                }
+                responseString = out.toString("UTF-8");
+            } finally {
+                inStream.close();
+            }
+
+
+        } catch (Exception e) {
+
+        } finally {
+
+        }
+    }
+
 
 }

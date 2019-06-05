@@ -40,7 +40,9 @@ public class RetrofitManager {
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-        builder.connectTimeout(15000,TimeUnit.SECONDS);
+        builder.connectTimeout(20,TimeUnit.SECONDS);
+        builder.writeTimeout(20,TimeUnit.SECONDS);
+        builder.readTimeout(20,TimeUnit.SECONDS);
         builder.addInterceptor(new HttpLoggingInterceptor());
         builder.addInterceptor(new ParamsInterceptor());
         builder.sslSocketFactory(OkHttpClineUtils.getSSLSocketFactory(),OkHttpClineUtils.getX509TrustManager());

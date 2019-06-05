@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.presenter.RegistICCardPresenter;
 import com.xsjqzt.module_main.view.RegistICCardIView;
 import com.xsjqzt.module_main.widget.ImgTextView;
+import com.yzq.zxinglibrary.encode.CodeCreator;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -29,14 +31,14 @@ import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
 import tp.xmaihh.serialport.utils.ByteUtil;
 
-public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,RegistICCardPresenter> implements RegistICCardIView {
+public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, RegistICCardPresenter> implements RegistICCardIView {
     private TextView registTipTv;
     private ImageView qrCodeIv;
     private ImgTextView imgTextView;
     private TextView numTv;
     private LinearLayout qrCodeLayout;
 
-    private Button homeBtn;
+//    private Button homeBtn;
 
     private String qrCodeNum = "abc888888889999";
     private int mType = 0; // 0 : IC卡注册 ，1 身份证注册
@@ -59,7 +61,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
 
     @Override
     public void init() {
-        homeBtn = findViewById(R.id.home_btn);
+//        homeBtn = findViewById(R.id.home_btn);
         registTipTv = findViewById(R.id.regist_tip_tv);
         imgTextView = findViewById(R.id.tip_layout);
         numTv = findViewById(R.id.serial_number_tv);
@@ -67,38 +69,38 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
         qrCodeIv = findViewById(R.id.qr_code_iv);
 
         mType = getIntent().getIntExtra("mType", 0);
-        if(mType == 1){
+        if (mType == 1) {
             registTipTv.setText("注册身份证");
             imgTextView.setText("请刷身份证");
-        }else{
+        } else {
             registTipTv.setText("注册IC卡");
             imgTextView.setText("请刷IC卡");
         }
 //        numTv.setText(qrCodeNum);
 //        createQrCode();
-        homeBtn.setOnClickListener(this);
+//        homeBtn.setOnClickListener(this);
 
         startMeasuing();
     }
 
-    private void createQrCode(){
-        int width = CommUtil.dp2px(120);
+    private void createQrCode() {
+        int width = CommUtil.dp2px(140);
         qrCodeLayout.setVisibility(View.VISIBLE);
-        Bitmap qrCode = ScreenShotUtil.createQRCode(qrCodeNum, width, width, "#ffffff");
+        Bitmap qrCode = CodeCreator.createQRCode(qrCodeNum, width, width, null);
+
         qrCodeIv.setImageBitmap(qrCode);
     }
 
-    private void setError(){
+    private void setError() {
         imgTextView.setText("非法卡号");
-        imgTextView.setImageResouse(R.mipmap.icon_error,CommUtil.dp2px(23));
+        imgTextView.setImageResouse(R.mipmap.icon_error, CommUtil.dp2px(23));
     }
 
 
-    private void setSuccess(){
+    private void setSuccess() {
         imgTextView.setText("请使用手机app扫描二维码");
-        imgTextView.setImageResouse(R.mipmap.icon_gth,CommUtil.dp2px(13));
+        imgTextView.setImageResouse(R.mipmap.icon_gth, CommUtil.dp2px(13));
     }
-
 
 
     @Override
@@ -121,13 +123,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
 
     }
 
-    @Override
-    public void onClick(View v) {
-        super.onClick(v);
-        if(v.getId() == R.id.home_btn){
-            finish();
-        }
-    }
+
 
     //初始化nfc串口
     public void startMeasuing() {
@@ -153,40 +149,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
     }
 
 
-    /**
-     * 字节数组转16进制
-     *
-     * @param bytes 需要转换的byte数组
-     * @return 转换后的Hex字符串
-     */
-    public static String bytesToHex(byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(bytes[i] & 0xFF);
-//            if (hex.length() < 2) {
-//                sb.append(0);
-//            }
-            sb.append(hex);
-        }
-        return sb.toString();
-    }
-
-    private String parseIC(byte[] bRec){
-        android.util.Log.d("wlDebug", " = " + ByteUtil.ByteArrToHex(bRec));
-        byte[] cardData = new byte[4];
-        cardData[0] = bRec[8];
-        cardData[1] = bRec[7];
-        cardData[2] = bRec[6];
-        cardData[3] = bRec[5];
-        String _str = ByteUtil.ByteArrToHex(cardData);
-        BigInteger cardID = new BigInteger(_str, 16);
-        android.util.Log.d("wlDebug", "_str = " + _str + "cardID = " + cardID.toString());
-
-        return cardID.toString();
-    }
-
-
-    public String parseCard(ComBean comBean){
+    public String parseCard(ComBean comBean) {
         String cardID = "";
         if (comBean.bRec[1] == 0x08) {
             byte[] cardData = new byte[4];
@@ -212,26 +175,6 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
         return cardID;
     }
 
-
-
-    private void parseData(String str) {
-        ToastUtil.showCustomToast(str);
-//        LogUtil.w("nfc数据 = " + str);
-//        qrCodeNum  = str.substring(0,20);
-        qrCodeNum  = str;
-        numTv.setText(qrCodeNum);
-
-        if (mType == 2) {//ic卡
-            createQrCode();
-            setSuccess();
-        } else if (mType == 1) {
-            createQrCode();
-            setSuccess();
-        } else {
-            ToastUtil.showCustomToast("未注册或无法识别的卡，请用ic卡或身份证开门");
-            setError();
-        }
-    }
 
 
     public void stopMeasuing() {
@@ -266,25 +209,36 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView,Regi
     public class MyHandler extends Handler {
         private WeakReference<Activity> weakReference;
 
-        public MyHandler(Activity activity){
+        public MyHandler(Activity activity) {
             weakReference = new WeakReference<>(activity);
         }
+
         @Override
         public void handleMessage(Message msg) {
-            if(weakReference.get() != null) {
+            if (weakReference.get() != null) {
                 switch (msg.what) {
                     case 3:
                         String str = (String) msg.obj;
-                        parseData(str);
+                        if (TextUtils.isEmpty(str)) {
+                            ToastUtil.showCustomToast("未注册或无法识别的卡，请用ic卡或身份证开门");
+                            setError();
+                        } else {
+                            qrCodeNum = str;
+                            numTv.setText(qrCodeNum);
+                            createQrCode();
+                            setSuccess();
+                        }
                         break;
                 }
             }
         }
-    };
+    }
+
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+        if(keyCode == KeyEvent.KEYCODE_STAR){// * 号
             finish();
             return true;
         }

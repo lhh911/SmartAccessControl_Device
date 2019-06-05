@@ -20,10 +20,12 @@ import com.xsjqzt.module_main.view.TokenView;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.jpush.android.api.JPushInterface;
+
 public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> implements TokenView {
 
 
-    String macAddress = "2047DAF3E9AE";//测试写死的mac地址，绑定3出入口
+    String macAddress = "2047DAF3E9AB";//测试写死的mac地址，绑定3出入口
 
     @Override
     public void init() {
@@ -44,8 +46,8 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
 
     private void initMac() {
-//      String wifiaddr = DeviceUtil.getMacDefault(this);
-        macAddress = DeviceUtil.getEthernetMac();
+
+//        macAddress = DeviceUtil.getEthernetMac();
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
@@ -68,7 +70,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void bindDevice(){
 
-        int eid = 6;
+        int eid = 7;
         presenter.bindDevice(UserInfoInstance.getInstance().getSn1(),UserInfoInstance.getInstance().getSn2() ,eid);
     }
 
@@ -146,6 +148,9 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     @Override
     public void getTokenSuccess() {
         next(3000);
+        String registrationID = JPushInterface.getRegistrationID(this);
+        if(!TextUtils.isEmpty(registrationID))
+            presenter.registrationId(registrationID);
     }
 
     @Override
