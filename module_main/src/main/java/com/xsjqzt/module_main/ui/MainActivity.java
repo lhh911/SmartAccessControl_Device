@@ -48,6 +48,7 @@ import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
+import com.jbb.library_common.utils.compress.CompressImageUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.readsense.cameraview.camera.CameraView;
 import com.readsense.cameraview.camera.Size;
@@ -65,6 +66,7 @@ import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.OpenCodeDao;
+import com.xsjqzt.module_main.greendao.OpenRecordDao;
 import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
@@ -77,6 +79,7 @@ import com.xsjqzt.module_main.modle.User;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
+import com.xsjqzt.module_main.service.OpenRecordService;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.util.TrackDrawUtil;
@@ -153,6 +156,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //    private TimerTask inputLayoutShowTask;
     private InutLayoutShowTimeRunnable inutLayoutShowTimeRunnable;
 
+    private boolean starEnterDown;// * 号被按了
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -208,8 +212,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         setAlarm();
         startMeasuing();
 
-//        loadCardData();
-
         EventBus.getDefault().register(this);
 //        test();
 
@@ -217,31 +219,21 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initFaceEvent();
     }
 
-    private void loadCardData() {
+//    private void loadCardData() {
 //        downICCardData();
 //        downIDCardData();
 //        startService(new Intent(this,DownAllDataService.class));
-    }
+//    }
 
     private void test() {
-        List<ICCard> list = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().list();
-        StringBuffer sf = new StringBuffer();
-        sf.append("数据库的IC卡").append("\n");
-        for (ICCard card : list) {
-            sf.append(card.getUser_name() + "，" + card.getSn() + "，" + card.getSid()).append("\n");
-        }
+        List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
+                .queryBuilder()
+                .where(OpenRecordDao.Properties.UploadStatus.eq(false))
+                .list();
 
-        new AlertDialog.Builder(this).setMessage(sf.toString()).show();
+        new AlertDialog.Builder(this).setMessage("开门图片记录："+records.size()).show();
 
-        int type = 1;
-        String sn = "ic20190501";
-        if (type == 1) {
-            presenter.uploadICCardRecord(type, sn);
-        } else {
-            presenter.uploadIDCardRecord(type, sn);
-        }
-
-
+        startService(new Intent(this,OpenRecordService.class));
     }
 
     @Override
@@ -320,60 +312,63 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (mType == 1) {
-                hideRoomNumLayout();
+                hideRoomInputLayout();
             } else if (mType == 2) {
                 hideCallVideoLayout();
             }
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_0) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "0");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_1) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "1");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_2) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "2");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_3) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "3");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_4) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "4");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_5) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "5");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_6) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "6");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_7) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "7");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_8) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "8");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_9) {
+            showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "9");
-            showRoomNumOpen();
         } else if (keyCode == KeyEvent.KEYCODE_DEL) {//删除
             deleteInputData();
-        } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+        }else if(keyCode == KeyEvent.KEYCODE_STAR){// * 号
+            roomNumEt.setText("");
+            showRoomNumOpen();
+            starEnterDown = true;
+        }else if(keyCode == KeyEvent.KEYCODE_POUND){// # 号
             String inputNum = roomNumEt.getText().toString().trim();
             if (TextUtils.isEmpty(inputNum))
                 return true;
 
             checkInput(inputNum);
-            return true;
         }
 
         return super.onKeyDown(keyCode, event);
@@ -647,43 +642,57 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
     private void checkInput(String inputNum) {
-        if (inputNum.length() == 5) {//密码开门
-            //请求接口验证密码是否正确，是就开门
-            OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
-                    .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
-
-            if (openCode != null) {
-                int expiry_time = openCode.getExpiry_time();
-                long now = System.currentTimeMillis();
-                if (expiry_time < (now / 1000)) {//过期了
-//                    showSucOrError = 2;
-                    setShowSucOrError(false, inputNum);
-                } else {
-//                    showSucOrError = 1;
-                    setShowSucOrError(true, inputNum);
-                }
-
-            } else {
-                setShowSucOrError(false, inputNum);
+         setShowSucOrError(true, inputNum);
+        hideRoomInputLayout();
+        if(starEnterDown){//按了 * 号了，组合键，调起注册等页面
+            if("000".equals(inputNum)){
+                goTo(SystemInfoActivity.class);
+            }else if("101".equals(inputNum)){
+                goTo(RegistICCardActivity.class);
+            }else if("102".equals(inputNum)){
+                Bundle bundle = new Bundle();
+                bundle.putInt("mType",1);
+                goTo(RegistICCardActivity.class,bundle);
             }
-        } else if (inputNum.length() == 4 || inputNum.length() == 6) {
-            showCallVideoLayout();
+        }else{
+            if (inputNum.length() == 5) {//密码开门
+                //请求接口验证密码是否正确，是就开门
+                OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
+                        .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
 
-            //根据房号获取userid，再拨视频通话
-            callVideo(inputNum);
-        } else {
-            ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
+                if(openCode != null) {
+                    int expiry_time = openCode.getExpiry_time();
+                    long now = System.currentTimeMillis();
+                    if (expiry_time < (now / 1000)) {//过期了
+                        setShowSucOrError(false,inputNum);
+                    }else{
+                        setShowSucOrError(true,inputNum);
+                    }
+                }else{
+                    setShowSucOrError(false,inputNum);
+                }
+            } else if (inputNum.length() == 4 || inputNum.length() == 6) {
+                showCallVideoLayout();
+
+                //根据房号获取userid，再拨视频通话
+                callVideo(inputNum);
+            } else {
+                ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
+            }
+
         }
+
     }
 
 
     //密码开门显示结果
-    private void setShowSucOrError(boolean success, String code) {
+
+    private void setShowSucOrError(boolean success,String code) {
+//        hideRoomInputLayout();
         if (success) {//开门成功
 //            inputNumLayout.setVisibility(View.GONE);
 //            successLayout.setVisibility(View.VISIBLE);
 //            errorLayout.setVisibility(View.GONE);
-            hideRoomNumLayout();
             Message msg = Message.obtain();
             msg.what = 1;
             msg.arg1 = 3;
@@ -867,10 +876,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         startShowLayoutTime();
         if (!inputLayoutShow) {
             roomNumLayout.setVisibility(View.VISIBLE);
-//            inputNumLayout.setVisibility(View.VISIBLE);
-//            successLayout.setVisibility(View.GONE);
-//            errorLayout.setVisibility(View.GONE);
-            roomNumEt.setText("");
             showAnim(roomNumLayout);
 
             callVideoLayout.setVisibility(View.GONE);
@@ -919,9 +924,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //掩藏所有底部输入布局
     private void hideRoomInputLayout() {
         roomNumLayout.setVisibility(View.GONE);
-//        inputNumLayout.setVisibility(View.VISIBLE);
-//        successLayout.setVisibility(View.GONE);
-//        errorLayout.setVisibility(View.GONE);
         roomNumEt.setText("");
 
         callVideoLayout.setVisibility(View.GONE);
@@ -929,6 +931,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv.setText("");
 
         inputLayoutShow = false;
+        starEnterDown = false;
         mType = 0;
     }
 
@@ -948,11 +951,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //单独掩藏密码开门ui
-    private void hideRoomNumLayout() {
-        roomNumLayout.setVisibility(View.GONE);
-        dismissAnim(roomNumLayout);
-        mType = 0;
-    }
+//    private void hideRoomNumLayout() {
+//        roomNumLayout.setVisibility(View.GONE);
+//        dismissAnim(roomNumLayout);
+//        mType = 0;
+//    }
 
 
     /**
@@ -963,18 +966,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param sid  服务器上对应记录的id，上传记录图片时用
      */
 
-    public void savaICOrIDCardRecord(final int type, final int sid, final String sn) {
+    public void savaICOrIDCardRecord(final int type, final int sid, final String sn,final String imagePath) {
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
-                File file = new File(picturePath, new Date().getTime() + ".jpg");
-                Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
 
                 OpenRecord record = new OpenRecord();
                 record.setCreateTime(new Date().getTime());
-                record.setImage(file.getPath());
+                record.setImage(imagePath);
                 record.setSn(sn);
                 record.setStatus(1);
                 record.setUploadStatus(false);
@@ -1034,25 +1034,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    /**
-     * 字节数组转16进制
-     *
-     * @param bytes 需要转换的byte数组
-     * @return 转换后的Hex字符串
-     */
-    public static String bytesToHex(byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
 
-        for (int i = 0; i < bytes.length; i++) {
 
-            String hex = Integer.toHexString(bytes[i] & 0xFF);
-//            if (hex.length() < 2) {
-//                sb.append(0);
-//            }
-            sb.append(hex);
-        }
-        return sb.toString();
-    }
 
     private String parseIC(byte[] bRec) {
         android.util.Log.d("wlDebug", " = " + ByteUtil.ByteArrToHex(bRec));
@@ -1223,7 +1206,26 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void uploadCardSuccess(int type, int id, String sn) {
-        savaICOrIDCardRecord(type, id, sn);
+        getPicture(type, id, sn);
+    }
+
+    private void getPicture(final int type, final int id, final String sn){
+        String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
+        File file = new File(picturePath, new Date().getTime() + ".jpg");
+        Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
+
+        CompressImageUtil compressImageUtil = new CompressImageUtil(this,null);
+        compressImageUtil.compress(file.getPath(), new CompressImageUtil.CompressListener() {
+            @Override
+            public void onCompressSuccess(String imgPath) {
+                savaICOrIDCardRecord(type, id, sn,imgPath);
+            }
+
+            @Override
+            public void onCompressFailed(String imgPath, String msg) {
+                savaICOrIDCardRecord(type, id, sn,imgPath);
+            }
+        });
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

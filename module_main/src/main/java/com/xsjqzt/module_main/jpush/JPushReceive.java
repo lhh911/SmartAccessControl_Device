@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.utils.log.LogUtil;
+import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.presenter.RegistrationIdPresenter;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -28,6 +31,12 @@ public class JPushReceive extends BroadcastReceiver {
         if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
             String registrationId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
             Log.d(TAG, "JPush 用户注册成功 , registrationId = " + registrationId);
+
+            if(UserInfoInstance.getInstance().hasLogin()) {
+                RegistrationIdPresenter presenter = new RegistrationIdPresenter();
+                presenter.registrationId(registrationId);
+            }
+
 
         } else if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
 //            LogUtil.d(TAG, "接受到推送下来的自定义消息");
@@ -52,8 +61,8 @@ public class JPushReceive extends BroadcastReceiver {
 //        LogUtil.d(TAG, " title : " + title);
 //        String message = bundle.getString(JPushInterface.EXTRA_ALERT);
 //        LogUtil.d(TAG, "message : " + message);
-//        String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
-//        LogUtil.d(TAG, "extras : " + extras);
+        String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
+        LogUtil.d(TAG, "extras : " + extras);
 
         Intent it = new Intent();
         it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);

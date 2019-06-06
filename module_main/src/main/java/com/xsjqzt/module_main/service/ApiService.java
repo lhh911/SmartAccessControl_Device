@@ -1,5 +1,6 @@
 package com.xsjqzt.module_main.service;
 
+import java.util.List;
 import java.util.Map;
 
 import io.reactivex.Observable;
@@ -49,7 +50,8 @@ public interface ApiService {
     //上传开门记录图片
     @Multipart
     @POST("entrance/upload/upload_image")
-    Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token, @PartMap Map<String, RequestBody> params, @Part MultipartBody.Part file);
+    Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token, @Part List<MultipartBody.Part> partLis);
+//    Observable<ResponseBody> uploadCardRecordByImage(@Header("Authorization") String token, @PartMap Map<String, RequestBody> params, @Part MultipartBody.Part file);
 
 
     //上传IC卡开门记录不含图片
@@ -104,5 +106,8 @@ public interface ApiService {
     @POST("entrance/upload/faces_status")
     Observable<ResponseBody> updateFacesStatus(@Header("Authorization") String token, @Field("status") int status, @Field("user_id") int user_id, @Field("code") String code);
 
-
+    //上传极光推送Registration_id
+    @FormUrlEncoded
+    @POST("entrance/upload/registration_id")
+    Observable<ResponseBody> registrationId(@Header("Authorization") String token , @Field("registration_id") String registrationId);
 }
