@@ -656,9 +656,11 @@ public class FaceSet {
                 identifyPerson = faceTrack.identifyPerson(i);
                 int confidence = faceTrack.getRecognitionConfidence();
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
-                if(identifyPerson >= 0) {
+                if (identifyPerson >= 0) {
 //                    context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
-                    EventBus.getDefault().post(new FaceSuccessEventBean(1,""));
+                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
+                    // 当liveeness == 1时活体识别通过;
+                    if(ymFace.getLiveness() == 1)EventBus.getDefault().post(new FaceSuccessEventBean(1, ""));
                     ymFace.getRect();
                 }
             }

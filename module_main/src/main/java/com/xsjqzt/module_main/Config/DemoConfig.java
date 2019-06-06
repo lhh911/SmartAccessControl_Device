@@ -20,8 +20,8 @@ public class DemoConfig implements Serializable {
     //特殊设备摄像头绘制上下翻转
     public boolean specialCameraTopDownReverse = false;
     //默认预览分辨率
-    public int previewSizeWidth = 640;
-    public int previewSizeHeight = 480;
+    public int previewSizeWidth = 480;
+    public int previewSizeHeight = 640;
     //默认预览缩放比例
     public float screenZoon = 1;
     //ir默认预览缩放比例

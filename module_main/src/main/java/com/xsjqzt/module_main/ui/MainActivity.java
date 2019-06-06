@@ -1,5 +1,6 @@
 package com.xsjqzt.module_main.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -8,7 +9,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.hardware.Camera;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -17,7 +21,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -25,6 +31,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.hyphenate.chat.EMCallStateChangeListener;
@@ -42,10 +49,17 @@ import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
+import com.readsense.cameraview.camera.CameraView;
+import com.readsense.cameraview.camera.Size;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
+import com.xsjqzt.module_main.Config.DemoConfig;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.activity.FaceDemoActivity;
+import com.xsjqzt.module_main.activity.base.ExApplication;
+import com.xsjqzt.module_main.dataSource.UserDataUtil;
+import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
@@ -57,11 +71,15 @@ import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
+import com.xsjqzt.module_main.modle.User;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.util.MyToast;
+import com.xsjqzt.module_main.util.SharedPrefUtils;
+import com.xsjqzt.module_main.util.TrackDrawUtil;
 import com.xsjqzt.module_main.view.MainView;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
@@ -86,8 +104,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import cn.jpush.android.api.JPushInterface;
+import io.reactivex.functions.Consumer;
+import mobile.ReadFace.YMFace;
 import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
 import tp.xmaihh.serialport.utils.ByteUtil;
@@ -101,6 +122,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //视频呼叫layout
     private LinearLayout callVideoLayout;
     private TextView callNumTv, callStatusTv, callTipTv;
+
+    private View toolsBar;
 
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
@@ -126,7 +149,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private boolean inputLayoutShow;//底部输入布局是否显示出来，显示出来后10秒无操作自动掩藏
     private long startShowTime;//记录底部布局显示的开始时间，10秒无操作自动掩藏
-//    private Timer inputLayoutShowTime;//10秒内检查操作定时器
+    //    private Timer inputLayoutShowTime;//10秒内检查操作定时器
 //    private TimerTask inputLayoutShowTask;
     private InutLayoutShowTimeRunnable inutLayoutShowTimeRunnable;
 
@@ -160,6 +183,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
         callTipTv = findViewById(R.id.call_tip_tv);
+        toolsBar = findViewById(R.id.tools_bar);
 
         //房号输入
         roomNumLayout = findViewById(R.id.input_num_layout);
@@ -188,6 +212,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         EventBus.getDefault().register(this);
 //        test();
+
+        initFaceCamera();
+        initFaceEvent();
     }
 
     private void loadCardData() {
@@ -262,13 +289,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     public void btn1Click(View view) {
-        if(inputLayoutShow){
+        if (inputLayoutShow) {
             String inputNum = roomNumEt.getText().toString().trim();
             if (TextUtils.isEmpty(inputNum))
-                return ;
+                return;
 
             checkInput(inputNum);
-        }else{
+        } else {
             showRoomNumOpen();
         }
     }
@@ -384,8 +411,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-
-
     public class GlideImageLoader extends ImageLoader {
         @Override
         public void displayImage(Context context, Object path, ImageView imageView) {
@@ -406,7 +431,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(EventBus.getDefault().isRegistered(this))
+        if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
 
         SimpleVideoPlayerManager.instance().releaseNiceVideoPlayer();
@@ -501,7 +526,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     UserInfoInstance.getInstance().reset();
                     login();
                 }
-            } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION ) {
+            } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION) {
                 //监听网络变化
                 if (Utils.getNetWorkState(MainActivity.this)) {
                     LogUtil.w("NetWorkState = " + true);
@@ -534,7 +559,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         downFaceImage();
                     } else if (type == 5) {//设置音量
                         setVoice(json.getInt("volume"));
-                    }else if(type == 6){//设备重启
+                    } else if (type == 6) {//设备重启
 
                     }
                 } catch (Exception e) {
@@ -553,7 +578,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (unique != null) {
             update_time = unique.getUpdate_time();
         }
-        presenter.downOpenCode( update_time);
+        presenter.downOpenCode(update_time);
     }
 
 
@@ -627,19 +652,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
                     .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
 
-            if(openCode != null) {
+            if (openCode != null) {
                 int expiry_time = openCode.getExpiry_time();
                 long now = System.currentTimeMillis();
                 if (expiry_time < (now / 1000)) {//过期了
 //                    showSucOrError = 2;
-                    setShowSucOrError(false,inputNum);
-                }else{
+                    setShowSucOrError(false, inputNum);
+                } else {
 //                    showSucOrError = 1;
-                    setShowSucOrError(true,inputNum);
+                    setShowSucOrError(true, inputNum);
                 }
 
-            }else{
-                setShowSucOrError(false,inputNum);
+            } else {
+                setShowSucOrError(false, inputNum);
             }
         } else if (inputNum.length() == 4 || inputNum.length() == 6) {
             showCallVideoLayout();
@@ -653,7 +678,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //密码开门显示结果
-    private void setShowSucOrError(boolean success,String code) {
+    private void setShowSucOrError(boolean success, String code) {
         if (success) {//开门成功
 //            inputNumLayout.setVisibility(View.GONE);
 //            successLayout.setVisibility(View.VISIBLE);
@@ -665,7 +690,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             msg.obj = code;
             doorHandler.sendMessage(msg);
         } else {
-            MyToast.showToast("密码错误",R.mipmap.icon_error,"#FF0000");
+            MyToast.showToast("密码错误", R.mipmap.icon_error, "#FF0000");
 //            inputNumLayout.setVisibility(View.GONE);
 //            successLayout.setVisibility(View.GONE);
 //            errorLayout.setVisibility(View.VISIBLE);
@@ -1029,7 +1054,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         return sb.toString();
     }
 
-    private String parseIC(byte[] bRec){
+    private String parseIC(byte[] bRec) {
         android.util.Log.d("wlDebug", " = " + ByteUtil.ByteArrToHex(bRec));
         byte[] cardData = new byte[4];
         cardData[0] = bRec[8];
@@ -1044,7 +1069,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    public String parseCard(ComBean comBean){
+    public String parseCard(ComBean comBean) {
         String cardID = "";
         if (comBean.bRec[1] == 0x08) {
             byte[] cardData = new byte[4];
@@ -1069,7 +1094,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
         return cardID;
     }
-
 
 
     private void parseData(String str) {
@@ -1128,6 +1152,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             banner.startAutoPlay();
 
         open();
+        onFaceResume();
     }
 
     @Override
@@ -1138,6 +1163,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             banner.stopAutoPlay();
 
         stopMeasuing();
+        onFacePause();
     }
 
     public class MyHandler extends Handler {
@@ -1157,7 +1183,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         String sn = (String) msg.obj;
                         Gpio.RelayOnOff(1);
                         uploadRecord(type, sn);
-                        MyToast.showToast("开门成功",R.mipmap.icon_success,"#0ABA07");
+                        MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
                         break;
@@ -1201,7 +1227,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void faceOpenSuccess( FaceSuccessEventBean bean){
+    public void faceOpenSuccess(FaceSuccessEventBean bean) {
         Message msg = Message.obtain();
         msg.what = 1;
         msg.arg1 = 4;
@@ -1210,6 +1236,299 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
+    // -----------------------------------------------------------
+    // For Face start..
+    private SurfaceView sfv_draw_view; //人脸框绘画层
+    public FaceSet faceSet = null; //sdk逻辑层
+    public CameraView mIRCameraView; //红外摄像头
+    public CameraView mCameraView; //RGB摄像头
+    private byte[] irData; //ir视频流
+    private int screenW = 480;//屏幕分辨率w
+    private final Object lock = new Object();
+    private Size ratio;//摄像头预览分辨率
+    private float scale_bit = 1;
+    private List<YMFace> ymFaces;
 
+    public DemoConfig mConfig;
+    // For Face end..
+
+    private void onFaceResume() {
+        userMap = UserDataUtil.updateDataSource(true);
+        RxPermissions permissions = new RxPermissions(this);
+        permissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE)
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            //预览适配
+                            mCameraView.setAdjustViewBounds(mConfig.isAdjustView);
+                            //设置cameraId
+                            mCameraView.setFacing(mConfig.cameraFacing);
+                            //设置分辨率
+                            mCameraView.setCameraResolution(mConfig.previewSizeWidth, mConfig.previewSizeHeight);
+                            //设置预览方向
+                            mConfig.cameraAngle = mConfig.cameraAngle == -1 ? mCameraView.getDisplayOrientation() : mConfig.cameraAngle;
+                            mCameraView.setDisplayOrientation(mConfig.cameraAngle);
+                            //横竖屏调整
+                            mCameraView.adjustVertical(mConfig.screenrRotate90);
+                            //开启相机
+                            mCameraView.start();
+                            mConfig.sdkAngle = mConfig.sdkAngle == -1 ? getSdkOrientation(mConfig.cameraFacing) : mConfig.sdkAngle;
+                            //初始化算法sdk
+                            FaceResult result = faceSet.startTrack(mConfig.sdkAngle);
+                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
+                            //保存配置
+                            SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
+
+
+                            if (isDoubleEyes) openIRCamera();
+                        } else {
+                            // showLongToast(getApplicationContext(), "请同意软件的权限，才能继续使用");
+                        }
+                    }
+                });
+    }
+
+    private void onFacePause() {
+        faceSet.stopTrack();
+        if (mCameraView != null) {
+            mCameraView.stop();
+        }
+        if (mIRCameraView != null) {
+            if (mIRCameraView.isCameraOpened()) {
+                mIRCameraView.stop();
+            }
+        }
+    }
+
+    // 初始化人脸所需的UI;
+    private void initFaceCamera() {
+        initConfig();
+
+        mCameraView = findViewById(R.id.camera);
+        sfv_draw_view = findViewById(R.id.sfv_draw_view);
+        sfv_draw_view.setZOrderOnTop(true);
+        sfv_draw_view.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        //算法sdk
+        faceSet = new FaceSet(this);
+    }
+
+    // 设置CameraPreviewFrame CallBack;
+    protected void initFaceEvent() {
+        if (mCameraView != null) {
+            mCameraView.addCallback(new CameraView.Callback() {
+                @Override
+                public void onPreviewFrame(byte[] data, Camera camera) {
+                    final byte[] mdata = data;
+                    synchronized (lock) {
+                        //调用sdk获取人脸集合
+                        ymFaces = onCameraPreviewFrame(mdata, irData,
+                                mCameraView.getCameraResolution().getWidth(), mCameraView.getCameraResolution().getHeight(), mConfig.isMulti);
+                        //获取预览分辨率
+                        ratio = mCameraView.getCameraResolution();
+                        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                            ratio = Size.inverse(ratio);
+                        }
+                        // android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
+
+                        //获取缩放比例
+                        mConfig.screenZoon = mCameraView.getScale();
+                        initDrawViewSize();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // 显示/隐藏 Camera界面；
+                                if (ymFaces != null && !isFaceViewShow) {
+                                    isFaceViewShow = true;
+                                    mCameraView.bringToFront();
+                                    // if (mIRCameraView != null) mIRCameraView.bringToFront();
+                                } else if (ymFaces == null && isFaceViewShow) {
+                                    isFaceViewShow = false;
+                                    banner.bringToFront();
+                                    toolsBar.bringToFront();
+                                }
+                                // 绘画人脸框
+                                drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * 相机帧回调
+     *
+     * @param bytes   rgb视频流
+     * @param irBytes ir视频流
+     * @param iw      camera分辨率
+     * @param ih      camera分辨率
+     * @param isMulti
+     * @return
+     */
+    private byte[] mBytes;
+    private byte[] mBytesIr;
+    private int mWidth;
+    private int mHeight;
+    private boolean openFaceTrack = false;//追踪
+    private boolean openFaceReco = true;//识别
+    private boolean openFaceLiveness = false; //红外活体
+    private boolean openFaceRgbLiveness = true;  //可见光活体
+    private boolean openFaceBinoculareLiveness = false; //双目活体（可见光+红外）
+    private Map<Integer, User> userMap;
+
+    private boolean isFaceViewShow = false;
+    private boolean isDoubleEyes = true;
+
+    protected List<YMFace> onCameraPreviewFrame(final byte[] bytes, final byte[] irBytes, final int iw, final int ih, final boolean isMulti) {
+        if (bytes == null) return null;
+        mBytes = bytes;
+        mBytesIr = irBytes;
+        mWidth = iw;
+        mHeight = ih;
+        return faceSet.logic(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType());
+    }
+
+    /**
+     * 人脸绘画
+     *
+     * @param ymFaces
+     * @param mConfig
+     * @param draw_view 绘画view
+     * @param scale_bit
+     * @param cameraId  cameraId
+     * @param fps
+     */
+    protected void drawView(List<YMFace> ymFaces, DemoConfig mConfig, SurfaceView draw_view, float scale_bit, int cameraId, String fps) {
+        try {
+            //打开配置界面时不做绘画处理
+            /*
+            if (fragment != null) {
+                TrackDrawUtil.drawFaceTracking(null, null, draw_view, 0, 0, "", false, null);
+                return;
+            }
+            */
+            //当开启追踪时，不做识别与活体
+            if (openFaceTrack) {
+                TrackDrawUtil.drawFace(ymFaces, mConfig, draw_view, scale_bit, cameraId, fps, false);
+                return;
+            }
+            TrackDrawUtil.drawFaceTracking(ymFaces, mConfig, draw_view, scale_bit, cameraId, fps, false, userMap);
+        } catch (Exception e) {
+            Log.d("wlDebug", "" + e);
+        }
+    }
+
+    private void initConfig() {
+        mConfig = SharedPrefUtils.getObject(ExApplication.getContext(), "DEMO_CONFIG", DemoConfig.class);
+        if (mConfig == null) {
+            mConfig = new DemoConfig();
+            SharedPrefUtils.putObject(ExApplication.getContext(), "DEMO_CONFIG", mConfig);
+        }
+    }
+
+    /**
+     * 更新DrawView 大小
+     */
+    public void initDrawViewSize() {
+        int viewW;
+        int viewH;
+        scale_bit = 1;
+        if (mCameraView.getAdjustViewBounds()) {
+            if (ratio.getWidth() <= screenW) {
+                scale_bit = (screenW / (float) ratio.getWidth());
+                viewW = (screenW);
+            } else {
+                viewW = (screenW);
+                scale_bit = (screenW / (float) ratio.getWidth());
+            }
+            viewH = (int) (viewW / ratio.toFloat());
+        } else {
+            viewW = (int) (ratio.getWidth() * scale_bit);
+            viewH = (int) (viewW / ratio.toFloat());
+        }
+        //设置sfv_draw_view 大小与cameraView预览一致
+        /*
+        sfv_draw_view.getLayoutParams().height = viewH;
+        sfv_draw_view.getLayoutParams().width = viewW;
+        sfv_draw_view.requestLayout();
+        */
+    }
+
+    /**
+     * 获取当前活体开启类型
+     * 双目：0 可见光：1 红外：2 都不开启:-1
+     *
+     * @return
+     */
+    public int getLivenessType() {
+//        return (openFaceBinoculareLiveness && !openFaceLiveness && !openFaceRgbLiveness) ? 0 : (!openFaceBinoculareLiveness && !openFaceLiveness
+//                && openFaceRgbLiveness) ? 1 : (openFaceLiveness && !openFaceRgbLiveness && !openFaceBinoculareLiveness) ? 2 : -1;
+        return (isDoubleEyes ? 0 : 1);
+    }
+
+    public void showShortToast(Context context, String content) {
+        Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * 获取sdk识别方向
+     *
+     * @param facing
+     * @return
+     */
+    private int getSdkOrientation(int facing) {
+        int sdkOrientation;
+        /*
+         * 横屏：
+         * -前/后摄像头 sdkOrientation=0;
+         * 竖屏：
+         * -前摄像头 sdkOrientation=270;
+         * -后摄像头 sdkOrientation=90;
+         */
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            sdkOrientation = 0;  //横屏
+        else {
+            if (facing == 0) sdkOrientation = 90;  //竖屏后置
+            else sdkOrientation = 270;//竖屏前置
+        }
+        return 0;
+    }
+
+
+    /**
+     * 开启IR摄像头
+     */
+    public void openIRCamera() {
+        if (mIRCameraView == null) {
+            mIRCameraView = findViewById(R.id.ir_camera);
+            mIRCameraView.addCallback(new CameraView.Callback() {
+                @Override
+                public void onPreviewFrame(byte[] data, Camera camera) {
+                    //将IR回调的视频流帧赋值给irData
+                    irData = data;
+                }
+            });
+        }
+        int cameraFacing = mCameraView.getFacing();
+        int facing = (cameraFacing == CameraView.FACING_FRONT ? CameraView.FACING_BACK : CameraView.FACING_FRONT);
+        //设置摄像头
+        // mIRCameraView.setVisibility(View.VISIBLE);
+        //设置与可见光一样的分辨率
+        Size size = mCameraView.getCameraResolution();
+        mIRCameraView.start(facing, mConfig.screenIrZoon, size, true);
+    }
+
+    /**
+     * 关闭IR摄像头
+     */
+    public void closeIRCamera() {
+        if (mIRCameraView == null) return;
+        if (mIRCameraView.isCameraOpened())
+            mIRCameraView.stop();
+        // mIRCameraView.setVisibility(View.GONE);
+    }
 }
 

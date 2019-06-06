@@ -61,6 +61,7 @@ public class TrackDrawUtil {
             scale_bit = scale_bit * mConfig.screenZoon;
             int viewW = (int) (outputView.getLayoutParams().width * mConfig.screenZoon);
             int viewH = (int) (outputView.getLayoutParams().height * mConfig.screenZoon);
+            // android.util.Log.d("wlDebug","viewW = " + viewW + " viewH = " + viewH);
             double zoom = mConfig.screenIrZoon;
             for (YMFace faces : ymFaces) {
                 if (faces == null) return;
@@ -88,7 +89,7 @@ public class TrackDrawUtil {
                 //每一行文字的高度
                 float fHeight = fontMetrics.bottom - fontMetrics.top;
                 //绘画人脸框
-                drawRect(canvas, xy.mX, xy.mY, xy.mWidth, faceInfo, fHeight, viewW, viewH);
+                drawRect(canvas, xy.mX + 80, xy.mY + 100, xy.mWidth, faceInfo, fHeight, viewW, viewH);
 
                 if (mConfig.isDrawIr) {
                     viewW = (int) (viewW * zoom);
@@ -259,7 +260,9 @@ public class TrackDrawUtil {
         RectF rectf = new RectF(x1, y1, x1 + rect_width, y1 + rect_width);
         canvas.drawRect(rectf, paint);
         int num = 6;
-        drawFaceInfo(canvas, faceInfo, x1, y1, rect_width, fontH * 10, fontH * num, fontH, viewW, viewH);
+
+        // 是否绘制人脸虚线框 wlDebug;
+        // drawFaceInfo(canvas, faceInfo, x1, y1, rect_width, fontH * 10, fontH * num, fontH, viewW, viewH);
     }
 
     private static void drawFaceInfo(Canvas canvas, FaceInfo faceInfo, float x1, float y1, float rect_width, float w, float h, float fontH, float viewW, float viewH) {

@@ -63,9 +63,9 @@ public class FaceDemoActivity extends CameraActivity implements View.OnClickList
 
     private boolean openFaceTrack = false;//追踪
     private boolean openFaceReco = false;//识别
-    private boolean openFaceLiveness = false; //红外活体
-    private boolean openFaceRgbLiveness = false;  //可见光活体
-    private boolean openFaceBinoculareLiveness = false; //双目活体（可见光+红外）
+    private boolean openFaceLiveness = true; //红外活体
+    private boolean openFaceRgbLiveness = true;  //可见光活体
+    private boolean openFaceBinoculareLiveness = true; //双目活体（可见光+红外）
 
     private ImageView btFaceTrack;//人脸追踪
     private ImageView btFaceReco;//人脸识别
@@ -159,8 +159,9 @@ public class FaceDemoActivity extends CameraActivity implements View.OnClickList
      * @return
      */
     public int getLivenessType() {
-        return (openFaceBinoculareLiveness && !openFaceLiveness && !openFaceRgbLiveness) ? 0 : (!openFaceBinoculareLiveness && !openFaceLiveness
-                && openFaceRgbLiveness) ? 1 : (openFaceLiveness && !openFaceRgbLiveness && !openFaceBinoculareLiveness) ? 2 : -1;
+//        return (openFaceBinoculareLiveness && !openFaceLiveness && !openFaceRgbLiveness) ? 0 : (!openFaceBinoculareLiveness && !openFaceLiveness
+//                && openFaceRgbLiveness) ? 1 : (openFaceLiveness && !openFaceRgbLiveness && !openFaceBinoculareLiveness) ? 2 : -1;
+        return 0;
     }
 
     @Override

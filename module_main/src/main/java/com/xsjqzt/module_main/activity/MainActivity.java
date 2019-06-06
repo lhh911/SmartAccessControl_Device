@@ -55,7 +55,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         faceExamples = findViewById(R.id.face_examples);
         faceVersion = findViewById(R.id.face_version);
 
-
         faceSet = new FaceSet(getApplication());
         faceSet.startTrack(0);
         appVersion = faceSet.getSdkVersion();
