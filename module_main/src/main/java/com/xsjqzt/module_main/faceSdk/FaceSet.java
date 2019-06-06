@@ -10,9 +10,13 @@ import com.xsjqzt.module_main.Config.DemoConfig;
 import com.xsjqzt.module_main.activity.base.ExApplication;
 import com.xsjqzt.module_main.dataSource.DataSource;
 import com.xsjqzt.module_main.dataSource.UserDataUtil;
+import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.FaceImageDao;
+import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.modle.User;
+import com.xsjqzt.module_main.util.DataConversionUtil;
 import com.xsjqzt.module_main.util.ThreadPoolManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -660,8 +664,13 @@ public class FaceSet {
 //                    context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
-                    if(ymFace.getLiveness() == 1)EventBus.getDefault().post(new FaceSuccessEventBean(1, ""));
-                    ymFace.getRect();
+                    if(ymFace.getLiveness() == 1) {
+                        String code = DataConversionUtil.floatToString(ymFace.getRect());
+                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
+                        if(faceImage != null)//数据库有这个人注册的数据
+                            EventBus.getDefault().post(new FaceSuccessEventBean(faceImage.getUser_id(), faceImage.getCode()));
+
+                    }
                 }
             }
         } else {

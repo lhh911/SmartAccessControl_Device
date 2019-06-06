@@ -1134,7 +1134,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-        open();
+//        open();
         onFaceResume();
     }
 
@@ -1531,6 +1531,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (mIRCameraView.isCameraOpened())
             mIRCameraView.stop();
         // mIRCameraView.setVisibility(View.GONE);
+    }
+
+
+    public void takePicture(){
+        if(mCameraView != null){
+//            mCameraView.takePicture
+        }
     }
 }
 

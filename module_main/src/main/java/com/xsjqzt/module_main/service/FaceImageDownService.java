@@ -186,6 +186,7 @@ public class FaceImageDownService extends IntentService {
             status = 3;
         }
         if (status == 2) {
+            dataBean.setCodeX(code);
             insert(dataBean);
         }
         updateFacesStatus(status, user_id ,code);
