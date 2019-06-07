@@ -668,9 +668,11 @@ public class FaceSet {
                         String code = DataConversionUtil.floatToString(ymFace.getRect());
                         FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
                         if(faceImage != null)//数据库有这个人注册的数据
-                            EventBus.getDefault().post(new FaceSuccessEventBean(faceImage.getUser_id(), faceImage.getCode()));
+                            EventBus.getDefault().post(new FaceSuccessEventBean(faceImage.getUser_id(), faceImage.getCode(),true));
 
                     }
+                }else{//未注册
+                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "",false));
                 }
             }
         } else {

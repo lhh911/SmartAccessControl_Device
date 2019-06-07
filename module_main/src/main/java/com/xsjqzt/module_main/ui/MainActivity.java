@@ -14,6 +14,7 @@ import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.media.AudioManager;
+import android.media.SoundPool;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Gpio;
@@ -158,6 +159,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private boolean starEnterDown;// * 号被按了
 
+    public static SoundPool mSound = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -211,7 +214,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         setAlarm();
         startMeasuing();
-
+        initMusic();
         EventBus.getDefault().register(this);
 //        test();
 
@@ -224,6 +227,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //        downIDCardData();
 //        startService(new Intent(this,DownAllDataService.class));
 //    }
+
+
+    /**
+     * 初始化音频文件
+     */
+    private void initMusic(){
+        //分别加入到SoundPool中
+        mSound.load(this, R.raw.nobind_card, 1);// 1
+        mSound.load(this, R.raw.open_success, 1);// 2
+        mSound.load(this, R.raw.password_error, 1);// 3
+    }
+
+
 
     private void test() {
         List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
@@ -642,7 +658,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
     private void checkInput(String inputNum) {
-         setShowSucOrError(true, inputNum);
+
         hideRoomInputLayout();
         if(starEnterDown){//按了 * 号了，组合键，调起注册等页面
             if("000".equals(inputNum)){
@@ -690,19 +706,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void setShowSucOrError(boolean success,String code) {
 //        hideRoomInputLayout();
         if (success) {//开门成功
-//            inputNumLayout.setVisibility(View.GONE);
-//            successLayout.setVisibility(View.VISIBLE);
-//            errorLayout.setVisibility(View.GONE);
+
             Message msg = Message.obtain();
             msg.what = 1;
             msg.arg1 = 3;
             msg.obj = code;
             doorHandler.sendMessage(msg);
         } else {
+            startMusic(3);
             MyToast.showToast("密码错误", R.mipmap.icon_error, "#FF0000");
-//            inputNumLayout.setVisibility(View.GONE);
-//            successLayout.setVisibility(View.GONE);
-//            errorLayout.setVisibility(View.VISIBLE);
+
         }
 
 //        starTime();
@@ -1015,12 +1028,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
-//                String str = bytesToHex(paramComBean.bRec);
                 String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
-//                BigInteger bi = new BigInteger(str, 16);//转十进制
-//                str = bi.toString();
-//                LogUtil.w("nfc 十进制 = " + str);
 
                 //对比数据库，开门
                 Message msg = Message.obtain();
@@ -1033,23 +1042,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         };
     }
 
-
-
-
-
-    private String parseIC(byte[] bRec) {
-        android.util.Log.d("wlDebug", " = " + ByteUtil.ByteArrToHex(bRec));
-        byte[] cardData = new byte[4];
-        cardData[0] = bRec[8];
-        cardData[1] = bRec[7];
-        cardData[2] = bRec[6];
-        cardData[3] = bRec[5];
-        String _str = ByteUtil.ByteArrToHex(cardData);
-        BigInteger cardID = new BigInteger(_str, 16);
-        android.util.Log.d("wlDebug", "_str = " + _str + "cardID = " + cardID.toString());
-
-        return cardID.toString();
-    }
 
 
     public String parseCard(ComBean comBean) {
@@ -1105,8 +1097,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             doorHandler.sendMessage(msg);
             return;
         }
-
-        ToastUtil.showCustomToast("未注册的卡或无法识别的卡，请用已注册的ic卡或身份证开门");
+        startMusic(1);
+        MyToast.showToast("卡号未绑定", R.mipmap.icon_error, "#FF0000");
+//        ToastUtil.showCustomToast("未注册的卡或无法识别的卡，请用已注册的ic卡或身份证开门");
 
     }
 
@@ -1164,15 +1157,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         // open door;
                         int type = msg.arg1;
                         String sn = (String) msg.obj;
-                        Gpio.RelayOnOff(1);
+//                        Gpio.RelayOnOff(1);
                         uploadRecord(type, sn);
+                        startMusic(2);
                         MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
                         break;
                     case 2:
                         // close door;
-                        Gpio.RelayOnOff(0);
+//                        Gpio.RelayOnOff(0);
                         break;
                     case 3:
                         String str = (String) msg.obj;
@@ -1184,6 +1178,25 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
         }
     }
+
+
+    /**
+     * 播放MP3资源
+     * @param resId 资源ID
+     */
+    private void startMusic(int resId){
+        /**
+         * 第一个参数为播放音频ID
+         * 第二个 第三个为音量
+         * 第四个为优先级
+         * 第五个为是否循环播放
+         * 第六个设置播放速度
+         * 返回值 不为0即代表成功
+         */
+        int type = mSound.play(resId, 1, 1, 0, 0, 1);
+    }
+
+
 
     /**
      * 上传不带图片的记录
@@ -1230,11 +1243,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
-        Message msg = Message.obtain();
-        msg.what = 1;
-        msg.arg1 = 4;
-        msg.obj = String.valueOf(bean.user_id);
-        doorHandler.sendMessage(msg);
+        if(bean.isRegist) {
+            Message msg = Message.obtain();
+            msg.what = 1;
+            msg.arg1 = 4;
+            msg.obj = String.valueOf(bean.user_id);
+            doorHandler.sendMessage(msg);
+        }else{
+            startMusic(1);
+
+        }
     }
 
 
@@ -1349,6 +1367,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                     isFaceViewShow = false;
                                     banner.bringToFront();
                                     toolsBar.bringToFront();
+                                    callVideoLayout.bringToFront();
+                                    roomNumLayout.bringToFront();
                                 }
                                 // 绘画人脸框
                                 drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");

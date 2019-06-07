@@ -15,7 +15,7 @@ public class CompressConfig implements Serializable {
     /**
      * 压缩到的最大大小，单位B(字节byte)
      */
-    private int maxSize = 500 * 1024;
+    private int maxSize = 150 * 1024;
 
     /**
      * 是否启用像素压缩

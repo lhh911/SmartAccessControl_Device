@@ -6,6 +6,7 @@ import android.content.Intent;
 import com.alibaba.fastjson.JSON;
 import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.other.OkHttpClineUtils;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.HttpRespStatus;
@@ -21,6 +22,7 @@ import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -32,9 +34,14 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class OpenRecordService extends IntentService {
@@ -108,9 +115,11 @@ public class OpenRecordService extends IntentService {
 
             //1.创建MultipartBody.Builder对象
             File file = new File(record.getImage());
-            RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+//            RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpg"), file);
 
-            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);//表单类型 
+            MultipartBody.Builder builder = new MultipartBody.Builder();
+            builder.setType(MultipartBody.FORM);//表单类型
             builder.addFormDataPart("id", record.getSid() + "");
             builder.addFormDataPart("image", file.getName(), requestFile);
 
@@ -250,5 +259,45 @@ public class OpenRecordService extends IntentService {
         }
     }
 
+
+
+    private void uploadMultiFile(String imgUrl,String url,String id,OpenRecord record) {
+        String imageType = "multipart/form-data";
+        File file = new File(imgUrl);//imgUrl为图片位置
+        RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpg"), file);
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), fileBody)
+                .addFormDataPart("id", id)
+                .addFormDataPart("imagetype", imageType)
+                .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build();
+
+
+        OkHttpClient okHttpClient =  OkHttpClineUtils.getHttpClient();
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            if(response.code() == 200){
+                String result = response.body().toString();
+                BaseBean baseBean = JSON.parseObject(result, BaseBean.class);
+                if(baseBean.getCode() == 0){
+                    record.setUploadStatus(true);
+                    DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
+                    //删除文件
+                    FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+                    LogUtil.w("上传成功：" + record.getImage());
+                    uploadRecord();
+                }else{
+                    uploadRecord();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            uploadRecord();
+        }
+    }
 
 }
