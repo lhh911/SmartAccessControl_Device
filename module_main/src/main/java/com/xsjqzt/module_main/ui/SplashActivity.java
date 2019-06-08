@@ -1,12 +1,15 @@
 package com.xsjqzt.module_main.ui;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.ToastUtil;
@@ -16,7 +19,12 @@ import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.presenter.TokenPresenter;
 import com.xsjqzt.module_main.view.TokenView;
+import com.yanzhenjie.permission.Action;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.Setting;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,7 +38,11 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     @Override
     public void init() {
         initMac();
+        initView();
+//        requestPermiss();
+    }
 
+    private void  initView(){
         ActivityManager.getInstance().setAppStatus(KeyContacts.STATUS_NORMAL);
         EMHelper.getInstance().init(getApplicationContext());
 
@@ -41,13 +53,12 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         }else{
             next(4000);
         }
-//        next(1500);
     }
 
 
     private void initMac() {
 
-        macAddress = DeviceUtil.getEthernetMac();
+//        macAddress = DeviceUtil.getEthernetMac();
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
@@ -164,5 +175,53 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         if(requestCode == 10){
             loadKey();
         }
+    }
+
+    private void requestPermiss() {
+
+        DefaultRationale rationale = new DefaultRationale();
+        AndPermission.with(this)
+                .runtime()
+                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA)
+                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
+                .onGranted(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+                        initView();
+                                           }
+                })
+                .onDenied(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+
+                        if (AndPermission.hasAlwaysDeniedPermission(SplashActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
+                            List<String> permissionNames = Permission.transformText(SplashActivity.this, data);
+                            String message = SplashActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
+                            new AlertDialog.Builder(SplashActivity.this)
+                                    .setCancelable(false)
+                                    .setTitle("提示")
+                                    .setMessage(message)
+                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                            AndPermission.with(SplashActivity.this)
+                                                    .runtime()
+                                                    .setting()
+                                                    .onComeback(new Setting.Action() {
+                                                        @Override
+                                                        public void onAction() {
+                                                            //返回
+                                                            requestPermiss();
+                                                        }
+                                                    }).start();
+                                        }
+                                    })
+                                    .show();
+
+                        }
+                    }
+                })
+                .start();
     }
 }

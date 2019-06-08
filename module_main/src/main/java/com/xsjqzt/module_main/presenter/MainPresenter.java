@@ -34,6 +34,8 @@ import com.xsjqzt.module_main.service.ApiService;
 import com.xsjqzt.module_main.service.FaceImageDownService;
 import com.xsjqzt.module_main.view.MainView;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -339,6 +341,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 List<PswCodeResBean.DataBean> data = info.getData();
                 if (data == null || data.isEmpty())
                     return;
+
                 List<OpenCode> lists = new ArrayList<>();
                 for (PswCodeResBean.DataBean bean : data) {
                     if (bean.isIs_delete()) {

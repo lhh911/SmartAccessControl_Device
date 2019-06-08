@@ -12,13 +12,17 @@ import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
+import com.jbb.library_common.retrofit.other.HttpRespStatus;
+import com.jbb.library_common.retrofit.other.NetException;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
@@ -87,63 +91,77 @@ public class FaceImageDownService extends IntentService {
 
         FaceImageResBean.DataBean poll = queue.poll();
 
-
         if (poll != null) {
-            if (TextUtils.isEmpty(poll.getCodeX())) {//未注册
-                subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                        .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                                InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
-
-            } else {//已注册，插入人脸数据
-                insert(poll);
+            if(poll.isIs_delete()){
+                FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+                        .where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
+                if(unique != null){
+                    DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+                }
                 downImage();
+            }else{
+                if (poll.getStatus() == 1) {//未注册
+                    if(TextUtils.isEmpty(poll.getImage())) {
+                        downImage();
+                        return;
+                    }
+                    subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                            .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
+                                    InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
+
+                } else {//已注册，插入人脸数据
+                    insert(poll);
+                    downImage();
+                }
             }
         }
     }
 
 
     public void subscribe(Observable<ResponseBody> observable, final int user_id, final FaceImageResBean.DataBean dataBean) {
-        SubscribeUtils.subscribe4(observable, InputStream.class, new NetListeren<InputStream>() {
-            @Override
-            public void onSuccess(InputStream inputStream) {
-                writeFile(inputStream, user_id, dataBean);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                downImage();//继续下一个
-            }
-        });
-
-
-//        observable.flatMap(new Function<ResponseBody, Observable<InputStream>>() {
+//        SubscribeUtils.subscribe4(observable, InputStream.class, new NetListeren<InputStream>() {
+//            @Override
+//            public void onSuccess(InputStream inputStream) {
+//                writeFile(inputStream, user_id, dataBean);
+//            }
 //
 //            @Override
-//            public Observable apply(ResponseBody response) throws Exception {
-//
-//                return Observable.just(response.byteStream());
-//
+//            public void onError(Exception e) {
+//                downImage();//继续下一个
 //            }
-//        })
-//                .subscribe(new Observer<InputStream>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//                    }
-//
-//                    @Override
-//                    public void onNext(InputStream inputStream) {
-//                        writeFile(inputStream, user_id, dataBean);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        downImage();//继续下一个
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                    }
-//                });
+//        });
+        if (!DeviceUtil.isNetWorkEnable()) {
+            return;
+        }
+
+        observable.flatMap(new Function<ResponseBody, Observable<InputStream>>() {
+
+            @Override
+            public Observable apply(ResponseBody response) throws Exception {
+
+                return Observable.just(response.byteStream());
+
+            }
+        })
+                .subscribe(new Observer<InputStream>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(InputStream inputStream) {
+                        writeFile(inputStream, user_id, dataBean);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        downImage();//继续下一个
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
 
     }
 
@@ -230,12 +248,22 @@ public class FaceImageDownService extends IntentService {
 
 
     private void insert(FaceImageResBean.DataBean data) {
-        FaceImage faceImage = new FaceImage();
-        faceImage.setCode(data.getCodeX());
-        faceImage.setImage(data.getImage());
-        faceImage.setStatus(data.getStatus());
-        faceImage.setUpdate_time(data.getUpdate_time());
-        faceImage.setUser_id(data.getUser_id());
-        DbManager.getInstance().getDaoSession().getFaceImageDao().insertOrReplaceInTx(faceImage);
+        if(data.isIs_delete()){
+            FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(data.getUser_id())).unique();
+            if(unique != null){
+                DbManager.getInstance().getDaoSession().delete(data);
+            }
+        }else{
+            if(data.getStatus() == 2) {
+                FaceImage faceImage = new FaceImage();
+                faceImage.setCode(data.getCodeX());
+                faceImage.setImage(data.getImage());
+                faceImage.setStatus(data.getStatus());
+                faceImage.setUpdate_time(data.getUpdate_time());
+                faceImage.setUser_id(data.getUser_id());
+                DbManager.getInstance().getDaoSession().getFaceImageDao().insertOrReplaceInTx(faceImage);
+            }
+        }
+
     }
 }

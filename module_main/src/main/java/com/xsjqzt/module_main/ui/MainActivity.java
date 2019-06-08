@@ -18,6 +18,7 @@ import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Gpio;
 import android.os.Handler;
@@ -164,6 +165,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean starEnterDown;// * 号被按了
 
     public static SoundPool mSound = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+    private boolean haPermission;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -213,10 +215,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         banner = findViewById(R.id.banner);
         videoPlayer = findViewById(R.id.videoplayer);
-        requestPermiss();
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            requestPermiss();
+        else
+            initData();
+    }
+
+    private void initData(){
+        initView();
         registReceiver();
-
         loadDeviceInfo();
         setAlarm();
         startMeasuing();
@@ -227,6 +235,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initFaceCamera();
         initFaceEvent();
     }
+
 
     private void loadDeviceInfo() {
         presenter.entranceDetail();
@@ -253,11 +262,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 .list();
 
         List<FaceImage> faceImages = DbManager.getInstance().getDaoSession().getFaceImageDao().loadAll();
+        List<ICCard> icCards = DbManager.getInstance().getDaoSession().getICCardDao().loadAll();
+        List<IDCard> idCards = DbManager.getInstance().getDaoSession().getIDCardDao().loadAll();
+        List<OpenCode> openCodes = DbManager.getInstance().getDaoSession().getOpenCodeDao().loadAll();
 
         StringBuffer sf = new StringBuffer();
         sf.append("开门图片记录："+records.size())
                 .append("\n")
-                .append("人脸注册数："+ faceImages.size());
+                .append("人脸注册数："+ faceImages.size())
+                .append("\n")
+                .append("IC卡数："+ icCards.size())
+                .append("\n")
+                .append("身份证数："+ idCards.size())
+                .append("\n")
+                .append("临时密码数："+ openCodes.size());
 
         new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
@@ -486,7 +504,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 .onGranted(new Action<List<String>>() {
                     @Override
                     public void onAction(List<String> data) {
-                        initView();
+
+                        haPermission = true;
+                        initData();
+                        onFaceResume();
                     }
                 })
                 .onDenied(new Action<List<String>>() {
@@ -681,6 +702,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 Bundle bundle = new Bundle();
                 bundle.putInt("mType",1);
                 goTo(RegistICCardActivity.class,bundle);
+            }else{
+                ToastUtil.showCustomToast("输入错误");
             }
         }else{
             if (inputNum.length() == 5) {//密码开门
@@ -1023,7 +1046,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         pi = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         Calendar ca = Calendar.getInstance();
-        ca.set(Calendar.HOUR_OF_DAY, 2);
+        ca.set(Calendar.HOUR_OF_DAY, 02);
         ca.set(Calendar.MINUTE, 30);
         ca.set(Calendar.SECOND, 00);
 
@@ -1142,7 +1165,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             banner.startAutoPlay();
 
         open();
-        onFaceResume();
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+            onFaceResume();
+        }else{
+            if(haPermission)
+                onFaceResume();
+        }
+
     }
 
     @Override
@@ -1153,7 +1183,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             banner.stopAutoPlay();
 
         stopMeasuing();
-        onFacePause();
+
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+            onFacePause();
+        }else{
+            if(haPermission)
+                onFacePause();
+        }
+
+
     }
 
     public class MyHandler extends Handler {
@@ -1177,10 +1215,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
+                        onFacePause();
                         break;
                     case 2:
                         // close door;
                         Gpio.RelayOnOff(0);
+                        onFaceResume();
+                        isFacePause = false;
                         break;
                     case 3:
                         String str = (String) msg.obj;
@@ -1283,17 +1324,25 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         });
     }
 
+    private long faceErrorStartTime ;//人脸识别上一次提示的时间
+    private boolean isFacePause;//人脸识别成功后禁止再提示，等关锁后才能再触发提示
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
         if(bean.isRegist) {
-            Message msg = Message.obtain();
-            msg.what = 1;
-            msg.arg1 = 4;
-            msg.obj = String.valueOf(bean.user_id);
-            doorHandler.sendMessage(msg);
+            if(!isFacePause) {
+                isFacePause = true;
+                Message msg = Message.obtain();
+                msg.what = 1;
+                msg.arg1 = 4;
+                msg.obj = String.valueOf(bean.user_id);
+                doorHandler.sendMessage(msg);
+            }
         }else{
-            startMusic(4);
-
+            long now = System.currentTimeMillis();
+            if(now - faceErrorStartTime > 3000) {
+                startMusic(4);
+                faceErrorStartTime = System.currentTimeMillis();
+            }
         }
     }
 

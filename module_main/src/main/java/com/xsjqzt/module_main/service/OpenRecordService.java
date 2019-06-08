@@ -96,10 +96,12 @@ public class OpenRecordService extends IntentService {
 
 
     private void uploadRecord() {
-        final OpenRecord record = queue.poll();
-        LogUtil.w("OpenRecordService = " + record.getImage() + "，" + record.getSid());
-
+        OpenRecord record = null;
+        if(!queue.isEmpty()) {
+            record = queue.poll();
+        }
         if (record != null) {
+            LogUtil.w("OpenRecordService = " + record.getImage() + "，" + record.getSid());
 
 //            Map<String, RequestBody> params = new HashMap<>();
 //            params.put("id", convertToRequestBody(record.getSid() + ""));
@@ -124,7 +126,6 @@ public class OpenRecordService extends IntentService {
 
             subscribe(RetrofitManager.getInstance().getService(ApiService.class).uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), parts), record);
 //            subscribe(RetrofitManager.getInstance().getService(ApiService.class).uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
-
 
 
         }
