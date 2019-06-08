@@ -110,4 +110,9 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("entrance/upload/registration_id")
     Observable<ResponseBody> registrationId(@Header("Authorization") String token , @Field("registration_id") String registrationId);
+
+    //根据房号获取userid
+    @FormUrlEncoded
+    @POST("entrance/data/get_userid_by_room")
+    Observable<ResponseBody> getUseridByRoom(@Header("Authorization") String token , @Field("room_code") String inputNum);
 }

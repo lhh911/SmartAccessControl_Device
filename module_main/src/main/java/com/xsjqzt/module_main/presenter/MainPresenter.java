@@ -18,12 +18,14 @@ import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.model.CardResBean;
+import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.ICCardResBean;
 import com.xsjqzt.module_main.model.IDCardResBean;
 import com.xsjqzt.module_main.model.KeyResBean;
 import com.xsjqzt.module_main.model.PswCodeResBean;
 import com.xsjqzt.module_main.model.RefreshTokenResBean;
+import com.xsjqzt.module_main.model.RoomNumByUserIdResBean;
 import com.xsjqzt.module_main.model.TokenResBean;
 import com.xsjqzt.module_main.model.UploadCardResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
@@ -62,7 +64,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -97,7 +99,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -123,7 +125,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -146,7 +148,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -171,7 +173,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -197,35 +199,35 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
 
 //    //获取当前进出口信息
-//    public void entranceDetail() {
-//        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-//                .entranceDetail(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceDetailsResBean.class, new NetListeren<EntranceDetailsResBean>() {
-//            @Override
-//            public void onSuccess(EntranceDetailsResBean bean) {
-//                if (mView != null)
-//                    mView.entranceDetailSuccess(bean);
-//            }
-//
-//            @Override
-//            public void onStart() {
-//            }
-//
-//            @Override
-//            public void onEnd() {
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
+    public void entranceDetail() {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .entranceDetail(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken()), EntranceDetailsResBean.class, new NetListeren<EntranceDetailsResBean>() {
+            @Override
+            public void onSuccess(EntranceDetailsResBean bean) {
+                if (mView != null)
+                    mView.entranceDetailSuccess(bean);
+            }
+
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onEnd() {
+            }
+
+            @Override
+            public void onError(Exception e) {
 //                super.onError(e);
-//            }
-//        });
-//    }
+            }
+        });
+    }
 
 
     //获取身份证数据
@@ -256,9 +258,11 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 if (lists.size() > 0)
                     DbManager.getInstance().getDaoSession().getIDCardDao().insertOrReplaceInTx(lists);
 
-
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
     }
 
@@ -293,7 +297,10 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
 
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
     }
 
@@ -313,7 +320,10 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 context.startService(it);
 
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
 
         });
     }
@@ -348,9 +358,12 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 if (lists.size() > 0)
                     DbManager.getInstance().getDaoSession().getOpenCodeDao().insertOrReplaceInTx(lists);
 
-
             }
 
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
 
     }
@@ -374,7 +387,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -388,20 +401,32 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                     mView.uploadCardSuccess(type, bean.getData().getId(), String.valueOf(user_id));
             }
 
-            @Override
-            public void onStart() {
-            }
-
-            @Override
-            public void onEnd() {
-            }
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
 
 
+    public void getUseridByRoom(final String inputNum) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .getUseridByRoom(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), inputNum), RoomNumByUserIdResBean.class, new NetListeren<RoomNumByUserIdResBean>() {
+            @Override
+            public void onSuccess(RoomNumByUserIdResBean bean) {
+                if (mView != null)
+                    mView.getUseridByRoomSuccess(true,bean.getData().getId()+"",inputNum);
+            }
+
+
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+                if (mView != null)
+                    mView.getUseridByRoomSuccess(false,e.getMessage(),"");
+            }
+        });
+    }
 }

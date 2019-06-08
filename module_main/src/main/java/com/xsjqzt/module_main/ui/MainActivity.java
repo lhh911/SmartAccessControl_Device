@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
@@ -73,6 +75,7 @@ import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
+import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
@@ -120,6 +123,7 @@ import tp.xmaihh.serialport.utils.ByteUtil;
 @Route(path = "/module_main/main")
 public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> implements MainView {
 
+    private TextView entranceDetailTv;
     private Banner banner;
     private SimpleVideoPlayer videoPlayer;
 
@@ -127,7 +131,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private LinearLayout callVideoLayout;
     private TextView callNumTv, callStatusTv, callTipTv;
 
-    private View toolsBar;
+//    private View toolsBar;
 
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
@@ -185,12 +189,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void init() {
+
+        entranceDetailTv = findViewById(R.id.enterinfo_tv);
         //视频通话
         callVideoLayout = findViewById(R.id.call_video_layout);
         callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
         callTipTv = findViewById(R.id.call_tip_tv);
-        toolsBar = findViewById(R.id.tools_bar);
+//        toolsBar = findViewById(R.id.tools_bar);
 
         //房号输入
         roomNumLayout = findViewById(R.id.input_num_layout);
@@ -211,22 +217,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         registReceiver();
 
-
+        loadDeviceInfo();
         setAlarm();
         startMeasuing();
         initMusic();
         EventBus.getDefault().register(this);
-//        test();
+        test();
 
         initFaceCamera();
         initFaceEvent();
     }
 
-//    private void loadCardData() {
-//        downICCardData();
-//        downIDCardData();
-//        startService(new Intent(this,DownAllDataService.class));
-//    }
+    private void loadDeviceInfo() {
+        presenter.entranceDetail();
+    }
 
 
     /**
@@ -237,6 +241,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         mSound.load(this, R.raw.nobind_card, 1);// 1
         mSound.load(this, R.raw.open_success, 1);// 2
         mSound.load(this, R.raw.password_error, 1);// 3
+        mSound.load(this, R.raw.noregist_face, 1);// 3
     }
 
 
@@ -247,7 +252,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 .where(OpenRecordDao.Properties.UploadStatus.eq(false))
                 .list();
 
-        new AlertDialog.Builder(this).setMessage("开门图片记录："+records.size()).show();
+        List<FaceImage> faceImages = DbManager.getInstance().getDaoSession().getFaceImageDao().loadAll();
+
+        StringBuffer sf = new StringBuffer();
+        sf.append("开门图片记录："+records.size())
+                .append("\n")
+                .append("人脸注册数："+ faceImages.size());
+
+        new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
         startService(new Intent(this,OpenRecordService.class));
     }
@@ -691,7 +703,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 showCallVideoLayout();
 
                 //根据房号获取userid，再拨视频通话
-                callVideo(inputNum);
+                presenter.getUseridByRoom(inputNum);
+
+//                callVideo(inputNum);
             } else {
                 ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
             }
@@ -748,13 +762,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //拨打视频通话
-    private void callVideo(String inputNum) {
+    private void callVideo(String userId,String roomNum) {
 
         //通过房号获取到环信的账号名（接口）
 
-        callNumTv.setText(inputNum);
+        callNumTv.setText(roomNum);
         try {//单参数
-            EMClient.getInstance().callManager().makeVideoCall(inputNum, "");
+            EMClient.getInstance().callManager().makeVideoCall(userId);
         } catch (EMServiceNotReadyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1127,7 +1141,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-//        open();
+        open();
         onFaceResume();
     }
 
@@ -1157,7 +1171,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         // open door;
                         int type = msg.arg1;
                         String sn = (String) msg.obj;
-//                        Gpio.RelayOnOff(1);
+                        Gpio.RelayOnOff(1);
                         uploadRecord(type, sn);
                         startMusic(2);
                         MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
@@ -1166,7 +1180,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         break;
                     case 2:
                         // close door;
-//                        Gpio.RelayOnOff(0);
+                        Gpio.RelayOnOff(0);
                         break;
                     case 3:
                         String str = (String) msg.obj;
@@ -1222,10 +1236,38 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         getPicture(type, id, sn);
     }
 
+    @Override
+    public void entranceDetailSuccess(EntranceDetailsResBean bean) {
+        if (bean != null && bean.getData() != null) {
+            String garden_name = bean.getData().getGarden_name();
+            String region_name = bean.getData().getRegion_name();
+            String building_name = bean.getData().getBuilding_name();
+            String name = bean.getData().getName();
+
+            entranceDetailTv.setText(garden_name+"/" + region_name+"/" + building_name +"/" + name);
+
+        }
+    }
+
+    @Override
+    public void getUseridByRoomSuccess(boolean b, String userId,String roomNum) {
+        if(b){
+            callVideo(userId+"",roomNum);
+        }
+    }
+
     private void getPicture(final int type, final int id, final String sn){
         String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
         File file = new File(picturePath, new Date().getTime() + ".jpg");
         Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
+
+        if(bitmapBytes != null){
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+            Utils.saveBitmap(file.getPath(), bitmap);
+        }else{
+            Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
+        }
+
 
         CompressImageUtil compressImageUtil = new CompressImageUtil(this,null);
         compressImageUtil.compress(file.getPath(), new CompressImageUtil.CompressListener() {
@@ -1250,7 +1292,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             msg.obj = String.valueOf(bean.user_id);
             doorHandler.sendMessage(msg);
         }else{
-            startMusic(1);
+            startMusic(4);
 
         }
     }
@@ -1362,13 +1404,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 if (ymFaces != null && !isFaceViewShow) {
                                     isFaceViewShow = true;
                                     mCameraView.bringToFront();
+                                    entranceDetailTv.bringToFront();
                                     // if (mIRCameraView != null) mIRCameraView.bringToFront();
                                 } else if (ymFaces == null && isFaceViewShow) {
                                     isFaceViewShow = false;
                                     banner.bringToFront();
-                                    toolsBar.bringToFront();
+//                                    toolsBar.bringToFront();
                                     callVideoLayout.bringToFront();
                                     roomNumLayout.bringToFront();
+                                    entranceDetailTv.bringToFront();
                                 }
                                 // 绘画人脸框
                                 drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
@@ -1404,8 +1448,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean isFaceViewShow = false;
     private boolean isDoubleEyes = true;
 
+    private byte[] bitmapBytes;//保存人脸识别成功后的当前图片
+
     protected List<YMFace> onCameraPreviewFrame(final byte[] bytes, final byte[] irBytes, final int iw, final int ih, final boolean isMulti) {
         if (bytes == null) return null;
+        //得到识别是的图片
+        bitmapBytes = bytes;
+
         mBytes = bytes;
         mBytesIr = irBytes;
         mWidth = iw;
@@ -1554,10 +1603,5 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    public void takePicture(){
-        if(mCameraView != null){
-//            mCameraView.takePicture
-        }
-    }
 }
 

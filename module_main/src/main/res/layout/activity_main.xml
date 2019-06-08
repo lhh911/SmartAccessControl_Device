@@ -47,8 +47,16 @@
 
     <include layout="@layout/call_video_layout" />
 
+    <TextView
+        android:id="@+id/enterinfo_tv"
+        style="@style/textview13"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/common_white"
+        android:text=""/>
 
-    <LinearLayout
+
+    <!--<LinearLayout
         android:id="@+id/tools_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,6 +87,6 @@
             android:layout_height="wrap_content"
             android:onClick="btn4Click"
             android:text="人脸识别开门" />
-    </LinearLayout>
+    </LinearLayout>-->
 
 </RelativeLayout>

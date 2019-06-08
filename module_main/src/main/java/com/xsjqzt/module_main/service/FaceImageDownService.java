@@ -15,6 +15,7 @@ import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.jbb.library_common.utils.FileUtil;
+import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.greendao.DbManager;
@@ -81,6 +82,9 @@ public class FaceImageDownService extends IntentService {
     }
 
     private void downImage() {
+        if(!Utils.getNetWorkState(this))
+            return;
+
         FaceImageResBean.DataBean poll = queue.poll();
 
 
@@ -99,34 +103,47 @@ public class FaceImageDownService extends IntentService {
 
 
     public void subscribe(Observable<ResponseBody> observable, final int user_id, final FaceImageResBean.DataBean dataBean) {
-        observable.flatMap(new Function<ResponseBody, Observable<InputStream>>() {
+        SubscribeUtils.subscribe4(observable, InputStream.class, new NetListeren<InputStream>() {
+            @Override
+            public void onSuccess(InputStream inputStream) {
+                writeFile(inputStream, user_id, dataBean);
+            }
 
             @Override
-            public Observable apply(ResponseBody response) throws Exception {
-
-                return Observable.just(response.byteStream());
-
+            public void onError(Exception e) {
+                downImage();//继续下一个
             }
-        })
-                .subscribe(new Observer<InputStream>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
+        });
 
-                    @Override
-                    public void onNext(InputStream inputStream) {
-                        writeFile(inputStream, user_id, dataBean);
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        downImage();//继续下一个
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
+//        observable.flatMap(new Function<ResponseBody, Observable<InputStream>>() {
+//
+//            @Override
+//            public Observable apply(ResponseBody response) throws Exception {
+//
+//                return Observable.just(response.byteStream());
+//
+//            }
+//        })
+//                .subscribe(new Observer<InputStream>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                    }
+//
+//                    @Override
+//                    public void onNext(InputStream inputStream) {
+//                        writeFile(inputStream, user_id, dataBean);
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        downImage();//继续下一个
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                    }
+//                });
 
     }
 
@@ -204,18 +221,9 @@ public class FaceImageDownService extends IntentService {
             public void onSuccess(BaseBean info) {
 
             }
-
-            @Override
-            public void onStart() {
-            }
-
-            @Override
-            public void onEnd() {
-            }
-
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }

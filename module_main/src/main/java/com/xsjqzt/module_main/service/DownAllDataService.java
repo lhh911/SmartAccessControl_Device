@@ -101,10 +101,11 @@ public class DownAllDataService extends IntentService {
                 }
                 if (lists.size() > 0)
                     DbManager.getInstance().getDaoSession().getOpenCodeDao().insertOrReplaceInTx(lists);
-
-
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
 
     }
@@ -132,7 +133,10 @@ public class DownAllDataService extends IntentService {
                 startService(it);
 
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
 
     }
@@ -172,10 +176,11 @@ public class DownAllDataService extends IntentService {
                 }
                 if (lists.size() > 0)
                     DbManager.getInstance().getDaoSession().getIDCardDao().insertOrReplaceInTx(lists);
-
-
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
     }
 
@@ -215,10 +220,11 @@ public class DownAllDataService extends IntentService {
                 }
                 if (lists.size() > 0)
                     DbManager.getInstance().getDaoSession().getICCardDao().insertOrReplaceInTx(lists);
-
-
             }
-
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
 
     }

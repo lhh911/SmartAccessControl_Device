@@ -45,7 +45,7 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -82,7 +82,7 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }
@@ -117,7 +117,7 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
             }
         });
     }

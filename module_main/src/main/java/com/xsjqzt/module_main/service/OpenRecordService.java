@@ -12,6 +12,7 @@ import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.HttpRespStatus;
 import com.jbb.library_common.retrofit.other.NetException;
 import com.jbb.library_common.retrofit.other.NetListeren;
+import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
@@ -81,17 +82,12 @@ public class OpenRecordService extends IntentService {
                 .where(OpenRecordDao.Properties.UploadStatus.eq(false))
                 .list();
 
+        LogUtil.w("OpenRecordService  records.size = " + records.size());
         if (!records.isEmpty()) {
-            LogUtil.w("OpenRecordService  records.size = " + records.size());
 
             queue.addAll(records);
 
-            try {
-                uploadRecord();
-            } catch (Exception e) {
-                LogUtil.w("上传图片异常：" + e.getMessage() + "-----" + e.getCause());
-                e.printStackTrace();
-            }
+            uploadRecord();
 
         }
 
@@ -100,7 +96,7 @@ public class OpenRecordService extends IntentService {
 
 
     private void uploadRecord() {
-        OpenRecord record = queue.poll();
+        final OpenRecord record = queue.poll();
         LogUtil.w("OpenRecordService = " + record.getImage() + "，" + record.getSid());
 
         if (record != null) {
@@ -129,175 +125,196 @@ public class OpenRecordService extends IntentService {
             subscribe(RetrofitManager.getInstance().getService(ApiService.class).uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), parts), record);
 //            subscribe(RetrofitManager.getInstance().getService(ApiService.class).uploadCardRecordByImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), params, body), record);
 
+
+
         }
     }
 
 
     public void subscribe(Observable<ResponseBody> observable, final OpenRecord record) {
-        observable.flatMap(new Function<ResponseBody, Observable<BaseBean>>() {
+        SubscribeUtils.subscribe4(observable, BaseBean.class, new NetListeren<BaseBean>() {
+            @Override
+            public void onSuccess(BaseBean baseBean) {
+                record.setUploadStatus(true);
+                DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
+                //删除文件
+                FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+                LogUtil.w("上传成功：" + record.getImage());
+                uploadRecord();
+            }
 
             @Override
-            public Observable apply(ResponseBody response) throws Exception {
-                BaseBean baseBean = null;
-                String result = response.string();
-                baseBean = JSON.parseObject(result, BaseBean.class);
-                if (baseBean == null) {
-                    return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
-                }
-
-                if (baseBean.getCode() == 0) {
-                    return Observable.just(baseBean);
-                } else {
-                    if (baseBean.getCode() == 2001 || baseBean.getCode() == 2002) {//2001 token 过期， 2002 Refresh Token 过期
-                        Intent it = new Intent(KeyContacts.ACTION_API_KEY_INVALID);
-                        it.putExtra("code", baseBean.getCode());
-                        BaseApplication.getContext().sendBroadcast(it);
-                    }
-                    return Observable.error(new NetException(baseBean.getCode(), baseBean.getMessage()));
-                }
+            public void onError(Exception e) {
+                uploadRecord();
             }
-        })
-                .subscribe(new Observer<BaseBean>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                    }
+        });
 
-                    @Override
-                    public void onNext(BaseBean o) {
-                        record.setUploadStatus(true);
-                        DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
-                        //删除文件
-                        FileUtil.deleteFilesByDirectory(new File(record.getImage()));
-                        LogUtil.w("上传成功：" + record.getImage());
-                        uploadRecord();
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        uploadRecord();
-                    }
 
-                    @Override
-                    public void onComplete() {
-                    }
-                });
+//        observable.flatMap(new Function<ResponseBody, Observable<BaseBean>>() {
+//
+//            @Override
+//            public Observable apply(ResponseBody response) throws Exception {
+//                BaseBean baseBean = null;
+//                String result = response.string();
+//                baseBean = JSON.parseObject(result, BaseBean.class);
+//                if (baseBean == null) {
+//                    return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
+//                }
+//
+//                if (baseBean.getCode() == 0) {
+//                    return Observable.just(baseBean);
+//                } else {
+//                    if (baseBean.getCode() == 2001 || baseBean.getCode() == 2002) {//2001 token 过期， 2002 Refresh Token 过期
+//                        Intent it = new Intent(KeyContacts.ACTION_API_KEY_INVALID);
+//                        it.putExtra("code", baseBean.getCode());
+//                        BaseApplication.getContext().sendBroadcast(it);
+//                    }
+//                    return Observable.error(new NetException(baseBean.getCode(), baseBean.getMessage()));
+//                }
+//            }
+//        })
+//                .subscribe(new Observer<BaseBean>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                    }
+//
+//                    @Override
+//                    public void onNext(BaseBean o) {
+//                        record.setUploadStatus(true);
+//                        DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
+//                        //删除文件
+//                        FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+//                        LogUtil.w("上传成功：" + record.getImage());
+//                        uploadRecord();
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        uploadRecord();
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                    }
+//                });
 
 
     }
 
 
-    private RequestBody convertToRequestBody(String param) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), param);
-        return requestBody;
-    }
+//    private RequestBody convertToRequestBody(String param) {
+//        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), param);
+//        return requestBody;
+//    }
 
 
-    public static void uploadForOctetstream(final String urlStr, final String filePath, final NetListeren listener) {
+//    public static void uploadForOctetstream(final String urlStr, final String filePath, final NetListeren listener) {
+//
+//
+//        HttpURLConnection conn = null;
+//        try {
+//            URL url = new URL(urlStr);
+//
+//            final String httpMethod = "POST";
+//            conn = (HttpURLConnection) url.openConnection();
+//            conn.setDoInput(true);
+//            conn.setDoOutput(true);
+//            conn.setUseCaches(false);
+//            conn.setConnectTimeout(10000);
+//            conn.setReadTimeout(30000);
+//            conn.setRequestMethod(httpMethod);
+//            conn.setRequestProperty("Content-Type", "application/octet-stream");
+//            conn.setRequestProperty("API_KEY", UserInfoInstance.getInstance().getKey());
+//
+//
+//            FileInputStream inputStream = new FileInputStream(filePath);
+//            long length = inputStream.getChannel().size();
+//
+////                    conn.setChunkedStreamingMode(MAX_BUFFER_SIZE);//未知输出流长度，达到最大缓存就直接发送
+//            conn.connect();
+//
+//            OutputStream sendStream = null;
+//            try {
+//                sendStream = conn.getOutputStream();
+//
+//                int count = 0;
+//                byte[] buffer = new byte[8 * 1024]; // 8k
+//                while ((count = inputStream.read(buffer)) != -1) {
+//                    sendStream.write(buffer, 0, count);
+//                }
+//
+//                sendStream.flush();
+//            } finally {
+//                inputStream.close();
+//                sendStream.close();
+//
+//            }
+//
+//            String responseString;
+//            InputStream inStream = null;
+//            try {
+//                inStream = conn.getInputStream();
+//
+//                ByteArrayOutputStream out = new ByteArrayOutputStream();
+//                byte[] buffer = new byte[1024];
+//                int bytesRead = 0;
+//                // write bytes to file
+//                while ((bytesRead = inStream.read(buffer)) != -1) {
+//                    out.write(buffer, 0, bytesRead);
+//                }
+//                responseString = out.toString("UTF-8");
+//            } finally {
+//                inStream.close();
+//            }
+//
+//
+//        } catch (Exception e) {
+//
+//        } finally {
+//
+//        }
+//    }
 
 
-        HttpURLConnection conn = null;
-        try {
-            URL url = new URL(urlStr);
 
-            final String httpMethod = "POST";
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setUseCaches(false);
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(30000);
-            conn.setRequestMethod(httpMethod);
-            conn.setRequestProperty("Content-Type", "application/octet-stream");
-            conn.setRequestProperty("API_KEY", UserInfoInstance.getInstance().getKey());
-
-
-            FileInputStream inputStream = new FileInputStream(filePath);
-            long length = inputStream.getChannel().size();
-
-//                    conn.setChunkedStreamingMode(MAX_BUFFER_SIZE);//未知输出流长度，达到最大缓存就直接发送
-            conn.connect();
-
-            OutputStream sendStream = null;
-            try {
-                sendStream = conn.getOutputStream();
-
-                int count = 0;
-                byte[] buffer = new byte[8 * 1024]; // 8k
-                while ((count = inputStream.read(buffer)) != -1) {
-                    sendStream.write(buffer, 0, count);
-                }
-
-                sendStream.flush();
-            } finally {
-                inputStream.close();
-                sendStream.close();
-
-            }
-
-            String responseString;
-            InputStream inStream = null;
-            try {
-                inStream = conn.getInputStream();
-
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int bytesRead = 0;
-                // write bytes to file
-                while ((bytesRead = inStream.read(buffer)) != -1) {
-                    out.write(buffer, 0, bytesRead);
-                }
-                responseString = out.toString("UTF-8");
-            } finally {
-                inStream.close();
-            }
-
-
-        } catch (Exception e) {
-
-        } finally {
-
-        }
-    }
-
-
-
-    private void uploadMultiFile(String imgUrl,String url,String id,OpenRecord record) {
-        String imageType = "multipart/form-data";
-        File file = new File(imgUrl);//imgUrl为图片位置
-        RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpg"), file);
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("file", file.getName(), fileBody)
-                .addFormDataPart("id", id)
-                .addFormDataPart("imagetype", imageType)
-                .build();
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .build();
-
-
-        OkHttpClient okHttpClient =  OkHttpClineUtils.getHttpClient();
-        try {
-            Response response = okHttpClient.newCall(request).execute();
-            if(response.code() == 200){
-                String result = response.body().toString();
-                BaseBean baseBean = JSON.parseObject(result, BaseBean.class);
-                if(baseBean.getCode() == 0){
-                    record.setUploadStatus(true);
-                    DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
-                    //删除文件
-                    FileUtil.deleteFilesByDirectory(new File(record.getImage()));
-                    LogUtil.w("上传成功：" + record.getImage());
-                    uploadRecord();
-                }else{
-                    uploadRecord();
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            uploadRecord();
-        }
-    }
+//    private void uploadMultiFile(String imgUrl,String url,String id,OpenRecord record) {
+//        String imageType = "multipart/form-data";
+//        File file = new File(imgUrl);//imgUrl为图片位置
+//        RequestBody fileBody = RequestBody.create(MediaType.parse("image/jpg"), file);
+//        RequestBody requestBody = new MultipartBody.Builder()
+//                .setType(MultipartBody.FORM)
+//                .addFormDataPart("file", file.getName(), fileBody)
+//                .addFormDataPart("id", id)
+//                .addFormDataPart("imagetype", imageType)
+//                .build();
+//        Request request = new Request.Builder()
+//                .url(url)
+//                .post(requestBody)
+//                .build();
+//
+//
+//        OkHttpClient okHttpClient =  OkHttpClineUtils.getHttpClient();
+//        try {
+//            Response response = okHttpClient.newCall(request).execute();
+//            if(response.code() == 200){
+//                String result = response.body().toString();
+//                BaseBean baseBean = JSON.parseObject(result, BaseBean.class);
+//                if(baseBean.getCode() == 0){
+//                    record.setUploadStatus(true);
+//                    DbManager.getInstance().getDaoSession().getOpenRecordDao().delete(record);
+//                    //删除文件
+//                    FileUtil.deleteFilesByDirectory(new File(record.getImage()));
+//                    LogUtil.w("上传成功：" + record.getImage());
+//                    uploadRecord();
+//                }else{
+//                    uploadRecord();
+//                }
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            uploadRecord();
+//        }
+//    }
 
 }

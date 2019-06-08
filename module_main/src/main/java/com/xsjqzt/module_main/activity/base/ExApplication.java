@@ -7,6 +7,7 @@ import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.BuildConfig;
 import com.jbb.library_common.comfig.AppConfig;
 import com.jbb.library_common.utils.log.LogUtil;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -28,6 +29,8 @@ public class ExApplication extends BaseApplication {
         ARouter.init(this);
 
         JPushInterface.init(getApplicationContext());
+
+        CrashReport.initCrashReport(getApplicationContext(),AppConfig.BUGLY_APPID,false);
     }
 
     /**

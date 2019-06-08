@@ -25,5 +25,5 @@ public class AppConfig {
     public static final int HOST_ADDRESS_CONFIG_INDEX =  HOST_INDEX_ONLINE;
 
 
-
+    public static String BUGLY_APPID = "0e2bc926f1";
 }

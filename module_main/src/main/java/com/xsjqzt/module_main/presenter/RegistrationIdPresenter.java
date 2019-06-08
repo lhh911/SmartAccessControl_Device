@@ -16,6 +16,10 @@ public class RegistrationIdPresenter {
             public void onSuccess(BaseBean bean) {
 
             }
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
+            }
         });
     }
 }
