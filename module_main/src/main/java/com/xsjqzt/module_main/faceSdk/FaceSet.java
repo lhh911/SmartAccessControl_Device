@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
+import com.jbb.library_common.utils.ToastUtil;
 import com.xsjqzt.module_main.Config.DemoConfig;
 import com.xsjqzt.module_main.activity.base.ExApplication;
 import com.xsjqzt.module_main.dataSource.DataSource;
@@ -665,13 +666,14 @@ public class FaceSet {
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
                     if(ymFace.getLiveness() == 1) {
-                        String code = DataConversionUtil.floatToString(ymFace.getRect());
-                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
-                        if(faceImage != null)//数据库有这个人注册的数据
-                            EventBus.getDefault().post(new FaceSuccessEventBean(faceImage.getUser_id(), faceImage.getCode(),true));
+//                        String code = DataConversionUtil.floatToString(ymFace.getRect());
+//                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
+//                        if(faceImage != null)//数据库有这个人注册的数据
+                            EventBus.getDefault().post(new FaceSuccessEventBean(0, "",true));
 
                     }
                 }else{//未注册
+//                    String code = DataConversionUtil.floatToString(ymFace.getRect());
                     EventBus.getDefault().post(new FaceSuccessEventBean(0, "",false));
                 }
             }

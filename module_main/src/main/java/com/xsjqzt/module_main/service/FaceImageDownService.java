@@ -48,6 +48,7 @@ public class FaceImageDownService extends IntentService {
 
     LinkedList<FaceImageResBean.DataBean> queue = new LinkedList<>();
     private boolean isStart = false;
+    private FaceSet faceSet;
 
     public FaceImageDownService() {
         super("FaceImageDownService");
@@ -56,6 +57,9 @@ public class FaceImageDownService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        faceSet = new FaceSet(getApplication());
+        faceSet.startTrack(0);
     }
 
 
@@ -92,28 +96,47 @@ public class FaceImageDownService extends IntentService {
         FaceImageResBean.DataBean poll = queue.poll();
 
         if (poll != null) {
-            if(poll.isIs_delete()){
-                FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
-                        .where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
+            if(TextUtils.isEmpty(poll.getImage()) ) {
+                downImage();
+                return;
+            }
+            if(poll.isIs_delete() ) {
+                FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
                 if(unique != null){
                     DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+                    faceSet.deleteUserByPersonId(unique.getPersonId());//删除阅面数据库数据
                 }
-                downImage();
-            }else{
-                if (poll.getStatus() == 1) {//未注册
-                    if(TextUtils.isEmpty(poll.getImage())) {
-                        downImage();
-                        return;
-                    }
-                    subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                            .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                                    InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
 
-                } else {//已注册，插入人脸数据
-                    insert(poll);
-                    downImage();
-                }
+                downImage();
+                return;
             }
+            subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                    .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
+                            InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
+
+
+//            if(poll.isIs_delete()){
+//                FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+//                        .where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
+//                if(unique != null){
+//                    DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+//                }
+//                downImage();
+//            }else{
+//                if (poll.getStatus() == 1) {//未注册
+//                    if(TextUtils.isEmpty(poll.getImage())) {
+//                        downImage();
+//                        return;
+//                    }
+//                    subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+//                            .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
+//                                    InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
+//
+//                } else {//已注册，插入人脸数据
+//                    insert(poll);
+//                    downImage();
+//                }
+//            }
         }
     }
 
@@ -131,6 +154,7 @@ public class FaceImageDownService extends IntentService {
 //            }
 //        });
         if (!DeviceUtil.isNetWorkEnable()) {
+            downImage();
             return;
         }
 
@@ -207,23 +231,22 @@ public class FaceImageDownService extends IntentService {
 
         int status = 0;
         String code = "";//识别码
-        FaceSet faceSet = new FaceSet(getApplication());
-        faceSet.startTrack(0);
+
         FaceResult faceResult = faceSet.registByBitmap(bitmap, user_id + "");
         if (faceResult == null) return;
-        if (faceResult.code == 0) {//成功
+        if (faceResult.code == 0 || faceResult.code == 102) {//成功
             //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
             code = DataConversionUtil.floatToString(faceResult.rect);
             LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
             status = 2;
-
+            if (faceResult.code == 0) {
+                dataBean.setCodeX(code);
+                insert(dataBean,faceResult.personId);
+            }
         } else {//失败
             status = 3;
         }
-        if (status == 2) {
-            dataBean.setCodeX(code);
-            insert(dataBean);
-        }
+
         updateFacesStatus(status, user_id ,code);
         downImage();//继续下一个
     }
@@ -247,22 +270,23 @@ public class FaceImageDownService extends IntentService {
     }
 
 
-    private void insert(FaceImageResBean.DataBean data) {
+    private void insert(FaceImageResBean.DataBean data,int personId) {
         if(data.isIs_delete()){
             FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(data.getUser_id())).unique();
             if(unique != null){
-                DbManager.getInstance().getDaoSession().delete(data);
+                DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
             }
         }else{
-            if(data.getStatus() == 2) {
+//            if(data.getStatus() == 2) {
                 FaceImage faceImage = new FaceImage();
                 faceImage.setCode(data.getCodeX());
                 faceImage.setImage(data.getImage());
                 faceImage.setStatus(data.getStatus());
                 faceImage.setUpdate_time(data.getUpdate_time());
                 faceImage.setUser_id(data.getUser_id());
+                faceImage.setPersonId(personId);
                 DbManager.getInstance().getDaoSession().getFaceImageDao().insertOrReplaceInTx(faceImage);
-            }
+//            }
         }
 
     }

@@ -85,6 +85,7 @@ import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.OpenRecordService;
+import com.xsjqzt.module_main.util.DataConversionUtil;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.util.TrackDrawUtil;
@@ -132,7 +133,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private LinearLayout callVideoLayout;
     private TextView callNumTv, callStatusTv, callTipTv;
 
-//    private View toolsBar;
+    private View toolsBar;
 
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
@@ -198,7 +199,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
         callTipTv = findViewById(R.id.call_tip_tv);
-//        toolsBar = findViewById(R.id.tools_bar);
+        toolsBar = findViewById(R.id.tools_bar);
 
         //房号输入
         roomNumLayout = findViewById(R.id.input_num_layout);
@@ -230,7 +231,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         startMeasuing();
         initMusic();
         EventBus.getDefault().register(this);
-        test();
+//        test();
 
         initFaceCamera();
         initFaceEvent();
@@ -266,10 +267,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         List<IDCard> idCards = DbManager.getInstance().getDaoSession().getIDCardDao().loadAll();
         List<OpenCode> openCodes = DbManager.getInstance().getDaoSession().getOpenCodeDao().loadAll();
 
+        String str = "";
+        for(FaceImage face :faceImages){
+            str += face.getCode()+"\n";
+        }
+
         StringBuffer sf = new StringBuffer();
         sf.append("开门图片记录："+records.size())
                 .append("\n")
-                .append("人脸注册数："+ faceImages.size())
+                .append("人脸注册："+ str)
                 .append("\n")
                 .append("IC卡数："+ icCards.size())
                 .append("\n")
@@ -280,6 +286,21 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
         startService(new Intent(this,OpenRecordService.class));
+
+
+        Bitmap bitmap = BitmapFactory.decodeFile("/storage/emulated/0/SmartAccessControl_Device/picture/face_picture_1559912142780.jpg");
+        String code = "";//识别码
+        FaceSet faceSet = new FaceSet(getApplication());
+        faceSet.startTrack(0);
+        FaceResult faceResult = faceSet.registByBitmap(bitmap,  "张三");
+        if (faceResult == null) return;
+        if (faceResult.code == 0) {//成功
+            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
+            code = DataConversionUtil.floatToString(faceResult.rect);
+            LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
+
+
+        }
     }
 
     @Override
@@ -1215,12 +1236,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
-                        onFacePause();
+//                        onFacePause();
                         break;
                     case 2:
                         // close door;
                         Gpio.RelayOnOff(0);
-                        onFaceResume();
+//                        onFaceResume();
                         isFacePause = false;
                         break;
                     case 3:
@@ -1336,10 +1357,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 msg.arg1 = 4;
                 msg.obj = String.valueOf(bean.user_id);
                 doorHandler.sendMessage(msg);
+
             }
         }else{
             long now = System.currentTimeMillis();
             if(now - faceErrorStartTime > 3000) {
+//                ToastUtil.showCustomToast(bean.faceResult);
                 startMusic(4);
                 faceErrorStartTime = System.currentTimeMillis();
             }
@@ -1458,7 +1481,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 } else if (ymFaces == null && isFaceViewShow) {
                                     isFaceViewShow = false;
                                     banner.bringToFront();
-//                                    toolsBar.bringToFront();
+                                    toolsBar.bringToFront();
                                     callVideoLayout.bringToFront();
                                     roomNumLayout.bringToFront();
                                     entranceDetailTv.bringToFront();

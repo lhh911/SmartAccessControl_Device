@@ -26,10 +26,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property User_id = new Property(1, int.class, "user_id", false, "USER_ID");
-        public final static Property Code = new Property(2, String.class, "code", false, "CODE");
-        public final static Property Image = new Property(3, String.class, "image", false, "IMAGE");
-        public final static Property Status = new Property(4, int.class, "status", false, "STATUS");
-        public final static Property Update_time = new Property(5, int.class, "update_time", false, "UPDATE_TIME");
+        public final static Property PersonId = new Property(2, int.class, "personId", false, "PERSON_ID");
+        public final static Property Code = new Property(3, String.class, "code", false, "CODE");
+        public final static Property Image = new Property(4, String.class, "image", false, "IMAGE");
+        public final static Property Status = new Property(5, int.class, "status", false, "STATUS");
+        public final static Property Update_time = new Property(6, int.class, "update_time", false, "UPDATE_TIME");
     }
 
 
@@ -47,10 +48,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"FACE_IMAGE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"USER_ID\" INTEGER NOT NULL UNIQUE ," + // 1: user_id
-                "\"CODE\" TEXT NOT NULL ," + // 2: code
-                "\"IMAGE\" TEXT," + // 3: image
-                "\"STATUS\" INTEGER NOT NULL ," + // 4: status
-                "\"UPDATE_TIME\" INTEGER NOT NULL );"); // 5: update_time
+                "\"PERSON_ID\" INTEGER NOT NULL ," + // 2: personId
+                "\"CODE\" TEXT NOT NULL ," + // 3: code
+                "\"IMAGE\" TEXT," + // 4: image
+                "\"STATUS\" INTEGER NOT NULL ," + // 5: status
+                "\"UPDATE_TIME\" INTEGER NOT NULL );"); // 6: update_time
     }
 
     /** Drops the underlying database table. */
@@ -68,14 +70,15 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindLong(2, entity.getUser_id());
-        stmt.bindString(3, entity.getCode());
+        stmt.bindLong(3, entity.getPersonId());
+        stmt.bindString(4, entity.getCode());
  
         String image = entity.getImage();
         if (image != null) {
-            stmt.bindString(4, image);
+            stmt.bindString(5, image);
         }
-        stmt.bindLong(5, entity.getStatus());
-        stmt.bindLong(6, entity.getUpdate_time());
+        stmt.bindLong(6, entity.getStatus());
+        stmt.bindLong(7, entity.getUpdate_time());
     }
 
     @Override
@@ -87,14 +90,15 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
             stmt.bindLong(1, id);
         }
         stmt.bindLong(2, entity.getUser_id());
-        stmt.bindString(3, entity.getCode());
+        stmt.bindLong(3, entity.getPersonId());
+        stmt.bindString(4, entity.getCode());
  
         String image = entity.getImage();
         if (image != null) {
-            stmt.bindString(4, image);
+            stmt.bindString(5, image);
         }
-        stmt.bindLong(5, entity.getStatus());
-        stmt.bindLong(6, entity.getUpdate_time());
+        stmt.bindLong(6, entity.getStatus());
+        stmt.bindLong(7, entity.getUpdate_time());
     }
 
     @Override
@@ -107,10 +111,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
         FaceImage entity = new FaceImage( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.getInt(offset + 1), // user_id
-            cursor.getString(offset + 2), // code
-            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // image
-            cursor.getInt(offset + 4), // status
-            cursor.getInt(offset + 5) // update_time
+            cursor.getInt(offset + 2), // personId
+            cursor.getString(offset + 3), // code
+            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // image
+            cursor.getInt(offset + 5), // status
+            cursor.getInt(offset + 6) // update_time
         );
         return entity;
     }
@@ -119,10 +124,11 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
     public void readEntity(Cursor cursor, FaceImage entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setUser_id(cursor.getInt(offset + 1));
-        entity.setCode(cursor.getString(offset + 2));
-        entity.setImage(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
-        entity.setStatus(cursor.getInt(offset + 4));
-        entity.setUpdate_time(cursor.getInt(offset + 5));
+        entity.setPersonId(cursor.getInt(offset + 2));
+        entity.setCode(cursor.getString(offset + 3));
+        entity.setImage(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
+        entity.setStatus(cursor.getInt(offset + 5));
+        entity.setUpdate_time(cursor.getInt(offset + 6));
      }
     
     @Override

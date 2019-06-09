@@ -58,7 +58,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void initMac() {
 
-//        macAddress = DeviceUtil.getEthernetMac();
+        macAddress = DeviceUtil.getEthernetMac();
         if(TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
@@ -158,10 +158,11 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     public void getTokenSuccess() {
-        next(3000);
         String registrationID = JPushInterface.getRegistrationID(this);
-        if(!TextUtils.isEmpty(registrationID))
+        if(!TextUtils.isEmpty(registrationID)) {
             presenter.registrationId(registrationID);
+        }
+        next(3000);
     }
 
     @Override

@@ -14,6 +14,8 @@ public class FaceImage {
     @NotNull
     @Unique
     private int user_id;//服务器表中id
+    @NotNull
+    private int personId;//阅面数据库id
 
     @NotNull
     private String code;//阅面注册唯一识别码
@@ -24,11 +26,12 @@ public class FaceImage {
 
     private int update_time;//
 
-    @Generated(hash = 1837546406)
-    public FaceImage(Long id, int user_id, @NotNull String code, String image,
-            int status, int update_time) {
+    @Generated(hash = 274524461)
+    public FaceImage(Long id, int user_id, int personId, @NotNull String code,
+            String image, int status, int update_time) {
         this.id = id;
         this.user_id = user_id;
+        this.personId = personId;
         this.code = code;
         this.image = image;
         this.status = status;
@@ -85,6 +88,14 @@ public class FaceImage {
 
     public void setUpdate_time(int update_time) {
         this.update_time = update_time;
+    }
+
+    public int getPersonId() {
+        return this.personId;
+    }
+
+    public void setPersonId(int personId) {
+        this.personId = personId;
     }
 
 
