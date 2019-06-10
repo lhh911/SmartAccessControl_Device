@@ -262,7 +262,7 @@ public class TrackDrawUtil {
         int num = 6;
 
         // 是否绘制人脸虚线框 wlDebug;
-        // drawFaceInfo(canvas, faceInfo, x1, y1, rect_width, fontH * 10, fontH * num, fontH, viewW, viewH);
+         drawFaceInfo(canvas, faceInfo, x1, y1, rect_width, fontH * 10, fontH * num, fontH, viewW, viewH);
     }
 
     private static void drawFaceInfo(Canvas canvas, FaceInfo faceInfo, float x1, float y1, float rect_width, float w, float h, float fontH, float viewW, float viewH) {

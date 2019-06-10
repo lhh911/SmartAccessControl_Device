@@ -1185,7 +1185,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-//        open();
+        open();
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             onFaceResume();
@@ -1269,7 +1269,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
          * 第六个设置播放速度
          * 返回值 不为0即代表成功
          */
-        int type = mSound.play(resId, 1, 1, 0, 0, 1);
+        int type = mSound.play(resId, 1, 1, 1, 0, 1);
     }
 
 

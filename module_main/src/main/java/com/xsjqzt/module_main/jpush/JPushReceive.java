@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.FileUtil;
+import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.RegistrationIdPresenter;
@@ -40,6 +41,7 @@ public class JPushReceive extends BroadcastReceiver {
         if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
             String registrationId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
             Log.d(TAG, "JPush 用户注册成功 , registrationId = " + registrationId);
+            ToastUtil.showCustomToast("设备接入成功");
 
             if(UserInfoInstance.getInstance().hasLogin()) {
                 RegistrationIdPresenter presenter = new RegistrationIdPresenter();

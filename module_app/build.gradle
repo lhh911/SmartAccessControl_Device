@@ -16,8 +16,8 @@ android {
 
         ndk {
             //选择要添加的对应 cpu 类型的 .so 库。
-            abiFilters 'armeabi', 'armeabi-v7a'//, 'arm64-v8a'
-            // 还可以添加 'x86', 'x86_64', 'mips', 'mips64'
+            abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64'//,'arm64-v8a', 'mips', 'mips64'
+            // 还可以添加 'x86', 'x86_64'
         }
 
         manifestPlaceholders = [
@@ -25,7 +25,14 @@ android {
                 JPUSH_APPKEY : "d8be854f8566d456a623cbe9", //JPush 上注册的包名对应的 Appkey.
                 JPUSH_CHANNEL: "developer-default", //暂时填写默认值即可.
         ]
+
+
     }
+
+//    packagingOptions {
+//        doNotStrip '*/mips/*.so'
+//        doNotStrip '*/mips64/*.so'
+//    }
 
     buildTypes {
         release {

@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.jbb.library_common.utils.ToastUtil;
+import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.Config.DemoConfig;
 import com.xsjqzt.module_main.activity.base.ExApplication;
 import com.xsjqzt.module_main.dataSource.DataSource;
@@ -663,6 +664,7 @@ public class FaceSet {
                 int confidence = faceTrack.getRecognitionConfidence();
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
+//                    EventBus.getDefault().post(new FaceSuccessEventBean(0 , "",true));
 //                    context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
@@ -671,8 +673,9 @@ public class FaceSet {
 //                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
 //                        if(faceImage != null)//数据库有这个人注册的数据
                         String personName = faceTrack.getPersonName(i);
-                        int user_id = TextUtils.isEmpty(personName) ? 0 : Integer.parseInt(personName);
-                        EventBus.getDefault().post(new FaceSuccessEventBean(user_id , "",true));
+                        LogUtil.w("personName = "+personName);
+//                        int user_id = TextUtils.isEmpty(personName) ? 0 : Integer.parseInt(personName);
+                        EventBus.getDefault().post(new FaceSuccessEventBean(0 , "",true));
 
                     }
                 }else{//未注册
