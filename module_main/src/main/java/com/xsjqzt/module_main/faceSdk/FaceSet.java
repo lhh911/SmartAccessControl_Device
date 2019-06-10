@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.util.SimpleArrayMap;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.jbb.library_common.utils.ToastUtil;
@@ -669,7 +670,9 @@ public class FaceSet {
 //                        String code = DataConversionUtil.floatToString(ymFace.getRect());
 //                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
 //                        if(faceImage != null)//数据库有这个人注册的数据
-                            EventBus.getDefault().post(new FaceSuccessEventBean(0, "",true));
+                        String personName = faceTrack.getPersonName(i);
+                        int user_id = TextUtils.isEmpty(personName) ? 0 : Integer.parseInt(personName);
+                        EventBus.getDefault().post(new FaceSuccessEventBean(user_id , "",true));
 
                     }
                 }else{//未注册

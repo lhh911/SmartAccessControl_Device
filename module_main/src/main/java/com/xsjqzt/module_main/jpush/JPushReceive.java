@@ -8,9 +8,18 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.RegistrationIdPresenter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import cn.jpush.android.api.JPushInterface;
 
@@ -61,8 +70,11 @@ public class JPushReceive extends BroadcastReceiver {
 //        LogUtil.d(TAG, " title : " + title);
 //        String message = bundle.getString(JPushInterface.EXTRA_ALERT);
 //        LogUtil.d(TAG, "message : " + message);
+
         String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
         LogUtil.d(TAG, "extras : " + extras);
+
+        whiteLog(context,extras.getBytes());
 
         Intent it = new Intent();
         it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
@@ -82,4 +94,26 @@ public class JPushReceive extends BroadcastReceiver {
 //        context.startActivity(mIntent);
 
     }
+
+    private void whiteLog(Context context ,byte[] bytes){
+        String path = FileUtil.getAppLogPath(context);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+        String fileName = format.format(Calendar.getInstance().getTimeInMillis());
+        File file = new File(path, fileName + ".txt");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            fos.write(bytes,0,bytes.length);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                fos.flush();
+                fos.close();
+            }catch (Exception e){
+
+            }
+        }
+    }
+
 }

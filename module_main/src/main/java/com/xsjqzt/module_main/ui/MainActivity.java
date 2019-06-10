@@ -426,7 +426,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             setInputData(oldNum, "9");
         } else if (keyCode == KeyEvent.KEYCODE_DEL) {//删除
             deleteInputData();
-        }else if(keyCode == KeyEvent.KEYCODE_STAR){// * 号
+        }else if(keyCode == KeyEvent.KEYCODE_STAR || keyCode == KeyEvent.KEYCODE_NUMPAD_MULTIPLY){// * 号
             roomNumEt.setText("");
             showRoomNumOpen();
             starEnterDown = true;
@@ -1185,7 +1185,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-        open();
+//        open();
 
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             onFaceResume();

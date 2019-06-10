@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -47,8 +48,11 @@ import okhttp3.ResponseBody;
 public class FaceImageDownService extends IntentService {
 
     LinkedList<FaceImageResBean.DataBean> queue = new LinkedList<>();
+    LinkedList<FaceImageResBean.DataBean> reQueue = new LinkedList<>();//对操作识别的数据收集，做重试一次
+    List<FaceImage> deleteList = new ArrayList<>();
     private boolean isStart = false;
     private FaceSet faceSet;
+    private boolean isReExecute;
 
     public FaceImageDownService() {
         super("FaceImageDownService");
@@ -90,8 +94,7 @@ public class FaceImageDownService extends IntentService {
     }
 
     private void downImage() {
-        if(!Utils.getNetWorkState(this))
-            return;
+        isReExecute = false;
 
         FaceImageResBean.DataBean poll = queue.poll();
 
@@ -104,7 +107,10 @@ public class FaceImageDownService extends IntentService {
                 FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
                 if(unique != null){
                     DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
-                    faceSet.deleteUserByPersonId(unique.getPersonId());//删除阅面数据库数据
+                    boolean delete = faceSet.deleteUserByPersonId(unique.getPersonId());//删除阅面数据库数据
+                    if(!delete){
+                        deleteList.add(unique);
+                    }
                 }
 
                 downImage();
@@ -137,6 +143,37 @@ public class FaceImageDownService extends IntentService {
 //                    downImage();
 //                }
 //            }
+        }else{
+            reExecute();
+            delectData();
+        }
+    }
+
+    //删除本地人脸数据和阅面人脸库
+    private void delectData() {
+        for(FaceImage unique : deleteList){
+            if (unique != null) {
+                DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+                boolean delete = faceSet.deleteUserByPersonId(unique.getPersonId());//删除阅面数据库数据
+            }
+        }
+    }
+
+    //再次执行一次失败了的数据操作，不包含删除操作数据
+    private void reExecute() {
+        isReExecute = true;
+
+        FaceImageResBean.DataBean poll = reQueue.poll();
+
+        if (poll != null) {
+            if (TextUtils.isEmpty(poll.getImage())) {
+                reExecute();
+                return;
+            }
+
+            subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                    .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
+                            InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
         }
     }
 
@@ -154,7 +191,12 @@ public class FaceImageDownService extends IntentService {
 //            }
 //        });
         if (!DeviceUtil.isNetWorkEnable()) {
-            downImage();
+            if(isReExecute)
+                reExecute();
+            else {
+                reQueue.add(dataBean);
+                downImage();
+            }
             return;
         }
 
@@ -179,7 +221,12 @@ public class FaceImageDownService extends IntentService {
 
                     @Override
                     public void onError(Throwable e) {
-                        downImage();//继续下一个
+                        if(isReExecute)
+                            reExecute();
+                        else {
+                            reQueue.add(dataBean);
+                            downImage();//继续下一个
+                        }
                     }
 
                     @Override
@@ -245,6 +292,8 @@ public class FaceImageDownService extends IntentService {
             }
         } else {//失败
             status = 3;
+            if(!isReExecute)//添加失败数据到重试集合
+                reQueue.add(dataBean);
         }
 
         updateFacesStatus(status, user_id ,code);
@@ -271,12 +320,12 @@ public class FaceImageDownService extends IntentService {
 
 
     private void insert(FaceImageResBean.DataBean data,int personId) {
-        if(data.isIs_delete()){
-            FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(data.getUser_id())).unique();
-            if(unique != null){
-                DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
-            }
-        }else{
+//        if(data.isIs_delete()){
+//            FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(data.getUser_id())).unique();
+//            if(unique != null){
+//                DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+//            }
+//        }else{
 //            if(data.getStatus() == 2) {
                 FaceImage faceImage = new FaceImage();
                 faceImage.setCode(data.getCodeX());
@@ -287,7 +336,7 @@ public class FaceImageDownService extends IntentService {
                 faceImage.setPersonId(personId);
                 DbManager.getInstance().getDaoSession().getFaceImageDao().insertOrReplaceInTx(faceImage);
 //            }
-        }
+//        }
 
     }
 }
