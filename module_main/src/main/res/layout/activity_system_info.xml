@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/common_transparent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/color_99000000"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="23dp"
+                android:layout_marginTop="25dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textview13"
+                    android:layout_width="65dp"
+                    android:text="@string/main_str_devicename"
+                    android:textColor="@color/common_white" />
+
+
+                <TextView
+                    android:id="@+id/device_name_tv"
+                    style="@style/textview10"
+                    android:textColor="@color/common_white" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="23dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textview13"
+                    android:layout_width="65dp"
+                    android:text="@string/main_str_ipaddress"
+                    android:textColor="@color/common_white" />
+
+
+                <TextView
+                    android:id="@+id/ip_address_tv"
+                    style="@style/textview10"
+                    android:textColor="@color/common_white" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="23dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textview13"
+                    android:layout_width="65dp"
+                    android:text="@string/main_str_voice"
+                    android:textColor="@color/common_white" />
+
+
+                <ImageView
+                    android:id="@+id/voice_iv"
+                    style="@style/textview10"
+                    android:src="@mipmap/icon_voice" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/qr_code_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/qr_code_iv"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:src="@color/common_white" />
+
+            <TextView
+                android:id="@+id/serial_number_tv"
+                style="@style/textview10"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:text="123456789"
+                android:textColor="@color/common_white" />
+
+            <TextView
+                style="@style/textview13"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
+                android:text="序列号"
+                android:textColor="@color/common_white" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

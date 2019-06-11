@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <!-- CameraView Start..-->
+    <com.readsense.cameraview.camera.CameraView
+        android:id="@+id/ir_camera"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:adjustViewBounds="true" />
+    <com.readsense.cameraview.camera.CameraView
+        android:id="@+id/camera"
+        android:layout_width="480dp"
+        android:layout_height="640dp"
+        android:layout_centerInParent="true"
+        android:adjustViewBounds="true"
+        android:background="@android:color/black" />
+
+    <SurfaceView
+        android:id="@+id/sfv_draw_view"
+        android:layout_width="480dp"
+        android:layout_height="640dp"
+        android:layout_centerInParent="true"
+        android:adjustViewBounds="true" />
+    <!-- CameraView Start end-->
+
+    <com.youth.banner.Banner
+        android:id="@+id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        app:delay_time="5000" />
+
+
+    <com.xiao.nicevideoplayer.SimpleVideoPlayer
+        android:id="@+id/videoplayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+
+    <include layout="@layout/input_num_layout" />
+
+
+    <include layout="@layout/call_video_layout" />
+
+    <TextView
+        android:id="@+id/enterinfo_tv"
+        style="@style/textview13"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/common_white"
+        android:text=""/>
+
+
+    <LinearLayout
+        android:id="@+id/tools_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn1Click"
+            android:text="密码开门" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn2Click"
+            android:text="IC卡身份证注册" />
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn3Click"
+            android:text="设备信息" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn4Click"
+            android:text="人脸识别开门" />
+    </LinearLayout>
+
+</RelativeLayout>

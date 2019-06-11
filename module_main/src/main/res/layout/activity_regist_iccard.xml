@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/common_transparent">
+
+
+    <!--<Button
+        android:id="@+id/home_btn"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:background="@drawable/circle_black_bg"
+        android:text="首页"
+        android:textSize="16dp"
+        android:textColor="@color/common_white"/>-->
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/color_99000000"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/input_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/regist_tip_tv"
+                style="@style/textview13"
+                android:text="@string/main_str_regist_iccard"
+                android:textColor="@color/common_white"
+                android:layout_marginLeft="23dp"
+                android:layout_marginTop="25dp"/>
+
+
+
+            <com.xsjqzt.module_main.widget.ImgTextView
+                android:id="@+id/tip_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="23dp"
+                android:layout_marginLeft="23dp"
+                app:cimageSize="13dp"
+                app:cmarginTop="12dp"
+                app:csrc="@mipmap/icon_gth"
+                app:ctext="请刷IC卡"
+                app:ctextColor="@color/common_white"
+                app:ctextSize="10"
+                app:direction="horizontal"/>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/qr_code_layout"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="20dp"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/qr_code_iv"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:src="@color/common_white"
+                />
+
+            <TextView
+                android:id="@+id/serial_number_tv"
+                style="@style/textview10"
+                android:text=""
+                android:maxLines="1"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/common_white"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                style="@style/textview13"
+                android:text="序列号"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/common_white"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</RelativeLayout>

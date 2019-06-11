@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_fg_dialog"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/dialog_progress_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="center"
+        android:gravity="left"
+        android:text="ReadSense:批量注册"
+        android:textColor="#000"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/dialog_progress_prompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_progress_show"
+        android:layout_marginTop="20dp"
+        android:gravity="left"
+        android:text=""
+        android:textColor="#000"
+        android:textSize="14dp" />
+
+    <TextView
+        android:id="@+id/dialog_progress_prompt_now"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_progress_prompt"
+        android:layout_marginTop="20dp"
+        android:gravity="right"
+        android:text="111"
+        android:textColor="#D9983B"
+        android:textSize="12dp" />
+
+    <ProgressBar
+        android:id="@+id/dialog_progress_progressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_below="@id/dialog_progress_prompt_now"
+        android:layerType="software"
+        android:max="100"
+        android:progress="100"
+        android:progressDrawable="@drawable/progress_yellow" />
+
+    <TextView
+        android:id="@+id/dialog_progress_ratio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_progress_progressBar"
+        android:layout_marginBottom="10dp"
+        android:gravity="right"
+        android:textColor="#D9983B"
+        android:textSize="10dp" />
+
+
+    <Button
+        android:id="@+id/dialog_progress_confirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dialog_progress_ratio"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="40dp"
+        android:text="知道了" />
+
+</RelativeLayout>

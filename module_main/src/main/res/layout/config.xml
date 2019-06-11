@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/background_login"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:text="参数设置"
+            android:textColor="@android:color/white"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="是否多人脸识别"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <com.kyleduo.switchbutton.SwitchButton
+                android:id="@+id/bt_config_isMulti"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:kswBackColor="@android:color/white"
+                app:kswBackRadius="10dp"
+                app:kswTextOff="Off"
+                app:kswTextOn="On"
+                app:kswThumbColor="@android:color/holo_green_light" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="特殊设备左右镜像"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <com.kyleduo.switchbutton.SwitchButton
+                android:id="@+id/bt_config_lr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:kswBackColor="@android:color/white"
+                app:kswBackRadius="10dp"
+                app:kswTextOff="Off"
+                app:kswTextOn="On"
+                app:kswThumbColor="@android:color/holo_green_light" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="自动适配预览(预览宽度与屏幕一致)"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <com.kyleduo.switchbutton.SwitchButton
+                android:id="@+id/bt_adjust_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:kswBackColor="@android:color/white"
+                app:kswBackRadius="10dp"
+                app:kswTextOff="Off"
+                app:kswTextOn="On"
+                app:kswThumbColor="@android:color/holo_green_light" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="特殊设备上下镜像"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <com.kyleduo.switchbutton.SwitchButton
+                android:id="@+id/bt_config_td"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:kswBackColor="@android:color/white"
+                app:kswBackRadius="10dp"
+                app:kswTextOff="Off"
+                app:kswTextOn="On"
+                app:kswThumbColor="@android:color/holo_green_light" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="屏幕旋转90度（横/竖屏调整）"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <com.kyleduo.switchbutton.SwitchButton
+                android:id="@+id/bt_config_rotate90"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:kswBackColor="@android:color/white"
+                app:kswBackRadius="10dp"
+                app:kswTextOff="Off"
+                app:kswTextOn="On"
+                app:kswThumbColor="@android:color/holo_green_light" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="left"
+                android:text="缩放预览"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <SeekBar
+                android:id="@+id/sb_config_screen_zoom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="3" />
+
+            <TextView
+                android:id="@+id/tv_config_screen_zoom"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="left"
+                android:text="SDK识别方向"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <SeekBar
+                android:id="@+id/sb_config_sdk_angle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="3" />
+
+            <TextView
+                android:id="@+id/tv_config_sdk_angle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="left"
+                android:text="屏幕预览方向"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <SeekBar
+                android:id="@+id/sb_config_camera_angle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="3" />
+
+            <TextView
+                android:id="@+id/tv_config_camera_angle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:gravity="left"
+                android:text="设置分辨率"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <SeekBar
+                android:id="@+id/sb_config_screen_resolution_camera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="3" />
+
+            <TextView
+                android:id="@+id/tv_config_screen_resolution_camera"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="#f2f2f2"></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/tv_config_video_angle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="视频流方向："
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/iv_config_video_angle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_face_reco_off" />
+
+            <ImageView
+                android:id="@+id/iv_config_video_angle_ir"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_face_reco_off" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="5dp">
+
+            <Button
+                android:id="@+id/bt_config_cancle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:text="取消" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:textColor="@android:color/white"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/bt_config_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#fff"
+                android:text="应用" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</ScrollView>

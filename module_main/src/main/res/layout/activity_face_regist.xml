@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f2f2f2"
+    android:orientation="vertical"
+    tools:context="com.xsjqzt.module_main.activity.FaceRegistActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#fff"
+        android:orientation="horizontal"
+        android:paddingTop="10dp">
+
+        <ImageButton
+            android:id="@+id/regist_cam"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_face_cam_on"></ImageButton>
+
+        <ImageButton
+            android:id="@+id/regist_pic"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_face_pic_on"></ImageButton>
+
+        <ImageButton
+            android:id="@+id/regist_batch"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_face_pic_on"></ImageButton>
+
+        <ImageButton
+            android:id="@+id/all_delete"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_face_pic_on"></ImageButton>
+
+        <!--<SearchView-->
+        <!--android:id="@+id/search_bar"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:layout_weight="1"-->
+        <!--android:background="#fff"-->
+        <!--android:queryHint="搜索内容" />-->
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:background="#fff"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:gravity="center"
+            android:scaleType="centerInside"
+            android:text="相机注册"></TextView>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:gravity="center"
+            android:scaleType="centerInside"
+            android:text="图片注册"></TextView>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:gravity="center"
+            android:scaleType="centerInside"
+            android:text="批量注册"></TextView>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fff"
+            android:gravity="center"
+            android:scaleType="centerInside"
+            android:text="全部删除"></TextView>
+
+
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rcv_head"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="2dp"
+        android:background="#f2f2f2"
+        android:scrollbars="vertical"
+        android:overScrollMode="ifContentScrolls"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp" />
+
+</LinearLayout>

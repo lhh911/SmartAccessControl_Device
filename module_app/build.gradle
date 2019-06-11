@@ -1,0 +1,64 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion rootProject.extcompileSdkVersion
+    defaultConfig {
+        applicationId "com.xsjqzt.app"
+        minSdkVersion rootProject.extminSdkVersion
+        targetSdkVersion rootProject.exttargetSdkVersion
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        //解决方法数超过64k问题
+        multiDexEnabled true
+
+
+
+        ndk {
+            //选择要添加的对应 cpu 类型的 .so 库。
+            abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64'//,'arm64-v8a', 'mips', 'mips64'
+            // 还可以添加 'x86', 'x86_64'
+        }
+
+        manifestPlaceholders = [
+                JPUSH_PKGNAME: "com.xsjqzt.app",
+                JPUSH_APPKEY : "d8be854f8566d456a623cbe9", //JPush 上注册的包名对应的 Appkey.
+                JPUSH_CHANNEL: "developer-default", //暂时填写默认值即可.
+        ]
+
+
+    }
+
+
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    //自定义APK名称,多渠道打包
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+//            variant.productFlavors.each { flavor ->
+                def project = "qzt_device"
+                def separator = "_"
+                def versionName = variant.versionName
+                def apkName = project + separator + versionName  + ".apk"
+
+                output.outputFileName = apkName
+//            }
+        }
+    }
+}
+
+dependencies {
+
+
+    implementation project(':library_common')
+    implementation project(':module_main')
+
+    //解决方法数超过64k问题
+    implementation 'com.android.support:multidex:1.0.3'
+}
