@@ -29,6 +29,7 @@ public class KeyContacts {
 
 
 
+    public static final String SP_KEY_REGISTRATIONID = "sp_key_registrationid";//用户信息sp 中key
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key
     public static final String SP_NAME_USERINFO= "userinfo"; //SP userinfo文件名
 

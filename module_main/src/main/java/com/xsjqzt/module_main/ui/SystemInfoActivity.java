@@ -66,9 +66,10 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
     }
 
     private void createQrCode() {
-        qrNumTv.setText(UserInfoInstance.getInstance().getSn1() + UserInfoInstance.getInstance().getSn2());
+        String code = UserInfoInstance.getInstance().getSn1() + UserInfoInstance.getInstance().getSn2();
+        qrNumTv.setText(code);
 //        Bitmap qrCode = ScreenShotUtil.createQRCode(UserInfoInstance.getInstance().getMacAddress(), CommUtil.dp2px(110), CommUtil.dp2px(110), "#ffffff");
-        Bitmap qrCode = CodeCreator.createQRCode(UserInfoInstance.getInstance().getMacAddress(), CommUtil.dp2px(140), CommUtil.dp2px(140), null);
+        Bitmap qrCode = CodeCreator.createQRCode(code, CommUtil.dp2px(140), CommUtil.dp2px(140), null);
         qrCodeIv.setImageBitmap(qrCode);
     }
 

@@ -29,6 +29,7 @@ import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.util.DataConversionUtil;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -246,11 +247,12 @@ public class FaceImageDownService extends IntentService {
         }
 
         FileOutputStream fos = null;
+
         try {
             fos = new FileOutputStream(file);
             byte[] b = new byte[1024];
 
-            int len;
+            int len = -1;
             while ((len = inputString.read(b)) != -1) {
                 fos.write(b, 0, len);
             }
