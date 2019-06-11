@@ -281,6 +281,7 @@ public class FaceImageDownService extends IntentService {
         FaceResult faceResult = null;
         //注册 10次，保证注册成功率
         for(int i = 0;i< 10;i++) {
+            LogUtil.w("注册人脸循环次数 ：" + i );
             faceResult = faceSet.registByBitmap(bitmap, user_id + "");
             if (faceResult == null)
                 continue;

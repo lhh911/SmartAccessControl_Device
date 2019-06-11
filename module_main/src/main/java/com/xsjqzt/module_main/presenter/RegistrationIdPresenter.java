@@ -5,6 +5,7 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
+import com.jbb.library_common.utils.ToastUtil;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.service.ApiService;
 
@@ -14,7 +15,7 @@ public class RegistrationIdPresenter {
                 .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean bean) {
-
+                ToastUtil.showCustomToast("设备接入成功");
             }
             @Override
             public void onError(Exception e) {

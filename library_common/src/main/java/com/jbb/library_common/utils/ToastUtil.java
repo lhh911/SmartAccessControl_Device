@@ -1,5 +1,6 @@
 package com.jbb.library_common.utils;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -32,7 +33,9 @@ public class ToastUtil {
 ////            ((TextView) customToast.getView().findViewById(R.id.toast_message_tv)).setText(msg);
 ////        }
 //        customToast.show();
-        Toast.makeText(BaseApplication.getContext(),msg,Toast.LENGTH_SHORT).show();
+        Toast toast = Toast.makeText(BaseApplication.getContext(), msg, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER,0,0);
+        toast.show();
     }
 
 //    public static void showBottomCustomToast(String msg) {

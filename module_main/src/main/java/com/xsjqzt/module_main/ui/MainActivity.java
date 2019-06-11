@@ -231,7 +231,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         startMeasuing();
         initMusic();
         EventBus.getDefault().register(this);
-//        test();
+        test();
 
         initFaceCamera();
         initFaceEvent();
@@ -281,26 +281,28 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 .append("\n")
                 .append("身份证数："+ idCards.size())
                 .append("\n")
-                .append("临时密码数："+ openCodes.size());
+                .append("临时密码数："+ openCodes.size())
+                .append("\n")
+                .append("registrationId："+ JPushInterface.getRegistrationID(this));
 
         new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
-        startService(new Intent(this,OpenRecordService.class));
+//        startService(new Intent(this,OpenRecordService.class));
 
 
-        Bitmap bitmap = BitmapFactory.decodeFile("/storage/emulated/0/SmartAccessControl_Device/picture/face_picture_1559912142780.jpg");
-        String code = "";//识别码
-        FaceSet faceSet = new FaceSet(getApplication());
-        faceSet.startTrack(0);
-        FaceResult faceResult = faceSet.registByBitmap(bitmap,  "张三");
-        if (faceResult == null) return;
-        if (faceResult.code == 0) {//成功
-            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-            code = DataConversionUtil.floatToString(faceResult.rect);
-            LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
-
-
-        }
+//        Bitmap bitmap = BitmapFactory.decodeFile("/storage/emulated/0/SmartAccessControl_Device/picture/face_picture_1559912142780.jpg");
+//        String code = "";//识别码
+//        FaceSet faceSet = new FaceSet(getApplication());
+//        faceSet.startTrack(0);
+//        FaceResult faceResult = faceSet.registByBitmap(bitmap,  "张三");
+//        if (faceResult == null) return;
+//        if (faceResult.code == 0) {//成功
+//            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
+//            code = DataConversionUtil.floatToString(faceResult.rect);
+//            LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
+//
+//
+//        }
     }
 
     @Override

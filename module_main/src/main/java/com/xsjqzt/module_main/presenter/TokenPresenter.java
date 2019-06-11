@@ -156,7 +156,7 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
                 .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean bean) {
-
+                ToastUtil.showCustomToast("设备接入成功");
             }
         });
     }
