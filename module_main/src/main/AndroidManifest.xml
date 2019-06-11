@@ -67,6 +67,10 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="aself" />
+
         <activity
             android:name=".ui.RoomNumPswUnlockActivity"
             android:screenOrientation="portrait"
@@ -78,6 +82,9 @@
         <activity
             android:name=".ui.SystemInfoActivity"
             android:screenOrientation="portrait" />
+
+
+
 
         <!-- 极光接收别名tag设置时的回调消息 -->
         <receiver

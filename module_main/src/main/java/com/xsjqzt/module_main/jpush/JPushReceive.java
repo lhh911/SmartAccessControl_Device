@@ -62,8 +62,12 @@ public class JPushReceive extends BroadcastReceiver {
 
             openNotification(context,bundle);
 
-        } else {
-//            LogUtil.d(TAG, "Unhandled intent - " + intent.getAction());
+        } else if (JPushInterface.ACTION_CONNECTION_CHANGE.equals(intent.getAction())) {
+            //极光服务的连接状态改变
+            boolean connected = bundle.getBoolean(JPushInterface.EXTRA_CONNECTION_CHANGE, false);
+            if(!connected){//断开了
+                JPushInterface.onResume(context.getApplicationContext());
+            }
         }
     }
 

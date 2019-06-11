@@ -276,24 +276,29 @@ public class FaceImageDownService extends IntentService {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
 
-        int status = 0;
+        int status = 3;
         String code = "";//识别码
-
-        FaceResult faceResult = faceSet.registByBitmap(bitmap, user_id + "");
-        if (faceResult == null) return;
-        if (faceResult.code == 0 || faceResult.code == 102) {//成功
-            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-            code = DataConversionUtil.floatToString(faceResult.rect);
-            LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
-            status = 2;
-            if (faceResult.code == 0) {
+        FaceResult faceResult = null;
+        //注册 10次，保证注册成功率
+        for(int i = 0;i< 10;i++) {
+            faceResult = faceSet.registByBitmap(bitmap, user_id + "");
+            if (faceResult == null)
+                continue;
+            if (faceResult.code == 0 ) {//成功
+                //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
+                code = DataConversionUtil.floatToString(faceResult.rect);
+                LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
+                status = 2;
+               //插入本地数据
                 dataBean.setCodeX(code);
-                insert(dataBean,faceResult.personId);
+                insert(dataBean, faceResult.personId);
+
+                break;
+            } else {//失败
+                status = 3;
+//                if (!isReExecute)//添加失败数据到重试集合
+//                    reQueue.add(dataBean);
             }
-        } else {//失败
-            status = 3;
-            if(!isReExecute)//添加失败数据到重试集合
-                reQueue.add(dataBean);
         }
 
         updateFacesStatus(status, user_id ,code);

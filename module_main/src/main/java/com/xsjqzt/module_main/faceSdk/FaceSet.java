@@ -27,6 +27,7 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import mobile.ReadFace.YMFace;
 import mobile.ReadFace.YMFaceTrack;
@@ -664,22 +665,27 @@ public class FaceSet {
                 int confidence = faceTrack.getRecognitionConfidence();
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
-//                    EventBus.getDefault().post(new FaceSuccessEventBean(0 , "",true));
-//                    context.sendBroadcast(new Intent("aqy.intent.action.OPEN_DOOR"));
+                    Map<Integer, User> userMap = UserDataUtil.updateDataSource(true);//查询数据库注册用户
+                    User user = userMap.get(identifyPerson);
+                    String name = user.getName();
+                    int user_id = 0;
+                    try {
+                        user_id = Integer.parseInt(name);
+                    }catch (Exception e){
+                    }
+                    LogUtil.w("user_id" +  name);
+                    EventBus.getDefault().post(new FaceSuccessEventBean(user_id , "",true));
+
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
                     if(ymFace.getLiveness() == 1) {
 //                        String code = DataConversionUtil.floatToString(ymFace.getRect());
 //                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
 //                        if(faceImage != null)//数据库有这个人注册的数据
-                        String personName = faceTrack.getPersonName(i);
-                        LogUtil.w("personName = "+personName);
-//                        int user_id = TextUtils.isEmpty(personName) ? 0 : Integer.parseInt(personName);
-                        EventBus.getDefault().post(new FaceSuccessEventBean(0 , "",true));
 
                     }
                 }else{//未注册
-//                    String code = DataConversionUtil.floatToString(ymFace.getRect());
+
                     EventBus.getDefault().post(new FaceSuccessEventBean(0, "",false));
                 }
             }

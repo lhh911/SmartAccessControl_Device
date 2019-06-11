@@ -29,10 +29,7 @@ android {
 
     }
 
-//    packagingOptions {
-//        doNotStrip '*/mips/*.so'
-//        doNotStrip '*/mips64/*.so'
-//    }
+
 
     buildTypes {
         release {
@@ -44,14 +41,14 @@ android {
     //自定义APK名称,多渠道打包
     android.applicationVariants.all { variant ->
         variant.outputs.all { output ->
-            variant.productFlavors.each { flavor ->
-                def project = "qzt"
+//            variant.productFlavors.each { flavor ->
+                def project = "qzt_device"
                 def separator = "_"
                 def versionName = variant.versionName
-                def apkName = project + separator + versionName + separator  + flavor.name + ".apk"
+                def apkName = project + separator + versionName  + ".apk"
 
                 output.outputFileName = apkName
-            }
+//            }
         }
     }
 }
