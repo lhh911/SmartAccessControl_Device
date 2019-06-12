@@ -330,17 +330,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     private void initImageAd() {
-        String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
-        if(TextUtils.isEmpty(string)){
-            return;
-        }
+//        String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
+//        if(TextUtils.isEmpty(string)){
+//            return;
+//        }
         videoPlayer.setVisibility(View.GONE);
         banner.setVisibility(View.VISIBLE);
         banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR);
         //设置图片加载器
         banner.setImageLoader(new GlideImageLoader());
         //设置图片集合
-        banner.setImages(JSON.parseArray(string,String.class));
+//        banner.setImages(JSON.parseArray(string,String.class));
+        banner.setImages(getImages());
 
         //banner设置方法全部调用完毕时最后调用
         banner.start();

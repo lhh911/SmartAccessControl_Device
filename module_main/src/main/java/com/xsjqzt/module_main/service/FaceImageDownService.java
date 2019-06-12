@@ -299,7 +299,7 @@ public class FaceImageDownService extends IntentService {
                 insert(dataBean, faceResult.personId);
 
                 break;
-            }else if(faceResult.code == 102){//已注册
+            }else if(faceResult.code == 102){//已注册,
 
             } else {//失败
                 status = 3;
