@@ -128,6 +128,7 @@ import tp.xmaihh.serialport.utils.ByteUtil;
 @Route(path = "/module_main/main")
 public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> implements MainView {
 
+    private ImageView homebgIv;
     private TextView entranceDetailTv;
     private Banner banner;
     private SimpleVideoPlayer videoPlayer;
@@ -197,6 +198,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void init() {
 
         entranceDetailTv = findViewById(R.id.enterinfo_tv);
+        homebgIv = findViewById(R.id.homebg_iv);
         //视频通话
         callVideoLayout = findViewById(R.id.call_video_layout);
         callNumTv = findViewById(R.id.call_num_tv);
@@ -329,18 +331,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     private void initImageAd() {
-//        String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
-//        if(TextUtils.isEmpty(string)){
-//            return;
-//        }
+        String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
+        if(TextUtils.isEmpty(string)){
+            return;
+        }
         videoPlayer.setVisibility(View.GONE);
         banner.setVisibility(View.VISIBLE);
         banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR);
         //设置图片加载器
         banner.setImageLoader(new GlideImageLoader());
         //设置图片集合
-//        banner.setImages(JSON.parseArray(string,String.class));
-        banner.setImages(getImages());
+        banner.setImages(JSON.parseArray(string,String.class));
+//        banner.setImages(getImages());
 
         //banner设置方法全部调用完毕时最后调用
         banner.start();
@@ -1351,13 +1353,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void getPicture(final int type, final int id, final String sn) {
         String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
         File file = new File(picturePath, new Date().getTime() + ".jpg");
-        Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
+//        Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(homebgIv));
 
         if (bitmapBytes != null) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
             Utils.saveBitmap(file.getPath(), bitmap);
-        } else {
-            Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
+
+        }else{
+            Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(homebgIv));
         }
 
 
@@ -1516,6 +1519,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                     // if (mIRCameraView != null) mIRCameraView.bringToFront();
                                 } else if (ymFaces == null && isFaceViewShow) {
                                     isFaceViewShow = false;
+                                    homebgIv.bringToFront();
                                     banner.bringToFront();
                                     toolsBar.bringToFront();
                                     callVideoLayout.bringToFront();

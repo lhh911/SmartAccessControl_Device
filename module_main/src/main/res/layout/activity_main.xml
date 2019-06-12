@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
+
+
     <!-- CameraView Start..-->
     <com.readsense.cameraview.camera.CameraView
         android:id="@+id/ir_camera"
@@ -26,6 +28,14 @@
         android:layout_centerInParent="true"
         android:adjustViewBounds="true" />
     <!-- CameraView Start end-->
+
+
+    <ImageView
+        android:id="@+id/homebg_iv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/home_bg"/>
+
 
     <com.youth.banner.Banner
         android:id="@+id/banner"

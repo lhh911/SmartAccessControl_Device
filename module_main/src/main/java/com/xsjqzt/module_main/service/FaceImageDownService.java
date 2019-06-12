@@ -278,7 +278,7 @@ public class FaceImageDownService extends IntentService {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
 
-        int status = 3;
+        int status = 0;
         String code = "";//识别码
         FaceResult faceResult = null;
         //注册 10次，保证注册成功率
@@ -300,7 +300,8 @@ public class FaceImageDownService extends IntentService {
 
                 break;
             }else if(faceResult.code == 102){//已注册,
-
+//                status = 4;
+                break;
             } else {//失败
                 status = 3;
 //                if (!isReExecute)//添加失败数据到重试集合
