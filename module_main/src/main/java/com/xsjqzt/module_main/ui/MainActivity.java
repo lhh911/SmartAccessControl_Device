@@ -210,7 +210,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         TextView bottomTv = findViewById(R.id.bottom_tv);
         inputNumLayout = findViewById(R.id.input_layout);
 //        successLayout = findViewById(R.id.success_layout);
-//        errorLayout = findViewById(R.id.error_layout);
+//        errorLayout = findViewById(R.id.error_layout);ƒ
 
         Drawable drawable = getResources().getDrawable(R.mipmap.icon_gth);
         drawable.setBounds(0, 0, CommUtil.dp2px(13), CommUtil.dp2px(13));
@@ -220,13 +220,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         banner = findViewById(R.id.banner);
         videoPlayer = findViewById(R.id.videoplayer);
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             requestPermiss();
         else
             initData();
     }
 
-    private void initData(){
+    private void initData() {
         initView();
         registReceiver();
         loadDeviceInfo();
@@ -249,14 +249,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     /**
      * 初始化音频文件
      */
-    private void initMusic(){
+    private void initMusic() {
         //分别加入到SoundPool中
         mSound.load(this, R.raw.nobind_card, 1);// 1
         mSound.load(this, R.raw.open_success, 1);// 2
         mSound.load(this, R.raw.password_error, 1);// 3
         mSound.load(this, R.raw.noregist_face, 1);// 3
     }
-
 
 
     private void test() {
@@ -271,22 +270,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         List<OpenCode> openCodes = DbManager.getInstance().getDaoSession().getOpenCodeDao().loadAll();
 
         String str = "";
-        for(FaceImage face :faceImages){
-            str += face.getCode()+"\n";
+        for (FaceImage face : faceImages) {
+            str += face.getCode() + "\n";
         }
 
         StringBuffer sf = new StringBuffer();
-        sf.append("开门图片记录："+records.size())
+        sf.append("开门图片记录：" + records.size())
                 .append("\n")
-                .append("人脸注册："+ str)
+                .append("人脸注册：" + str)
                 .append("\n")
-                .append("IC卡数："+ icCards.size())
+                .append("IC卡数：" + icCards.size())
                 .append("\n")
-                .append("身份证数："+ idCards.size())
+                .append("身份证数：" + idCards.size())
                 .append("\n")
-                .append("临时密码数："+ openCodes.size())
+                .append("临时密码数：" + openCodes.size())
                 .append("\n")
-                .append("registrationId："+ JPushInterface.getRegistrationID(this));
+                .append("registrationId：" + JPushInterface.getRegistrationID(this));
 
         new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
@@ -349,7 +348,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void initVideo() {
         String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_VIDEO_DATA, KeyContacts.SP_NAME_USERINFO);
-        if(TextUtils.isEmpty(string)){
+        if (TextUtils.isEmpty(string)) {
             return;
         }
         List<String> videos = JSON.parseArray(string, String.class);
@@ -447,11 +446,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             setInputData(oldNum, "9");
         } else if (keyCode == KeyEvent.KEYCODE_DEL) {//删除
             deleteInputData();
-        }else if(keyCode == KeyEvent.KEYCODE_STAR || keyCode == KeyEvent.KEYCODE_NUMPAD_MULTIPLY){// * 号
+        } else if (keyCode == KeyEvent.KEYCODE_STAR || keyCode == KeyEvent.KEYCODE_NUMPAD_MULTIPLY) {// * 号
             roomNumEt.setText("");
             showRoomNumOpen();
             starEnterDown = true;
-        }else if(keyCode == KeyEvent.KEYCODE_POUND){// # 号
+        } else if (keyCode == KeyEvent.KEYCODE_POUND) {// # 号
             String inputNum = roomNumEt.getText().toString().trim();
             if (TextUtils.isEmpty(inputNum))
                 return true;
@@ -714,9 +713,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-    private void loadBanner(){
-        long update_time = SharePreferensUtil.getLong(KeyContacts.SP_KEY_BANNER_UPDATE_TIME,0,KeyContacts.SP_NAME_USERINFO);
-        presenter.loadBanner(this,update_time);
+    private void loadBanner() {
+        long update_time = SharePreferensUtil.getLong(KeyContacts.SP_KEY_BANNER_UPDATE_TIME, 0, KeyContacts.SP_NAME_USERINFO);
+        presenter.loadBanner(this, update_time);
     }
 
 
@@ -740,34 +739,34 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void checkInput(String inputNum) {
 
         hideRoomInputLayout();
-        if(starEnterDown){//按了 * 号了，组合键，调起注册等页面
-            if("000".equals(inputNum)){
+        if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
+            if ("000".equals(inputNum)) {
                 goTo(SystemInfoActivity.class);
-            }else if("101".equals(inputNum)){
+            } else if ("101".equals(inputNum)) {
                 goTo(RegistICCardActivity.class);
-            }else if("102".equals(inputNum)){
+            } else if ("102".equals(inputNum)) {
                 Bundle bundle = new Bundle();
-                bundle.putInt("mType",1);
-                goTo(RegistICCardActivity.class,bundle);
-            }else{
+                bundle.putInt("mType", 1);
+                goTo(RegistICCardActivity.class, bundle);
+            } else {
                 ToastUtil.showCustomToast("输入错误");
             }
-        }else{
+        } else {
             if (inputNum.length() == 5) {//密码开门
                 //请求接口验证密码是否正确，是就开门
                 OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
                         .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
 
-                if(openCode != null) {
+                if (openCode != null) {
                     int expiry_time = openCode.getExpiry_time();
                     long now = System.currentTimeMillis();
                     if (expiry_time < (now / 1000)) {//过期了
-                        setShowSucOrError(false,inputNum);
-                    }else{
-                        setShowSucOrError(true,inputNum);
+                        setShowSucOrError(false, inputNum);
+                    } else {
+                        setShowSucOrError(true, inputNum);
                     }
-                }else{
-                    setShowSucOrError(false,inputNum);
+                } else {
+                    setShowSucOrError(false, inputNum);
                 }
             } else if (inputNum.length() == 4 || inputNum.length() == 6) {
                 showCallVideoLayout();
@@ -787,7 +786,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //密码开门显示结果
 
-    private void setShowSucOrError(boolean success,String code) {
+    private void setShowSucOrError(boolean success, String code) {
 //        hideRoomInputLayout();
         if (success) {//开门成功
 
@@ -832,7 +831,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //拨打视频通话
-    private void callVideo(String userId,String roomNum) {
+    private void callVideo(String userId, String roomNum) {
 
         //通过房号获取到环信的账号名（接口）
 
@@ -1064,7 +1063,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param sid  服务器上对应记录的id，上传记录图片时用
      */
 
-    public void savaICOrIDCardRecord(final int type, final int sid, final String sn,final String imagePath) {
+    public void savaICOrIDCardRecord(final int type, final int sid, final String sn, final String imagePath) {
 
         new Thread(new Runnable() {
             @Override
@@ -1126,7 +1125,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
         };
     }
-
 
 
     public String parseCard(ComBean comBean) {
@@ -1214,10 +1212,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         open();
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             onFaceResume();
-        }else{
-            if(haPermission)
+        } else {
+            if (haPermission)
                 onFaceResume();
         }
 
@@ -1232,10 +1230,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         stopMeasuing();
 
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             onFacePause();
-        }else{
-            if(haPermission)
+        } else {
+            if (haPermission)
                 onFacePause();
         }
 
@@ -1285,9 +1283,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     /**
      * 播放MP3资源
+     *
      * @param resId 资源ID
      */
-    private void startMusic(int resId){
+    private void startMusic(int resId) {
         /**
          * 第一个参数为播放音频ID
          * 第二个 第三个为音量
@@ -1298,7 +1297,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
          */
         int type = mSound.play(resId, 1, 1, 1, 0, 1);
     }
-
 
 
     /**
@@ -1333,15 +1331,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             String building_name = bean.getData().getBuilding_name();
             String name = bean.getData().getName();
 
-            entranceDetailTv.setText(garden_name+"/" + region_name+"/" + building_name +"/" + name);
+            entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
 
         }
     }
 
     @Override
-    public void getUseridByRoomSuccess(boolean b, String userId,String roomNum) {
-        if(b){
-            callVideo(userId+"",roomNum);
+    public void getUseridByRoomSuccess(boolean b, String userId, String roomNum) {
+        if (b) {
+            callVideo(userId + "", roomNum);
         }
     }
 
@@ -1350,39 +1348,40 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initView();
     }
 
-    private void getPicture(final int type, final int id, final String sn){
+    private void getPicture(final int type, final int id, final String sn) {
         String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
         File file = new File(picturePath, new Date().getTime() + ".jpg");
         Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
 
-        if(bitmapBytes != null){
+        if (bitmapBytes != null) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
             Utils.saveBitmap(file.getPath(), bitmap);
-        }else{
+        } else {
             Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(banner));
         }
 
 
-        CompressImageUtil compressImageUtil = new CompressImageUtil(this,null);
+        CompressImageUtil compressImageUtil = new CompressImageUtil(this, null);
         compressImageUtil.compress(file.getPath(), new CompressImageUtil.CompressListener() {
             @Override
             public void onCompressSuccess(String imgPath) {
-                savaICOrIDCardRecord(type, id, sn,imgPath);
+                savaICOrIDCardRecord(type, id, sn, imgPath);
             }
 
             @Override
             public void onCompressFailed(String imgPath, String msg) {
-                savaICOrIDCardRecord(type, id, sn,imgPath);
+                savaICOrIDCardRecord(type, id, sn, imgPath);
             }
         });
     }
 
-    private long faceErrorStartTime ;//人脸识别上一次提示的时间
+    private long faceErrorStartTime;//人脸识别上一次提示的时间
     private boolean isFacePause;//人脸识别成功后禁止再提示，等关锁后才能再触发提示
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
-        if(bean.isRegist) {
-            if(!isFacePause) {
+        if (bean.isRegist) {
+            if (!isFacePause) {
                 isFacePause = true;
                 Message msg = Message.obtain();
                 msg.what = 1;
@@ -1391,9 +1390,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 doorHandler.sendMessage(msg);
 
             }
-        }else{
+        } else {
             long now = System.currentTimeMillis();
-            if(now - faceErrorStartTime > 3000) {
+            if (now - faceErrorStartTime > 3000) {
 //                ToastUtil.showCustomToast(bean.faceResult);
                 startMusic(4);
                 faceErrorStartTime = System.currentTimeMillis();
@@ -1402,10 +1401,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void downVideoSuccess(DownVideoSuccessEventBus bean){
+    public void downVideoSuccess(DownVideoSuccessEventBus bean) {
         initView();
     }
-
 
 
     // -----------------------------------------------------------
@@ -1415,7 +1413,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public CameraView mIRCameraView; //红外摄像头
     public CameraView mCameraView; //RGB摄像头
     private byte[] irData; //ir视频流
-    private int screenW = 480;//屏幕分辨率w
+    private int screenW = 270;//屏幕分辨率w
     private final Object lock = new Object();
     private Size ratio;//摄像头预览分辨率
     private float scale_bit = 1;
@@ -1634,8 +1632,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         /*
         sfv_draw_view.getLayoutParams().height = viewH;
         sfv_draw_view.getLayoutParams().width = viewW;
+        android.util.Log.d("wlDebug","viewH = " + viewH + " viewW = " + viewW);
         sfv_draw_view.requestLayout();
         */
+        android.util.Log.d("wlDebug","viewH = " + viewH + " viewW = " + viewW + " scale_bit = " + scale_bit);
+
     }
 
     /**

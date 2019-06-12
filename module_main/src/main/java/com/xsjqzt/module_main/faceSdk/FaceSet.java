@@ -212,7 +212,7 @@ public class FaceSet {
     }
 
     //异步注册
-    public FaceResult getFaceFeatureFromBitmap(Bitmap bitmap){
+    public FaceResult getFaceFeatureFromBitmap(Bitmap bitmap) {
         FaceResult result = new FaceResult();
         result.code = 0;
         result.personId = -1;
@@ -220,18 +220,18 @@ public class FaceSet {
         float[] rect = new float[4];
         float[] faceFeature = faceTrack.getFaceFeatureFromBitmapNss(bitmap, rect);
         result.personId = faceTrack.identifyPerson(faceFeature);
-        if(result.personId < 0){
+        if (result.personId < 0) {
             //未注册
             result.personId = faceTrack.addPerson(faceFeature);
-            if(result.personId > 0){
+            if (result.personId > 0) {
                 //注册成功
                 result.code = 0;
                 result.msg = "成功注册人脸";
-            }else{
+            } else {
                 result.code = 200;
                 result.msg = "注册人脸失败";
             }
-        }else{
+        } else {
             //已注册
             int faceConfidence = faceTrack.getRecognitionConfidence();
             result.code = 102;
@@ -687,7 +687,7 @@ public class FaceSet {
                 break;
         }
         //人脸识别
-        if (isRecog) {
+        if (isRecog && ymFace.getLiveness() == 1) {
             int identifyPerson = -111;
             if (!trackingMap.containsKey(trackId) || trackingMap.get(trackId).getPersonId() <= 0) {
                 //人脸识别：identifyPerson>0 为识别成功，identifyPerson为识别对应人脸的personid identifyPerson<0  即该人脸未注册
@@ -707,24 +707,24 @@ public class FaceSet {
                     int user_id = 0;
                     FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
                             .where(FaceImageDao.Properties.PersonId.eq(identifyPerson)).unique();
-                    if(unique != null){
+                    if (unique != null) {
                         user_id = unique.getUser_id();
                     }
 
-                    LogUtil.w("user_id" +  user_id);
-                    EventBus.getDefault().post(new FaceSuccessEventBean(user_id , "",true));
+                    LogUtil.w("user_id" + user_id);
+                    EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
-                    if(ymFace.getLiveness() == 1) {
+                    if (ymFace.getLiveness() == 1) {
 //                        String code = DataConversionUtil.floatToString(ymFace.getRect());
 //                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
 //                        if(faceImage != null)//数据库有这个人注册的数据
 
                     }
-                }else{//未注册
+                } else {//未注册
 
-                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "",false));
+                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
             }
         } else {

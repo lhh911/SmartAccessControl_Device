@@ -28,37 +28,31 @@ android {
 
 
     }
-
-
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     //自定义APK名称,多渠道打包
     android.applicationVariants.all { variant ->
         variant.outputs.all { output ->
 //            variant.productFlavors.each { flavor ->
-                def project = "qzt_device"
-                def separator = "_"
-                def versionName = variant.versionName
-                def apkName = project + separator + versionName  + ".apk"
+            def project = "qzt_device"
+            def separator = "_"
+            def versionName = variant.versionName
+            def apkName = project + separator + versionName + ".apk"
 
-                output.outputFileName = apkName
+            output.outputFileName = apkName
 //            }
         }
     }
+    buildToolsVersion '28.0.3'
 }
 
 dependencies {
-
-
     implementation project(':library_common')
     implementation project(':module_main')
-
     //解决方法数超过64k问题
     implementation 'com.android.support:multidex:1.0.3'
 }
