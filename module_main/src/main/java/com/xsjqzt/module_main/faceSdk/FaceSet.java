@@ -211,6 +211,36 @@ public class FaceSet {
         return result;
     }
 
+    //异步注册
+    public FaceResult getFaceFeatureFromBitmap(Bitmap bitmap){
+        FaceResult result = new FaceResult();
+        result.code = 0;
+        result.personId = -1;
+
+        float[] rect = new float[4];
+        float[] faceFeature = faceTrack.getFaceFeatureFromBitmapNss(bitmap, rect);
+        result.personId = faceTrack.identifyPerson(faceFeature);
+        if(result.personId < 0){
+            //未注册
+            result.personId = faceTrack.addPerson(faceFeature);
+            if(result.personId > 0){
+                //注册成功
+                result.code = 0;
+                result.msg = "成功注册人脸";
+            }else{
+                result.code = 200;
+                result.msg = "注册人脸失败";
+            }
+        }else{
+            //已注册
+            int faceConfidence = faceTrack.getRecognitionConfidence();
+            result.code = 102;
+            result.msg = "用户(" + result.personId + ")已注册 ,相似对为" + faceConfidence;
+        }
+        return result;
+    }
+
+
     public int getPersonCount() {
         if (faceTrack == null) return -1;
         if (0 == UserDataUtil.getUserCount()) {
@@ -663,17 +693,25 @@ public class FaceSet {
                 //人脸识别：identifyPerson>0 为识别成功，identifyPerson为识别对应人脸的personid identifyPerson<0  即该人脸未注册
                 identifyPerson = faceTrack.identifyPerson(i);
                 int confidence = faceTrack.getRecognitionConfidence();
+                float[] faceFeature = faceTrack.getFaceFeature(i);//特征值（貌似识别时不唯一）
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
-                    Map<Integer, User> userMap = UserDataUtil.updateDataSource(true);//查询数据库注册用户
-                    User user = userMap.get(identifyPerson);
-                    String name = user.getName();
+//                    Map<Integer, User> userMap = UserDataUtil.updateDataSource(true);//查询数据库注册用户
+//                    User user = userMap.get(identifyPerson);
+//                    String name = user.getName();
+//                    int user_id = 0;
+//                    try {
+//                        user_id = Integer.parseInt(name);
+//                    }catch (Exception e){
+//                    }
                     int user_id = 0;
-                    try {
-                        user_id = Integer.parseInt(name);
-                    }catch (Exception e){
+                    FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+                            .where(FaceImageDao.Properties.PersonId.eq(identifyPerson)).unique();
+                    if(unique != null){
+                        user_id = unique.getUser_id();
                     }
-                    LogUtil.w("user_id" +  name);
+
+                    LogUtil.w("user_id" +  user_id);
                     EventBus.getDefault().post(new FaceSuccessEventBean(user_id , "",true));
 
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());

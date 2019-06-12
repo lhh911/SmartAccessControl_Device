@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
+import com.alibaba.fastjson.JSON;
 import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.EMNoActiveCallException;
@@ -50,6 +51,7 @@ import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
+import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.compress.CompressImageUtil;
@@ -78,6 +80,7 @@ import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.modle.DownVideoSuccessEventBus;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.modle.User;
@@ -316,6 +319,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void initView() {
+        showType = SharePreferensUtil.getInt(KeyContacts.SP_KEY_BANNER_OR_VIDEO, 1, KeyContacts.SP_NAME_USERINFO);
+
         if (showType == 1) {
             initImageAd();
         } else {
@@ -325,12 +330,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     private void initImageAd() {
-
+//        String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
+//        if(TextUtils.isEmpty(string)){
+//            return;
+//        }
+        videoPlayer.setVisibility(View.GONE);
         banner.setVisibility(View.VISIBLE);
         banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR);
         //设置图片加载器
         banner.setImageLoader(new GlideImageLoader());
         //设置图片集合
+//        banner.setImages(JSON.parseArray(string,String.class));
         banner.setImages(getImages());
 
         //banner设置方法全部调用完毕时最后调用
@@ -338,13 +348,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void initVideo() {
+        String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_VIDEO_DATA, KeyContacts.SP_NAME_USERINFO);
+        if(TextUtils.isEmpty(string)){
+            return;
+        }
+        List<String> videos = JSON.parseArray(string, String.class);
+
+        banner.setVisibility(View.GONE);
         videoPlayer.setVisibility(View.VISIBLE);
+
+
 //        AssetFileDescriptor assetFileDescriptor = getAssets().openFd("ad_movice.mp4");
 //        Uri mUri = Uri.parse("android.resource://" + getPackageName() + "/"+ R.raw.ad_movice);
         String path = FileUtil.getAppVideoPath(this);
         path = path + File.separator + "123.mp4";
 
-        videoPlayer.setUp(path, null);//设置地址
+        videoPlayer.setUp(videos.get(0), null);//设置地址
         videoPlayer.start();
     }
 
@@ -695,6 +714,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
+    private void loadBanner(){
+        long update_time = SharePreferensUtil.getLong(KeyContacts.SP_KEY_BANNER_UPDATE_TIME,0,KeyContacts.SP_NAME_USERINFO);
+        presenter.loadBanner(this,update_time);
+    }
+
 
     private void login() {
         if (UserInfoInstance.getInstance().hasLogin())//没登录需要登录下
@@ -930,6 +954,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         view.startAnimation(animation);
     }
 
+    //逐个删除输入框
     private void deleteInputData() {
         String num = roomNumEt.getText().toString().trim();
         if (num.length() > 0) {
@@ -1320,6 +1345,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
+    @Override
+    public void loadBannerSuccess() {
+        initView();
+    }
+
     private void getPicture(final int type, final int id, final String sn){
         String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
         File file = new File(picturePath, new Date().getTime() + ".jpg");
@@ -1370,6 +1400,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
         }
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void downVideoSuccess(DownVideoSuccessEventBus bean){
+        initView();
+    }
+
 
 
     // -----------------------------------------------------------

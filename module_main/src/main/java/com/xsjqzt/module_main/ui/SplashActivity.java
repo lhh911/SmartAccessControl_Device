@@ -12,9 +12,11 @@ import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.MD5Util;
+import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.presenter.TokenPresenter;
@@ -37,9 +39,21 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     public void init() {
+        checkFirstInstall();
         initMac();
         initView();
 //        requestPermiss();
+    }
+
+    private void checkFirstInstall(){
+        boolean firstInstall = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_FIRSTINSTALL, true, KeyContacts.SP_NAME_USERINFO);
+        if(firstInstall){
+            SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_FIRSTINSTALL, false, KeyContacts.SP_NAME_USERINFO);
+            FaceSet faceSet = new FaceSet(getApplication());
+            faceSet.startTrack(0);
+            faceSet.removeAllUser();
+            faceSet.stopTrack();
+        }
     }
 
     private void  initView(){

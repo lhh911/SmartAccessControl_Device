@@ -101,6 +101,11 @@ public interface ApiService {
     @GET
     Observable<ResponseBody> downFaceImage(@Header("Authorization") String token, @Url String image);
 
+    //下载图片
+    @Streaming
+    @GET
+    Observable<ResponseBody> downImage( @Url String image);
+
     //上传人脸照片状态
     @FormUrlEncoded
     @POST("entrance/upload/faces_status")
@@ -115,4 +120,9 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("entrance/data/get_userid_by_room")
     Observable<ResponseBody> getUseridByRoom(@Header("Authorization") String token , @Field("room_code") String inputNum);
+
+    //获取广告位数据
+    @FormUrlEncoded
+    @POST("entrance/data/ad_list")
+    Observable<ResponseBody> loadBanner(@Header("Authorization") String token ,  @Field("update_time")long update_time);
 }
