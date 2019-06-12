@@ -347,6 +347,13 @@ public class FileUtil {
                 tempPath.mkdirs();
             }
 
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String fileName = format.format(Calendar.getInstance().getTimeInMillis());
+
+            tempPath = new File(tempPath ,fileName);
+            if(!tempPath.exists())
+                tempPath.mkdir();
+
             return tempPath.getPath();
         } else if (FileUtil.isRootStorageCanUse()) {
             return context.getCacheDir().getAbsolutePath();

@@ -284,9 +284,11 @@ public class FaceImageDownService extends IntentService {
         //注册 10次，保证注册成功率
         for(int i = 0;i< 10;i++) {
             LogUtil.w("注册人脸循环次数 ：" + i );
-            faceResult = faceSet.registByBitmap(bitmap, user_id + "");
+            faceResult = faceSet.getFaceFeatureFromBitmap(bitmap);
+//            faceResult = faceSet.registByBitmap(bitmap, user_id + "");
             if (faceResult == null)
                 continue;
+            LogUtil.w("人脸已注册 code = " + faceResult.code);
             if (faceResult.code == 0 ) {//成功
                 //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
                 code = DataConversionUtil.floatToString(faceResult.rect);
@@ -297,6 +299,8 @@ public class FaceImageDownService extends IntentService {
                 insert(dataBean, faceResult.personId);
 
                 break;
+            }else if(faceResult.code == 102){//已注册
+
             } else {//失败
                 status = 3;
 //                if (!isReExecute)//添加失败数据到重试集合
@@ -304,7 +308,8 @@ public class FaceImageDownService extends IntentService {
             }
         }
 
-        updateFacesStatus(status, user_id ,code);
+        if(dataBean.getStatus() != 2)
+            updateFacesStatus(status, user_id ,code);
         downImage();//继续下一个
     }
 

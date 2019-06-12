@@ -29,7 +29,13 @@ public class KeyContacts {
 
 
 
-    public static final String SP_KEY_REGISTRATIONID = "sp_key_registrationid";//用户信息sp 中key
+    public static final String SP_KEY_BANNER_DATA = "sp_key_banner_data";//首页广告位是banner集合
+    public static final String SP_KEY_VIDEO_DATA = "sp_key_video_data";//首页广告位是video集合
+    public static final String SP_KEY_BANNER_OR_VIDEO = "sp_key_banner_or_video";//首页广告位是banner还是视频
+    public static final String SP_KEY_BANNER_UPDATE_TIME = "sp_key_banner_update_time";//首页广告位的更新时间
+
+    public static final String SP_KEY_FIRSTINSTALL = "sp_key_firstinstall";//是否是第一次启动
+    public static final String SP_KEY_REGISTRATIONID = "sp_key_registrationid";//是否将极光注册id发给后台绑定设备
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key
     public static final String SP_NAME_USERINFO= "userinfo"; //SP userinfo文件名
 

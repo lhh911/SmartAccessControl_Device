@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.alibaba.fastjson.JSON;
 import com.jbb.library_common.basemvp.BaseMvpPresenter;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
+import com.jbb.library_common.utils.SharePreferensUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
@@ -17,6 +19,7 @@ import com.xsjqzt.module_main.greendao.OpenCodeDao;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
+import com.xsjqzt.module_main.model.ADResBean;
 import com.xsjqzt.module_main.model.CardResBean;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.FaceImageResBean;
@@ -31,7 +34,9 @@ import com.xsjqzt.module_main.model.UploadCardResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
+import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.FaceImageDownService;
+import com.xsjqzt.module_main.service.VideoAdDownService;
 import com.xsjqzt.module_main.view.MainView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -420,6 +425,61 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             public void onSuccess(RoomNumByUserIdResBean bean) {
                 if (mView != null)
                     mView.getUseridByRoomSuccess(true,bean.getData().getId()+"",inputNum);
+            }
+
+
+
+            @Override
+            public void onError(Exception e) {
+                super.onError(e);
+                if (mView != null)
+                    mView.getUseridByRoomSuccess(false,e.getMessage(),"");
+            }
+        });
+    }
+
+    public void loadBanner(final Context context, long update_time) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .loadBanner(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), ADResBean.class, new NetListeren<ADResBean>() {
+            @Override
+            public void onSuccess(ADResBean bean) {
+                if(bean.getData() != null){
+                    int type = bean.getData().getType();
+                    int update_time1 = bean.getData().getUpdate_time();
+                    List<ADResBean.DataBean.ListBean> list = bean.getData().getList();
+
+                    ArrayList<String> datas = new ArrayList<>();
+                    if(list != null){
+                        for(ADResBean.DataBean.ListBean data : list){
+                            String path = data.getPath();
+                            datas.add(path);
+                        }
+                    }
+
+                    if(type == 1){//banner
+                        if(datas.size()>0){
+                            String str = JSON.toJSONString(datas);
+                            SharePreferensUtil.putString(KeyContacts.SP_KEY_BANNER_DATA,str,KeyContacts.SP_NAME_USERINFO);
+                            if(mView != null){
+                                mView.loadBannerSuccess();
+                            }
+                        }
+
+                    }else if(type == 2){//视频广告
+                        if(datas.size()>0) {
+                            if(mView != null) {
+                                Intent it = new Intent(context, VideoAdDownService.class);
+                                Bundle bundle = new Bundle();
+                                bundle.putStringArrayList("data", datas);
+                                it.putExtras(bundle);
+                                context.startService(it);
+                            }
+                        }
+                    }
+                    SharePreferensUtil.putInt(KeyContacts.SP_KEY_BANNER_OR_VIDEO,type ,KeyContacts.SP_NAME_USERINFO);
+                    SharePreferensUtil.putLong(KeyContacts.SP_KEY_BANNER_UPDATE_TIME,update_time1,KeyContacts.SP_NAME_USERINFO);
+                }
+
             }
 
 
