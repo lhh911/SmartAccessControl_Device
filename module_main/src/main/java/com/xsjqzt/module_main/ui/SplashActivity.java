@@ -64,7 +64,6 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     private void  initView(){
         ActivityManager.getInstance().setAppStatus(KeyContacts.STATUS_NORMAL);
-        EMHelper.getInstance().init(getApplicationContext());
 
         UserInfoSerializUtil.initUserInstance();
         if(!UserInfoInstance.getInstance().hasLogin()){
