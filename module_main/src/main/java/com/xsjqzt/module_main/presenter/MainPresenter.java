@@ -259,6 +259,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                         card.setSn(bean.getSn());
                         card.setUser_id(bean.getUser_id());
                         card.setUser_name(bean.getUser_name());
+                        card.setUpdate_time(bean.getUpdate_time());
                         lists.add(card);
                     }
                 }
@@ -296,6 +297,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                         card.setSn(bean.getSn());
                         card.setUser_id(bean.getUser_id());
                         card.setUser_name(bean.getUser_name());
+                        card.setUpdate_time(bean.getUpdate_time());
                         lists.add(card);
                     }
                 }

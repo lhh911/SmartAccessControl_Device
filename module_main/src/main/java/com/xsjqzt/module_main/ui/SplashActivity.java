@@ -4,8 +4,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.hyphenate.EMCallBack;
+import com.hyphenate.EMError;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.exceptions.HyphenateException;
 import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
@@ -39,6 +44,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     public void init() {
+        EMHelper.getInstance().init(getApplicationContext());//环信初始化，有注册过就会直接登录
         checkFirstInstall();
         initMac();
         initView();
@@ -176,7 +182,8 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         if(!TextUtils.isEmpty(registrationID)) {
             presenter.registrationId(registrationID);
         }
-        next(3000);
+//        next(3000);
+        registHX(UserInfoInstance.getInstance().getMacAddress().toLowerCase(),"123456");
     }
 
     @Override
@@ -238,5 +245,75 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
                     }
                 })
                 .start();
+    }
+
+
+    /**
+     *  注册环信用户
+     * @param username  mac地址注册
+     * @param psw
+     */
+
+    public void registHX(final String username, final String psw){
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    // call method in SDK
+//                    EMClient.getInstance().check();
+
+                    EMClient.getInstance().createAccount(username, psw);
+                    loginHX(username,psw);
+
+                } catch (final HyphenateException e) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+
+                            int errorCode = e.getErrorCode();
+                            if (errorCode == EMError.NETWORK_ERROR) {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.network_anomalies), Toast.LENGTH_SHORT).show();
+                            } else if (errorCode == EMError.USER_ALREADY_EXIST) {
+//                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.User_already_exists), Toast.LENGTH_SHORT).show();
+                            } else if (errorCode == EMError.USER_AUTHENTICATION_FAILED) {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.registration_failed_without_permission), Toast.LENGTH_SHORT).show();
+                            } else if (errorCode == EMError.USER_ILLEGAL_ARGUMENT) {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.illegal_user_name), Toast.LENGTH_SHORT).show();
+                            } else if (errorCode == EMError.EXCEED_SERVICE_LIMIT) {
+                                Toast.makeText(SplashActivity.this, getResources().getString(R.string.register_exceed_service_limit), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getApplicationContext(), getResources().getString(R.string.Registration_failed), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    loginHX(username,psw);
+                }
+            }
+        }).start();
+
+    }
+
+
+    private void loginHX(String userName,String psw){
+        EMClient.getInstance().login(userName, psw, new EMCallBack() {
+            @Override
+            public void onSuccess() {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        next(3000);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(int i, String s) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        next(3000);
+                    }
+                });
+            }
+            @Override
+            public void onProgress(int i, String s) {
+            }
+        });
     }
 }

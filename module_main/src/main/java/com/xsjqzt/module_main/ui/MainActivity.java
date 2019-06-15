@@ -39,8 +39,11 @@ import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.fastjson.JSON;
+import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMMessage;
+import com.hyphenate.chat.EMVideoCallHelper;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
@@ -171,6 +174,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public static SoundPool mSound = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
     private boolean haPermission;
+
+    private EMMessageListener msgListener;//消息接收监听
+    private EMCallStateChangeListener callStateChangeListener;//通话状态监听
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -845,7 +851,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             e.printStackTrace();
         }
 
-        EMClient.getInstance().callManager().addCallStateChangeListener(new EMCallStateChangeListener() {
+
+        callStateChangeListener = new EMCallStateChangeListener() {
             @Override
             public void onCallStateChanged(CallState callState, CallError error) {
                 switch (callState) {
@@ -883,7 +890,51 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
 
             }
-        });
+        };
+        EMClient.getInstance().callManager().addCallStateChangeListener(callStateChangeListener);
+
+
+
+        msgListener = new EMMessageListener() {
+
+            @Override
+            public void onMessageReceived(List<EMMessage> messages) {
+
+                //收到消息
+                Message msg = Message.obtain();
+                msg.what = 1;
+                msg.arg1 = 5;
+                msg.obj = "远程开门";
+                doorHandler.sendMessage(msg);
+            }
+
+            @Override
+            public void onCmdMessageReceived(List<EMMessage> messages) {
+                //收到透传消息
+            }
+
+            @Override
+            public void onMessageRead(List<EMMessage> messages) {
+                //收到已读回执
+            }
+
+            @Override
+            public void onMessageDelivered(List<EMMessage> message) {
+                //收到已送达回执
+            }
+            @Override
+            public void onMessageRecalled(List<EMMessage> messages) {
+                //消息被撤回
+            }
+
+            @Override
+            public void onMessageChanged(EMMessage message, Object change) {
+                //消息状态变动
+            }
+        };
+
+        EMClient.getInstance().chatManager().addMessageListener(msgListener);
+
     }
 
 
@@ -937,12 +988,26 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void endCall() {
         try {
+            if(callStateChangeListener != null) {
+                EMClient.getInstance().callManager().removeCallStateChangeListener(callStateChangeListener);
+                callStateChangeListener = null;
+            }
             EMClient.getInstance().callManager().endCall();
             hideCallVideoLayout();
         } catch (EMNoActiveCallException e) {
             e.printStackTrace();
         }
+        if(msgListener != null) {
+            EMClient.getInstance().chatManager().removeMessageListener(msgListener);
+            msgListener = null;
+        }
     }
+
+    //主动挂断视频电话
+//    public void stopVideoCall(){
+//        EMVideoCallHelper videoCallHelper = EMClient.getInstance().callManager().getVideoCallHelper();
+//        videoCallHelper.stopVideoRecord();
+//    }
 
 
     public void showAnim(View view) {
@@ -1317,6 +1382,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             presenter.uploadCodeRecord(type, sn);
         } else if (type == 4) {//人脸开门
             presenter.uploadFaceRecord(type, Integer.parseInt(sn));//sn对应user_id
+        }else if (type == 5) {//远程开门
+
         }
     }
 
