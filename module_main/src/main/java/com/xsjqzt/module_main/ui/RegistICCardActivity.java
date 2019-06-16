@@ -48,6 +48,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private SerialHelper serialHelper;
     private String sPort = "/dev/ttyS3";
     private int iBaudRate = 115200;
+    private boolean isShiftClick;
 
     @Override
     public RegistICCardPresenter initPresenter() {
@@ -133,6 +134,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
             @Override
             protected void onDataReceived(ComBean paramComBean) {
 //                String str = bytesToHex(paramComBean.bRec);
+                LogUtil.w("nfc原始数据 ：" + new String(paramComBean.bRec));
                 String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
 //                BigInteger bi = new BigInteger(str, 16);//转十进制
@@ -238,9 +240,15 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_STAR){// * 号
-            finish();
+        if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {// * 号
+            isShiftClick  = true;
             return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_3) {
+            if(isShiftClick){// # 号
+                finish();
+                return true;
+            }
         }
         return super.onKeyDown(keyCode, event);
     }

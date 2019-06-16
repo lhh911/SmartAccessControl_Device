@@ -44,6 +44,8 @@ import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMVideoCallHelper;
+import com.hyphenate.easeui.ui.CallActivity;
+import com.hyphenate.easeui.ui.VideoCallActivity;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
@@ -243,6 +245,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initMusic();
         EventBus.getDefault().register(this);
         test();
+        emLoginUser();
 
         initFaceCamera();
         initFaceEvent();
@@ -265,6 +268,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         mSound.load(this, R.raw.noregist_face, 1);// 3
     }
 
+
+    //打印环信登录状态
+    private void emLoginUser() {
+        String currentUser = EMClient.getInstance().getCurrentUser();
+        LogUtil.w("currentUser = " + currentUser);
+        ToastUtil.showCustomToast("currentUser = " + currentUser);
+        ToastUtil.showCustomToast("连接服务器：" + EMClient.getInstance().isConnected());
+        ToastUtil.showCustomToast("登录状态：" + EMClient.getInstance().isLoggedInBefore());
+    }
 
     private void test() {
         List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
@@ -403,8 +415,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
+    private boolean isShiftClick;
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT){
+            isShiftClick = true;
+            return true;
+        }
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
             if (mType == 1) {
                 hideRoomInputLayout();
@@ -416,58 +433,73 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "0");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_1) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "1");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_2) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "2");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_3) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "3");
+            if(isShiftClick){// # 号
+                String inputNum = roomNumEt.getText().toString().trim();
+                if (TextUtils.isEmpty(inputNum))
+                    return true;
+                checkInput(inputNum);
+            }else {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "3");
+                isShiftClick = false;
+            }
         } else if (keyCode == KeyEvent.KEYCODE_4) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "4");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_5) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "5");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_6) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "6");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_7) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "7");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_8) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "8");
+            if(isShiftClick){// * 号
+                roomNumEt.setText("");
+                showRoomNumOpen();
+                starEnterDown = true;
+            }else {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "8");
+                isShiftClick = false;
+            }
         } else if (keyCode == KeyEvent.KEYCODE_9) {
             showRoomNumOpen();
             String oldNum = roomNumEt.getText().toString().trim();
             setInputData(oldNum, "9");
+            isShiftClick = false;
         } else if (keyCode == KeyEvent.KEYCODE_DEL) {//删除
             deleteInputData();
-        } else if (keyCode == KeyEvent.KEYCODE_STAR || keyCode == KeyEvent.KEYCODE_NUMPAD_MULTIPLY) {// * 号
-            roomNumEt.setText("");
-            showRoomNumOpen();
-            starEnterDown = true;
-        } else if (keyCode == KeyEvent.KEYCODE_POUND) {// # 号
-            String inputNum = roomNumEt.getText().toString().trim();
-            if (TextUtils.isEmpty(inputNum))
-                return true;
-
-            checkInput(inputNum);
         }
 
         return super.onKeyDown(keyCode, event);
     }
+
+
 
 
     @Override
@@ -548,7 +580,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         DefaultRationale rationale = new DefaultRationale();
         AndPermission.with(this)
                 .runtime()
-                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA)
+                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA,Manifest.permission.RECORD_AUDIO)
                 .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
                 .onGranted(new Action<List<String>>() {
                     @Override
@@ -748,6 +780,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         hideRoomInputLayout();
         if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
+            starEnterDown = false;
             if ("000".equals(inputNum)) {
                 goTo(SystemInfoActivity.class);
             } else if ("101".equals(inputNum)) {
@@ -850,40 +883,111 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
+        onFacePause();
 
         callStateChangeListener = new EMCallStateChangeListener() {
             @Override
             public void onCallStateChanged(CallState callState, CallError error) {
                 switch (callState) {
                     case CONNECTING: // 正在连接对方
-                        ToastUtil.showCustomToast("正在连接对方");
-                        callStatusTv.setText("呼叫中，请稍候...");
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                ToastUtil.showCustomToast("正在连接对方");
+                                callStatusTv.setText("呼叫中，请稍候...");
+                            }
+                        });
+
                         break;
                     case CONNECTED: // 双方已经建立连接
-                        ToastUtil.showCustomToast("双方已经建立连接");
-                        callStatusTv.setText("呼叫中，请稍候...");
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                ToastUtil.showCustomToast("双方已经建立连接");
+                                callStatusTv.setText("呼叫中，请稍候...");
+                            }
+                        });
                         break;
 
                     case ACCEPTED: // 电话接通成功
-                        ToastUtil.showCustomToast("电话接通成功");
-                        startTimer();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                ToastUtil.showCustomToast("电话接通成功");
+                                startTimer();
+                            }
+                        });
                         break;
                     case DISCONNECTED: // 电话断了
-                        ToastUtil.showCustomToast("电话断了");
-                        removeTask();
-                        endCall();
+
+                        final CallError fError = error;
+
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                ToastUtil.showCustomToast("电话断了");
+                                removeTask();
+                                endCall();
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        onFaceResume();
+                                    }
+                                },500);
+
+
+
+                                String s1 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_refused_to_accept);
+                                String s2 = getResources().getString(com.hyphenate.easeui.R.string.Connection_failure);
+                                String s3 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_is_not_online);
+                                String s4 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_on_the_phone_please);
+                                String s5 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_did_not_answer);
+
+                                String s6 = getResources().getString(com.hyphenate.easeui.R.string.hang_up);
+                                String s7 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_hang_up);
+                                String s8 = getResources().getString(com.hyphenate.easeui.R.string.did_not_answer);
+                                String s9 = getResources().getString(com.hyphenate.easeui.R.string.Has_been_cancelled);
+                                String s10 = getResources().getString(com.hyphenate.easeui.R.string.Refused);
+
+
+                                String error = null;
+                                if (fError == CallError.REJECTED) {
+
+                                    error = s1;
+                                } else if (fError == CallError.ERROR_TRANSPORT) {
+                                    error = s2;
+                                } else if (fError == CallError.ERROR_UNAVAILABLE) {
+                                    error = s3;
+                                } else if (fError == CallError.ERROR_BUSY) {
+                                    error = s4;
+                                } else if (fError == CallError.ERROR_NORESPONSE) {
+                                    error = s5;
+                                } else if (fError == CallError.ERROR_LOCAL_SDK_VERSION_OUTDATED || fError == CallError.ERROR_REMOTE_SDK_VERSION_OUTDATED) {
+                                    error = getResources().getString(com.hyphenate.easeui.R.string.call_version_inconsistent);
+
+                                } else {
+                                    error = "无法接通";
+                                }
+                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
+
+
+                            }
+                        });
                         break;
                     case NETWORK_UNSTABLE: //网络不稳定
-                        if (error == CallError.ERROR_NO_DATA) {
-                            //无通话数据
-                        } else {
-                        }
+                        runOnUiThread(new Runnable() {
+                              public void run() {
+//                                  if (error == CallError.ERROR_NO_DATA) {
+//                                      //无通话数据
+//                                  } else {
+//                                  }
+                                  ToastUtil.showCustomToast("网络不稳定");
+                              }
+                          });
 
-                        ToastUtil.showCustomToast("网络不稳定");
                         break;
                     case NETWORK_NORMAL: //网络恢复正常
-                        ToastUtil.showCustomToast("网络恢复正常");
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                ToastUtil.showCustomToast("网络恢复正常");
+                            }
+                        });
                         break;
                     default:
                         break;
@@ -894,9 +998,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         EMClient.getInstance().callManager().addCallStateChangeListener(callStateChangeListener);
 
 
-
         msgListener = new EMMessageListener() {
-
             @Override
             public void onMessageReceived(List<EMMessage> messages) {
 
@@ -951,6 +1053,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void startTask() {
+
         if (timeHandler != null && timeRunnable != null) {
             removeTask();
         }
@@ -965,6 +1068,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             timeHandler.removeCallbacks(timeRunnable);
             timeHandler = null;
             timeRunnable = null;
+            duration = 0;
         }
     }
 
@@ -979,7 +1083,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         @Override
         public void run() {
             if (weakReference.get() != null) {
-                duration++;
+                duration += delayMillis;
                 callStatusTv.setText("通话中 " + DurationFormatUtils.formatDuration(duration, mTimePattern));
                 timeHandler.postDelayed(timeRunnable, delayMillis);
             }
@@ -1001,6 +1105,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             EMClient.getInstance().chatManager().removeMessageListener(msgListener);
             msgListener = null;
         }
+        hideCallVideoLayout();
     }
 
     //主动挂断视频电话
@@ -1090,12 +1195,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         roomNumLayout.setVisibility(View.GONE);
         roomNumEt.setText("");
 
-        callVideoLayout.setVisibility(View.GONE);
-        callStatusTv.setText("呼叫中");
-        callNumTv.setText("");
+//        callVideoLayout.setVisibility(View.GONE);
+//        callStatusTv.setText("呼叫中");
+//        callNumTv.setText("");
 
         inputLayoutShow = false;
-        starEnterDown = false;
+
         mType = 0;
     }
 
@@ -1110,6 +1215,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //单独掩藏视频通话ui
     private void hideCallVideoLayout() {
         callVideoLayout.setVisibility(View.GONE);
+        callStatusTv.setText("呼叫中");
+        callNumTv.setText("");
         dismissAnim(callVideoLayout);
         mType = 0;
     }

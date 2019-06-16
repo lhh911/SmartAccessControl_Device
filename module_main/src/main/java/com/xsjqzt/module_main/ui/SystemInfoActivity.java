@@ -3,6 +3,7 @@ package com.xsjqzt.module_main.ui;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +32,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
 
     private TextView deviceNameTv, ipAddressTv, qrNumTv;
     private ImageView voiceIv, qrCodeIv;
+    private boolean isShiftClick;
 //    private Button confirmBtn;
 
     @Override
@@ -105,9 +107,15 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_STAR) {// * 号
-            finish();
+        if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {// * 号
+            isShiftClick  = true;
             return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_3) {
+            if(isShiftClick){// # 号
+                finish();
+                return true;
+            }
         }
         return super.onKeyDown(keyCode, event);
     }
