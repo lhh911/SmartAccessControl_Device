@@ -179,6 +179,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private EMMessageListener msgListener;//消息接收监听
     private EMCallStateChangeListener callStateChangeListener;//通话状态监听
+    private AudioManager audioManager;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -244,7 +245,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         startMeasuing();
         initMusic();
         EventBus.getDefault().register(this);
-        test();
+//        test();
         emLoginUser();
 
         initFaceCamera();
@@ -753,6 +754,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
+    //获取banner广告
     private void loadBanner() {
         long update_time = SharePreferensUtil.getLong(KeyContacts.SP_KEY_BANNER_UPDATE_TIME, 0, KeyContacts.SP_NAME_USERINFO);
         presenter.loadBanner(this, update_time);
@@ -842,35 +844,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         }
 
-//        starTime();
     }
 
-    //密码开门时错误情况下3秒后退回输入状态
-//    private void starTime() {
-//        TimerTask task = new TimerTask() {
-//            @Override
-//            public void run() {
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        if (showSucOrError == 1) {
-//                            hideRoomNumLayout();
-//                        } else {
-//                            mType = 1;
-//                        }
-//                        inputNumLayout.setVisibility(View.VISIBLE);
-//                        successLayout.setVisibility(View.GONE);
-//                        errorLayout.setVisibility(View.GONE);
-//                    }
-//                });
-//            }
-//        };
-//
-//        Timer timer = new Timer();
-//        timer.schedule(task, 3000);
-//    }
 
 
+//================================= 视频通话 =========================================================
     //拨打视频通话
     private void callVideo(String userId, String roomNum) {
 
@@ -912,6 +890,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             public void run() {
                                 ToastUtil.showCustomToast("电话接通成功");
                                 startTimer();
+                                openSpeakerOn();
                             }
                         });
                         break;
@@ -1105,15 +1084,42 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             EMClient.getInstance().chatManager().removeMessageListener(msgListener);
             msgListener = null;
         }
+        if(audioManager != null) {
+            audioManager.setMode(AudioManager.MODE_NORMAL);
+            audioManager.setMicrophoneMute(false);
+            audioManager = null;
+        }
         hideCallVideoLayout();
     }
 
-    //主动挂断视频电话
-//    public void stopVideoCall(){
-//        EMVideoCallHelper videoCallHelper = EMClient.getInstance().callManager().getVideoCallHelper();
-//        videoCallHelper.stopVideoRecord();
-//    }
+    //开启免提
+    protected void openSpeakerOn() {
+        audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        try {
+            if (!audioManager.isSpeakerphoneOn())
+                audioManager.setSpeakerphoneOn(true);
+            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    protected void closeSpeakerOn() {
+        try {
+            if (audioManager != null) {
+                if (audioManager.isSpeakerphoneOn())
+                    audioManager.setSpeakerphoneOn(false);
+                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    //=========================================================
 
     public void showAnim(View view) {
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.callview_in);
@@ -1516,6 +1522,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void getUseridByRoomSuccess(boolean b, String userId, String roomNum) {
         if (b) {
             callVideo(userId + "", roomNum);
+        }else{
+            endCall();
         }
     }
 

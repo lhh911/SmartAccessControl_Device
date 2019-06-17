@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.utils.CommUtil;
@@ -18,7 +19,13 @@ import com.jbb.library_common.utils.ScreenShotUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.ICCardDao;
+import com.xsjqzt.module_main.greendao.IDCardDao;
+import com.xsjqzt.module_main.greendao.entity.ICCard;
+import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.presenter.RegistICCardPresenter;
+import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.view.RegistICCardIView;
 import com.xsjqzt.module_main.widget.ImgTextView;
 import com.yzq.zxinglibrary.encode.CodeCreator;
@@ -229,6 +236,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
                             numTv.setText(qrCodeNum);
                             createQrCode();
                             setSuccess();
+                            checkRegist(str);
                         }
                         break;
                 }
@@ -236,6 +244,19 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         }
     }
 
+    private void checkRegist(String str) {
+        if (mType == 1) {
+            IDCard unique = DbManager.getInstance().getDaoSession().getIDCardDao().queryBuilder().where(IDCardDao.Properties.Sn.eq(str)).unique();
+            if(unique != null){
+                ToastUtil.showCustomToast("卡号已注册");
+            }
+        }else{
+            ICCard unique = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().where(ICCardDao.Properties.Sn.eq(str)).unique();
+            if(unique != null){
+                ToastUtil.showCustomToast("卡号已注册");
+            }
+        }
+    }
 
 
     @Override

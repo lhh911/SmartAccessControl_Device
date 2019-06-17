@@ -14,6 +14,8 @@
         android:id="@+id/input_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="vertical">
 
         <TextView
@@ -31,7 +33,6 @@
             android:textSize="20dp"
             android:textColor="@color/common_color_333333"
 
-            android:imeOptions="actionDone"
             android:singleLine="true"/>
 
         <TextView
