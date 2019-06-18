@@ -146,7 +146,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
-    private EditText roomNumEt;
+    private TextView roomNumEt;
     private LinearLayout inputNumLayout;//输入框父布局
 //    private ImgTextView successLayout, errorLayout;//成功和识别布局
 //    private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
