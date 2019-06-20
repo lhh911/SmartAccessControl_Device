@@ -489,8 +489,24 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             @Override
             public void onError(Exception e) {
                 super.onError(e);
+
+            }
+        });
+    }
+
+    public void uploadRemoteRecord(final int type, final int user_id) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .uploadRemoteRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+            @Override
+            public void onSuccess(UploadCardResBean bean) {
                 if (mView != null)
-                    mView.getUseridByRoomSuccess(false,e.getMessage(),"");
+                    mView.uploadCardSuccess(type, bean.getData().getId(), String.valueOf(user_id));
+            }
+
+
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
             }
         });
     }

@@ -180,6 +180,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private EMMessageListener msgListener;//消息接收监听
     private EMCallStateChangeListener callStateChangeListener;//通话状态监听
     private AudioManager audioManager;
+    private boolean hasCallSuccess;//拨打视频通话是否接通成功
+    private boolean hasCallingVideo;//是否正在拨打视频通话
+    private String remoteUserId ;// 远程开门是对方userid
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -451,6 +455,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 if (TextUtils.isEmpty(inputNum))
                     return true;
                 checkInput(inputNum);
+                if(hasCallingVideo)
+                    endCall();
             }else {
                 showRoomNumOpen();
                 String oldNum = roomNumEt.getText().toString().trim();
@@ -807,17 +813,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         setShowSucOrError(false, inputNum);
                     } else {
                         setShowSucOrError(true, inputNum);
+                        DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
                     }
                 } else {
                     setShowSucOrError(false, inputNum);
                 }
             } else if (inputNum.length() == 4 || inputNum.length() == 6) {
                 showCallVideoLayout();
+                hasCallingVideo = true;
 
                 //根据房号获取userid，再拨视频通话
                 presenter.getUseridByRoom(inputNum);
 
-//                callVideo(inputNum);
+                //开始计时
+                startCallSuccessTime();
             } else {
                 ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
             }
@@ -825,6 +834,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
 
     }
+
+
 
 
     //密码开门显示结果
@@ -891,6 +902,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 ToastUtil.showCustomToast("电话接通成功");
                                 startTimer();
                                 openSpeakerOn();
+                                hasCallSuccess = true;
                             }
                         });
                         break;
@@ -901,7 +913,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 ToastUtil.showCustomToast("电话断了");
-                                removeTask();
+
                                 endCall();
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
@@ -985,7 +997,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 Message msg = Message.obtain();
                 msg.what = 1;
                 msg.arg1 = 5;
-                msg.obj = "远程开门";
+                msg.obj = remoteUserId;
                 doorHandler.sendMessage(msg);
             }
 
@@ -1017,6 +1029,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         EMClient.getInstance().chatManager().addMessageListener(msgListener);
 
     }
+
+
+
+
 
 
     int delayMillis = 1000;
@@ -1074,9 +1090,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             if(callStateChangeListener != null) {
                 EMClient.getInstance().callManager().removeCallStateChangeListener(callStateChangeListener);
                 callStateChangeListener = null;
+                EMClient.getInstance().callManager().endCall();
             }
-            EMClient.getInstance().callManager().endCall();
-            hideCallVideoLayout();
+
         } catch (EMNoActiveCallException e) {
             e.printStackTrace();
         }
@@ -1089,7 +1105,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             audioManager.setMicrophoneMute(false);
             audioManager = null;
         }
+
+        removeTask();
         hideCallVideoLayout();
+
+        hasCallingVideo = false;
+        hasCallSuccess = false;
     }
 
     //开启免提
@@ -1104,18 +1125,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
-    protected void closeSpeakerOn() {
-        try {
-            if (audioManager != null) {
-                if (audioManager.isSpeakerphoneOn())
-                    audioManager.setSpeakerphoneOn(false);
-                audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
 
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
 
 
@@ -1160,6 +1170,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
+
+    //拨打视频通话，10秒计时，如果超过没接通，就中断
+    private void startCallSuccessTime() {
+        InutLayoutShowTimeRunnable runnable = new InutLayoutShowTimeRunnable(this,2);
+        doorHandler.postDelayed(runnable, 10000);
+    }
+
+
     //开启任务检查布局在十秒内是否有其他操作，没有就掩藏底部输入布局
     private void startShowLayoutTime() {
 
@@ -1168,7 +1186,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
 
         if (inutLayoutShowTimeRunnable == null) {
-            inutLayoutShowTimeRunnable = new InutLayoutShowTimeRunnable(this);
+            inutLayoutShowTimeRunnable = new InutLayoutShowTimeRunnable(this,1);
         }
 
         doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10000);
@@ -1178,18 +1196,26 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public class InutLayoutShowTimeRunnable implements Runnable {
         WeakReference<Activity> weakReference = null;
+        int type ;// 1 按键10秒，2为拨号10秒
 
-        public InutLayoutShowTimeRunnable(Activity activity) {
+        public InutLayoutShowTimeRunnable(Activity activity,int type) {
             weakReference = new WeakReference<>(activity);
+            this.type = type;
         }
 
         @Override
         public void run() {
             if (weakReference.get() != null) {
-                long endTime = System.currentTimeMillis();
-                if (endTime - startShowTime >= 10000) {
-                    hideRoomInputLayout();
+                if(type == 1) {
+                    long endTime = System.currentTimeMillis();
+                    if (endTime - startShowTime >= 10000) {
+                        hideRoomInputLayout();
 
+                    }
+                }else if(type == 2){
+                    if(!hasCallSuccess){
+                        endCall();
+                    }
                 }
             }
         }
@@ -1496,8 +1522,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         } else if (type == 4) {//人脸开门
             presenter.uploadFaceRecord(type, Integer.parseInt(sn));//sn对应user_id
         }else if (type == 5) {//远程开门
-
+            presenter.uploadRemoteRecord(type, Integer.parseInt(sn));//sn对应远处开门的user_id
         }
+
     }
 
     @Override
@@ -1521,9 +1548,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     public void getUseridByRoomSuccess(boolean b, String userId, String roomNum) {
         if (b) {
-            callVideo(userId + "", roomNum);
+            if(hasCallingVideo) {
+                remoteUserId = userId;
+                callVideo(userId + "", roomNum);
+            }
         }else{
             endCall();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onFaceResume();
+                }
+            },500);
         }
     }
 

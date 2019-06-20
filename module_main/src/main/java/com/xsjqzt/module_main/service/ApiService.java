@@ -73,7 +73,10 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("entrance/upload/face_record")
     Observable<ResponseBody> uploadFaceRecord(@Header("Authorization") String token, @Field("user_id") int user_id, @Field("status") int status);
-
+    //上传远程开门记录不含图片
+    @FormUrlEncoded
+    @POST("entrance/upload/face_record")
+    Observable<ResponseBody> uploadRemoteRecord(@Header("Authorization") String token, @Field ("user_id")int user_id, @Field("status") int status);
 
     //获取当前进出口信息
     @POST("entrance/data/entrance_detail")
@@ -125,4 +128,6 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("entrance/data/ad_list")
     Observable<ResponseBody> loadBanner(@Header("Authorization") String token ,  @Field("update_time")long update_time);
+
+
 }

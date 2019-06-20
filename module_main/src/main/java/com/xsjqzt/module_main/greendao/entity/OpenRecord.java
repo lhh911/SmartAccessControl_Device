@@ -23,7 +23,7 @@ public class OpenRecord {
 
     private long createTime;//记录生成时间
 
-    private int type ; // 1 ic卡, 2 身份证，3 密码开门， 4 人脸开门
+    private int type ; // 1 ic卡, 2 身份证，3 密码开门， 4 人脸开门，5远程开门
 
     @Generated(hash = 378785446)
     public OpenRecord(Long id, @NotNull String sn, int status, String image,
