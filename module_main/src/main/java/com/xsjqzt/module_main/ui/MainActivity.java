@@ -435,72 +435,93 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_0) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "0");
-            isShiftClick = false;
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "0");
+                isShiftClick = false;
+            }
         } else if (keyCode == KeyEvent.KEYCODE_1) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "1");
-            isShiftClick = false;
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "1");
+                isShiftClick = false;
+            }
         } else if (keyCode == KeyEvent.KEYCODE_2) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "2");
-            isShiftClick = false;
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "2");
+                isShiftClick = false;
+            }
         } else if (keyCode == KeyEvent.KEYCODE_3) {
             if(isShiftClick){// # 号
+                if(hasCallingVideo) {
+                    endCall();
+                    return true;
+                }
                 String inputNum = roomNumEt.getText().toString().trim();
-                if (TextUtils.isEmpty(inputNum))
+                if (TextUtils.isEmpty(inputNum) || inputNum.length()<4)
                     return true;
                 checkInput(inputNum);
-                if(hasCallingVideo)
-                    endCall();
+
             }else {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "3");
-                isShiftClick = false;
+                if(!hasCallingVideo) {
+                    showRoomNumOpen();
+                    String oldNum = roomNumEt.getText().toString().trim();
+                    setInputData(oldNum, "3");
+                    isShiftClick = false;
+                }
             }
         } else if (keyCode == KeyEvent.KEYCODE_4) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "4");
-            isShiftClick = false;
-        } else if (keyCode == KeyEvent.KEYCODE_5) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "5");
-            isShiftClick = false;
-        } else if (keyCode == KeyEvent.KEYCODE_6) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "6");
-            isShiftClick = false;
-        } else if (keyCode == KeyEvent.KEYCODE_7) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "7");
-            isShiftClick = false;
-        } else if (keyCode == KeyEvent.KEYCODE_8) {
-            if(isShiftClick){// * 号
-                roomNumEt.setText("");
-                showRoomNumOpen();
-                starEnterDown = true;
-            }else {
+            if(!hasCallingVideo) {
                 showRoomNumOpen();
                 String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "8");
+                setInputData(oldNum, "4");
                 isShiftClick = false;
             }
+        } else if (keyCode == KeyEvent.KEYCODE_5) {
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "5");
+                isShiftClick = false;
+            }
+        } else if (keyCode == KeyEvent.KEYCODE_6) {
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "6");
+                isShiftClick = false;
+            }
+        } else if (keyCode == KeyEvent.KEYCODE_7) {
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "7");
+                isShiftClick = false;
+            }
+        } else if (keyCode == KeyEvent.KEYCODE_8) {
+            if(!hasCallingVideo) {
+                if (isShiftClick) {// * 号
+                    roomNumEt.setText("");
+                    showRoomNumOpen();
+                    starEnterDown = true;
+                } else {
+                    showRoomNumOpen();
+                    String oldNum = roomNumEt.getText().toString().trim();
+                    setInputData(oldNum, "8");
+                    isShiftClick = false;
+                }
+            }
         } else if (keyCode == KeyEvent.KEYCODE_9) {
-            showRoomNumOpen();
-            String oldNum = roomNumEt.getText().toString().trim();
-            setInputData(oldNum, "9");
-            isShiftClick = false;
-        } else if (keyCode == KeyEvent.KEYCODE_DEL) {//删除
-            deleteInputData();
+            if(!hasCallingVideo) {
+                showRoomNumOpen();
+                String oldNum = roomNumEt.getText().toString().trim();
+                setInputData(oldNum, "9");
+                isShiftClick = false;
+            }
         }
 
         return super.onKeyDown(keyCode, event);
@@ -821,7 +842,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             } else if (inputNum.length() == 4 || inputNum.length() == 6) {
                 showCallVideoLayout();
                 hasCallingVideo = true;
-
                 //根据房号获取userid，再拨视频通话
                 presenter.getUseridByRoom(inputNum);
 
