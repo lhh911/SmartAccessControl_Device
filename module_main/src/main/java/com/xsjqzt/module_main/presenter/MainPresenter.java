@@ -420,13 +420,14 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
 
-    public void getUseridByRoom(final String inputNum) {
+    public void getUseridByRoom(final String inputNum , int nextUser) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .getUseridByRoom(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), inputNum), RoomNumByUserIdResBean.class, new NetListeren<RoomNumByUserIdResBean>() {
+                .getUseridByRoom(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), inputNum,nextUser), RoomNumByUserIdResBean.class, new NetListeren<RoomNumByUserIdResBean>() {
             @Override
             public void onSuccess(RoomNumByUserIdResBean bean) {
+
                 if (mView != null)
-                    mView.getUseridByRoomSuccess(true,bean.getData().getId()+"",inputNum);
+                    mView.getUseridByRoomSuccess(true,bean.getData().getId()+"",inputNum );
             }
 
 
@@ -435,7 +436,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             public void onError(Exception e) {
                 super.onError(e);
                 if (mView != null)
-                    mView.getUseridByRoomSuccess(false,e.getMessage(),"");
+                    mView.getUseridByRoomSuccess(false,e.getMessage(),inputNum );
             }
         });
     }

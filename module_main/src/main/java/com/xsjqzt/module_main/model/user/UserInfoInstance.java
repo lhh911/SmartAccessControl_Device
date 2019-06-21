@@ -18,6 +18,7 @@ public class UserInfoInstance implements Parcelable {
     private String macAddress;
     private String sn1;
     private String sn2;
+    private String door;
 
     private UserInfoInstance(){}
 
@@ -153,5 +154,13 @@ public class UserInfoInstance implements Parcelable {
 
     public void setSn2(String sn2) {
         this.sn2 = sn2;
+    }
+
+    public String getDoor() {
+        return door;
+    }
+
+    public void setDoor(String door) {
+        this.door = door;
     }
 }

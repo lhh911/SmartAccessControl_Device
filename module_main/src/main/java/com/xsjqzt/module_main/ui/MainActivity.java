@@ -183,6 +183,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean hasCallSuccess;//拨打视频通话是否接通成功
     private boolean hasCallingVideo;//是否正在拨打视频通话
     private String remoteUserId ;// 远程开门是对方userid
+    private int nextUser= 0;//不通时，自动转呼一次，视频呼叫时第几个业主  0 第一个，1 第二个
+    private String inputNum;//输入号码
 
 
     @Override
@@ -271,6 +273,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         mSound.load(this, R.raw.open_success, 1);// 2
         mSound.load(this, R.raw.password_error, 1);// 3
         mSound.load(this, R.raw.noregist_face, 1);// 3
+        mSound.load(this, R.raw.calling_video, 1);// 呼叫中
+        mSound.load(this, R.raw.call_noreceive, 1);//业主未接听
+        mSound.load(this, R.raw.call_switch, 1);// 切换拨号中
     }
 
 
@@ -356,15 +361,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void initImageAd() {
         String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
         if(TextUtils.isEmpty(string)){
+            videoPlayer.setVisibility(View.GONE);
+            banner.setVisibility(View.GONE);
             return;
         }
+        List<String> images = JSON.parseArray(string, String.class);
+        if(images == null || images.size() < 1){
+            videoPlayer.setVisibility(View.GONE);
+            banner.setVisibility(View.GONE);
+            return;
+        }
+
         videoPlayer.setVisibility(View.GONE);
         banner.setVisibility(View.VISIBLE);
         banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR);
         //设置图片加载器
         banner.setImageLoader(new GlideImageLoader());
         //设置图片集合
-        banner.setImages(JSON.parseArray(string,String.class));
+        banner.setImages(images);
 //        banner.setImages(getImages());
 
         //banner设置方法全部调用完毕时最后调用
@@ -374,13 +388,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void initVideo() {
         String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_VIDEO_DATA, KeyContacts.SP_NAME_USERINFO);
         if (TextUtils.isEmpty(string)) {
+            videoPlayer.setVisibility(View.GONE);
+            banner.setVisibility(View.GONE);
             return;
         }
         List<String> videos = JSON.parseArray(string, String.class);
+        if(videos == null || videos.size() < 1){
+            videoPlayer.setVisibility(View.GONE);
+            banner.setVisibility(View.GONE);
+            return;
+        }
 
         banner.setVisibility(View.GONE);
         videoPlayer.setVisibility(View.VISIBLE);
-
 
 //        AssetFileDescriptor assetFileDescriptor = getAssets().openFd("ad_movice.mp4");
 //        Uri mUri = Uri.parse("android.resource://" + getPackageName() + "/"+ R.raw.ad_movice);
@@ -461,7 +481,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     endCall();
                     return true;
                 }
-                String inputNum = roomNumEt.getText().toString().trim();
+                inputNum = roomNumEt.getText().toString().trim();
                 if (TextUtils.isEmpty(inputNum) || inputNum.length()<4)
                     return true;
                 checkInput(inputNum);
@@ -842,8 +862,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             } else if (inputNum.length() == 4 || inputNum.length() == 6) {
                 showCallVideoLayout();
                 hasCallingVideo = true;
+
                 //根据房号获取userid，再拨视频通话
-                presenter.getUseridByRoom(inputNum);
+                presenter.getUseridByRoom(inputNum, nextUser);
+                startMusic(5);//呼叫中语音
 
                 //开始计时
                 startCallSuccessTime();
@@ -887,7 +909,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         callNumTv.setText(roomNum);
         try {//单参数
-            EMClient.getInstance().callManager().makeVideoCall(userId);
+            EMClient.getInstance().callManager().makeVideoCall(userId ,UserInfoInstance.getInstance().getDoor());
         } catch (EMServiceNotReadyException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -940,7 +962,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                     public void run() {
                                         onFaceResume();
                                     }
-                                },500);
+                                },1000);
 
 
 
@@ -975,6 +997,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 } else {
                                     error = "无法接通";
                                 }
+                                startMusic(6);//对方未接听
                                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
 
 
@@ -1131,6 +1154,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         hasCallingVideo = false;
         hasCallSuccess = false;
+
     }
 
     //开启免提
@@ -1191,10 +1215,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    //拨打视频通话，10秒计时，如果超过没接通，就中断
+    //拨打视频通话，15秒计时，如果超过没接通，就中断
     private void startCallSuccessTime() {
         InutLayoutShowTimeRunnable runnable = new InutLayoutShowTimeRunnable(this,2);
-        doorHandler.postDelayed(runnable, 10000);
+        doorHandler.postDelayed(runnable, 15000);
     }
 
 
@@ -1216,7 +1240,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public class InutLayoutShowTimeRunnable implements Runnable {
         WeakReference<Activity> weakReference = null;
-        int type ;// 1 按键10秒，2为拨号10秒
+        int type ;// 1 按键10秒，2为拨号15秒，定时器
 
         public InutLayoutShowTimeRunnable(Activity activity,int type) {
             weakReference = new WeakReference<>(activity);
@@ -1235,7 +1259,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }else if(type == 2){
                     if(!hasCallSuccess){
                         endCall();
+                        if(nextUser == 0){//没接听，拨打第二次
+                            nextUser++;
+                            presenter.getUseridByRoom(inputNum,nextUser);
+                            startMusic(7);//转接第二个人语音
+                        }else{
+                            nextUser = 0;
+                        }
+                    }else{
+                        nextUser = 0;
                     }
+
                 }
             }
         }
@@ -1246,11 +1280,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void hideRoomInputLayout() {
         roomNumLayout.setVisibility(View.GONE);
         roomNumEt.setText("");
-
-//        callVideoLayout.setVisibility(View.GONE);
-//        callStatusTv.setText("呼叫中");
-//        callNumTv.setText("");
-
         inputLayoutShow = false;
 
         mType = 0;
@@ -1559,6 +1588,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             String region_name = bean.getData().getRegion_name();
             String building_name = bean.getData().getBuilding_name();
             String name = bean.getData().getName();
+            UserInfoInstance.getInstance().setDoor(name);
 
             entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
 
@@ -1567,6 +1597,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void getUseridByRoomSuccess(boolean b, String userId, String roomNum) {
+
         if (b) {
             if(hasCallingVideo) {
                 remoteUserId = userId;
