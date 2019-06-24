@@ -14,7 +14,7 @@ public interface MainView extends BaseMvpView {
 
     void entranceDetailSuccess(EntranceDetailsResBean bean);
 
-    void getUseridByRoomSuccess(boolean b, String userId,String roomNum);
+    void getUseridByRoomSuccess(boolean b, int userId,String roomNum);
 
     void loadBannerSuccess();
 

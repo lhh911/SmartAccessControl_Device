@@ -387,13 +387,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                     mView.uploadCardSuccess(type, bean.getData().getId(), code);
             }
 
-            @Override
-            public void onStart() {
-            }
 
-            @Override
-            public void onEnd() {
-            }
 
             @Override
             public void onError(Exception e) {
@@ -420,23 +414,33 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
 
-    public void getUseridByRoom(final String inputNum , int nextUser) {
+    public void getUseridByRoom(final String inputNum , int user_id) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .getUseridByRoom(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), inputNum,nextUser), RoomNumByUserIdResBean.class, new NetListeren<RoomNumByUserIdResBean>() {
+                .getUseridByRoom(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), inputNum,user_id), RoomNumByUserIdResBean.class, new NetListeren<RoomNumByUserIdResBean>() {
             @Override
             public void onSuccess(RoomNumByUserIdResBean bean) {
 
                 if (mView != null)
-                    mView.getUseridByRoomSuccess(true,bean.getData().getId()+"",inputNum );
+                    mView.getUseridByRoomSuccess(true,bean.getData().getId(),inputNum );
             }
 
+            @Override
+            public void onStart() {
+                if(mView != null)
+                    mView.showLoading();
+            }
 
+            @Override
+            public void onEnd() {
+                if(mView != null)
+                    mView.hideLoading();
+            }
 
             @Override
             public void onError(Exception e) {
                 super.onError(e);
                 if (mView != null)
-                    mView.getUseridByRoomSuccess(false,e.getMessage(),inputNum );
+                    mView.getUseridByRoomSuccess(false,0,inputNum );
             }
         });
     }
@@ -489,7 +493,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-                super.onError(e);
+//                super.onError(e);
 
             }
         });

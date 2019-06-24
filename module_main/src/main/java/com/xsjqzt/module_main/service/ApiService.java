@@ -122,7 +122,7 @@ public interface ApiService {
     //根据房号获取userid
     @FormUrlEncoded
     @POST("entrance/data/get_userid_by_room")
-    Observable<ResponseBody> getUseridByRoom(@Header("Authorization") String token , @Field("room_code") String inputNum, @Field("next") int next);
+    Observable<ResponseBody> getUseridByRoom(@Header("Authorization") String token , @Field("room_code") String inputNum, @Field("user_id") int user_id);
 
     //获取广告位数据
     @FormUrlEncoded
