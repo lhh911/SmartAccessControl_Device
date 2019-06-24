@@ -39,15 +39,19 @@ import android.widget.Toast;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.fastjson.JSON;
+import com.hyphenate.EMCallBack;
 import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMCallManager;
 import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMVideoCallHelper;
 import com.hyphenate.easeui.ui.CallActivity;
 import com.hyphenate.easeui.ui.VideoCallActivity;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.hyphenate.exceptions.EMServiceNotReadyException;
+import com.hyphenate.util.EMLog;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
@@ -185,6 +189,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private String remoteUserId;// 远程开门是对方userid
     private int callUserId = 0;//不通时，自动转呼一次，视频呼叫时第几个业主  0 第一个，1 第二个
     private String inputNum;//输入号码
+    private EMCallManager.EMCallPushProvider pushProvider;
 
 
     @Override
@@ -904,7 +909,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         //通过房号获取到环信的账号名（接口）
         showCallVideoLayout();
-
+        setPushProvider();//设置不在线时发送离线通知
         callNumTv.setText(roomNum);
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
@@ -978,7 +983,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                                 String error = null;
                                 if (fError == CallError.REJECTED) {
-
                                     error = s1;
                                 } else if (fError == CallError.ERROR_TRANSPORT) {
                                     error = s2;
@@ -997,21 +1001,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 startMusic(6);//对方未接听
                                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
 
-
                             }
                         });
                         break;
                     case NETWORK_UNSTABLE: //网络不稳定
                         runOnUiThread(new Runnable() {
                             public void run() {
-//                                  if (error == CallError.ERROR_NO_DATA) {
-//                                      //无通话数据
-//                                  } else {
-//                                  }
                                 ToastUtil.showCustomToast("网络不稳定");
                             }
                         });
-
                         break;
                     case NETWORK_NORMAL: //网络恢复正常
                         runOnUiThread(new Runnable() {
@@ -1027,7 +1025,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
         };
         EMClient.getInstance().callManager().addCallStateChangeListener(callStateChangeListener);
-
 
         msgListener = new EMMessageListener() {
             @Override
@@ -1045,22 +1042,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             public void onCmdMessageReceived(List<EMMessage> messages) {
                 //收到透传消息
             }
-
             @Override
             public void onMessageRead(List<EMMessage> messages) {
                 //收到已读回执
             }
-
             @Override
             public void onMessageDelivered(List<EMMessage> message) {
                 //收到已送达回执
             }
-
             @Override
             public void onMessageRecalled(List<EMMessage> messages) {
                 //消息被撤回
             }
-
             @Override
             public void onMessageChanged(EMMessage message, Object change) {
                 //消息状态变动
@@ -1069,6 +1062,45 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         EMClient.getInstance().chatManager().addMessageListener(msgListener);
 
+    }
+
+    private void setPushProvider() {
+        pushProvider = new EMCallManager.EMCallPushProvider() {
+
+            void updateMessageText(final EMMessage oldMsg, final String to) {
+                // update local message text
+                EMConversation conv = EMClient.getInstance().chatManager().getConversation(oldMsg.getTo());
+                conv.removeMessage(oldMsg.getMsgId());
+            }
+
+            @Override
+            public void onRemoteOffline(final String to) {
+
+                LogUtil.d("onRemoteOffline, to:" + to);
+
+                final EMMessage message = EMMessage.createTxtSendMessage("您有一个视频电话呼入，请及时查看", to);
+                // set the user-defined extension field
+                message.setAttribute("em_apns_ext", true);
+                message.setAttribute("is_voice_call", true);
+                message.setMessageStatusCallback(new EMCallBack() {
+                    @Override
+                    public void onSuccess() {
+                        updateMessageText(message, to);
+                    }
+                    @Override
+                    public void onError(int code, String error) {
+                        updateMessageText(message, to);
+                    }
+                    @Override
+                    public void onProgress(int progress, String status) {
+                    }
+                });
+                // send messages
+                EMClient.getInstance().chatManager().sendMessage(message);
+            }
+        };
+
+        EMClient.getInstance().callManager().setPushProvider(pushProvider);
     }
 
 
@@ -1149,6 +1181,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         hasCallingVideo = false;
         hasCallSuccess = false;
 
+        if (pushProvider != null) {
+            EMClient.getInstance().callManager().setPushProvider(null);
+            pushProvider = null;
+        }
     }
 
     //开启免提
