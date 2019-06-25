@@ -190,6 +190,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int callUserId = 0;//不通时，自动转呼一次，视频呼叫时第几个业主  0 第一个，1 第二个
     private String inputNum;//输入号码
     private EMCallManager.EMCallPushProvider pushProvider;
+    private InutLayoutShowTimeRunnable callRunnable;
 
 
     @Override
@@ -454,11 +455,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (mType == 1) {
-                hideRoomInputLayout();
-            } else if (mType == 2) {
-                hideCallVideoLayout();
-            }
+//            if (mType == 1) {
+//                hideRoomInputLayout();
+//            } else if (mType == 2) {
+//                hideCallVideoLayout();
+//            }
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_0) {
             if (!hasCallingVideo) {
@@ -467,6 +468,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "0");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_1) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -474,6 +476,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "1");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_2) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -481,10 +484,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "2");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_3) {
             if (isShiftClick) {// # 号
+                isShiftClick = false;
                 if (hasCallingVideo) {
                     endCall();
+                    faceOnResuse();
                     return true;
                 }
                 inputNum = roomNumEt.getText().toString().trim();
@@ -500,6 +506,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     isShiftClick = false;
                 }
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_4) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -507,6 +514,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "4");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_5) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -514,6 +522,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "5");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_6) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -521,6 +530,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "6");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_7) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -528,6 +538,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "7");
                 isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_8) {
             if (!hasCallingVideo) {
                 if (isShiftClick) {// * 号
@@ -538,9 +549,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     showRoomNumOpen();
                     String oldNum = roomNumEt.getText().toString().trim();
                     setInputData(oldNum, "8");
-                    isShiftClick = false;
                 }
+                isShiftClick = false;
             }
+            return true;
         } else if (keyCode == KeyEvent.KEYCODE_9) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
@@ -548,6 +560,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "9");
                 isShiftClick = false;
             }
+            return true;
         }
 
         return super.onKeyDown(keyCode, event);
@@ -960,12 +973,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 ToastUtil.showCustomToast("电话断了");
 
                                 endCall();
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        onFaceResume();
-                                    }
-                                }, 1000);
+                                faceOnResuse();
 
 
                                 String s1 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_refused_to_accept);
@@ -1157,9 +1165,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void endCall() {
         try {
             if (callStateChangeListener != null) {
+                EMClient.getInstance().callManager().endCall();
                 EMClient.getInstance().callManager().removeCallStateChangeListener(callStateChangeListener);
                 callStateChangeListener = null;
-                EMClient.getInstance().callManager().endCall();
             }
 
         } catch (EMNoActiveCallException e) {
@@ -1176,6 +1184,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
 
         removeTask();
+        removeCallChecked();
         hideCallVideoLayout();
 
         hasCallingVideo = false;
@@ -1244,8 +1253,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //拨打视频通话，15秒计时，如果超过没接通，就中断，拨打第二次
     private void startCallSuccessTime() {
-        InutLayoutShowTimeRunnable runnable = new InutLayoutShowTimeRunnable(this, 2);
-        doorHandler.postDelayed(runnable, 15000);
+        if (callRunnable != null ) {
+            doorHandler.removeCallbacks(callRunnable);
+        }
+
+        if (callRunnable == null) {
+            callRunnable = new InutLayoutShowTimeRunnable(this, 2);
+        }
+
+        doorHandler.postDelayed(callRunnable, 15000);
+    }
+
+    private void removeCallChecked(){
+        if (callRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(callRunnable);
+            callRunnable = null;
+        }
     }
 
 
@@ -1627,12 +1650,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
         } else {
             endCall();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    onFaceResume();
-                }
-            }, 500);
+            faceOnResuse();
         }
     }
 
@@ -2008,6 +2026,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         // mIRCameraView.setVisibility(View.GONE);
     }
 
+
+    private void faceOnResuse(){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onFaceResume();
+            }
+        }, 500);
+    }
 
 }
 

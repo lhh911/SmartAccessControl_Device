@@ -13,11 +13,10 @@ android {
         multiDexEnabled true
 
 
-
         ndk {
             //选择要添加的对应 cpu 类型的 .so 库。
-            abiFilters 'armeabi', 'armeabi-v7a', 'x86', 'x86_64'//,'arm64-v8a', 'mips', 'mips64'
-            // 还可以添加 'x86', 'x86_64'
+            abiFilters 'armeabi', 'armeabi-v7a', 'x86'//,'arm64-v8a'//, 'mips', 'mips64'
+//            abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
         }
 
         manifestPlaceholders = [
@@ -72,6 +71,11 @@ android {
         debug {
             signingConfig signingConfigs.coyoteConfig
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 

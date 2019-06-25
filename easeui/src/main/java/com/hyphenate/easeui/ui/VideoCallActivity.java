@@ -557,7 +557,7 @@ public class VideoCallActivity extends CallActivity implements OnClickListener {
             endCallTriggerByMe = true;
             callStateTextView.setText(getResources().getString(R.string.hanging_up));
             if (isRecording) {
-                callHelper.stopVideoRecord();
+//                callHelper.stopVideoRecord();
             }
             EMLog.d(TAG, "btn_hangup_call");
             handler.sendEmptyMessage(MSG_CALL_END);
@@ -629,7 +629,7 @@ public class VideoCallActivity extends CallActivity implements OnClickListener {
             Date d = new Date();
             File storage = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             final String filename = storage.getAbsolutePath() + "/" + df.format("MM-dd-yy--h-mm-ss", d) + ".jpg";
-            EMClient.getInstance().callManager().getVideoCallHelper().takePicture(filename);
+//            EMClient.getInstance().callManager().getVideoCallHelper().takePicture(filename);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -646,7 +646,7 @@ public class VideoCallActivity extends CallActivity implements OnClickListener {
         isVideoCalling = false;
         stopMonitor();
         if (isRecording) {
-            callHelper.stopVideoRecord();
+//            callHelper.stopVideoRecord();
             isRecording = false;
         }
         localSurface.getRenderer().dispose();
