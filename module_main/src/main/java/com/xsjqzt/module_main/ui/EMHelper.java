@@ -71,7 +71,8 @@ public class EMHelper {
         appContext = context;
         //初始化sdk，检查并自动登录
         EMClient.getInstance().init(context, initChatOptions());
-        EMClient.getInstance().callManager().getCallOptions().setIsSendPushIfOffline(false);//离线时发送离线通知
+        // Offline call push
+        EMClient.getInstance().callManager().getCallOptions().setIsSendPushIfOffline(true);
         setGlobalListeners();
         broadcastManager = LocalBroadcastManager.getInstance(appContext);
 

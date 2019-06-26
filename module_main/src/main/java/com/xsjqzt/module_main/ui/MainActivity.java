@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.fastjson.JSON;
 import com.hyphenate.EMCallBack;
+import com.hyphenate.EMError;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMCallManager;
 import com.hyphenate.chat.EMCallStateChangeListener;
@@ -150,7 +151,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
-    private TextView roomNumEt;
+    private EditText roomNumEt;
     private LinearLayout inputNumLayout;//输入框父布局
 //    private ImgTextView successLayout, errorLayout;//成功和识别布局
 //    private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
@@ -880,12 +881,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                 hasCallingVideo = true;
 
+                callUserId = 0;//清零
                 //根据房号获取userid，再拨视频通话
                 presenter.getUseridByRoom(inputNum, callUserId);
                 startMusic(5);//呼叫中语音
 
                 //开始计时
-                callUserId = 0;//清零
                 startCallSuccessTime();
             } else {
                 ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
@@ -926,9 +927,29 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv.setText(roomNum);
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
-        } catch (EMServiceNotReadyException e) {
-            // TODO Auto-generated catch block
+        } catch (final EMServiceNotReadyException e) {
             e.printStackTrace();
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    String st2 = e.getMessage();
+                    if (e.getErrorCode() == EMError.CALL_REMOTE_OFFLINE) {
+                        st2 = getResources().getString(R.string.The_other_is_not_online);
+                        startMusic(6);//对方未接听
+                    } else if (e.getErrorCode() == EMError.USER_NOT_LOGIN) {
+                        st2 = getResources().getString(R.string.Is_not_yet_connected_to_the_server);
+                    } else if (e.getErrorCode() == EMError.INVALID_USER_NAME) {
+                        st2 = getResources().getString(R.string.illegal_user_name);
+                    } else if (e.getErrorCode() == EMError.CALL_BUSY) {
+                        st2 = getResources().getString(R.string.The_other_is_on_the_phone);
+                        startMusic(6);//对方未接听
+                    } else if (e.getErrorCode() == EMError.NETWORK_ERROR) {
+                        st2 = getResources().getString(R.string.can_not_connect_chat_server_connection);
+                    }
+                    Toast.makeText(MainActivity.this, st2, Toast.LENGTH_SHORT).show();
+
+
+                }
+            });
         }
         onFacePause();
 
@@ -975,19 +996,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 endCall();
                                 faceOnResuse();
 
-
                                 String s1 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_refused_to_accept);
                                 String s2 = getResources().getString(com.hyphenate.easeui.R.string.Connection_failure);
                                 String s3 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_is_not_online);
                                 String s4 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_on_the_phone_please);
                                 String s5 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_did_not_answer);
-
-                                String s6 = getResources().getString(com.hyphenate.easeui.R.string.hang_up);
-                                String s7 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_hang_up);
-                                String s8 = getResources().getString(com.hyphenate.easeui.R.string.did_not_answer);
-                                String s9 = getResources().getString(com.hyphenate.easeui.R.string.Has_been_cancelled);
-                                String s10 = getResources().getString(com.hyphenate.easeui.R.string.Refused);
-
 
                                 String error = null;
                                 if (fError == CallError.REJECTED) {
@@ -1006,8 +1019,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 } else {
                                     error = "无法接通";
                                 }
-                                startMusic(6);//对方未接听
-                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
+//                                startMusic(6);//对方未接听
+//                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
 
                             }
                         });
@@ -1310,8 +1323,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     if (!hasCallSuccess) {
                         endCall();
 
-                        presenter.getUseridByRoom(inputNum, callUserId);
                         startMusic(7);//转接第二个人语音
+                        doorHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                presenter.getUseridByRoom(inputNum, callUserId);
+                            }
+                        },1000);
+
 
                     }
                 }
@@ -1509,7 +1528,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-        open();
+//        open();
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             onFaceResume();
@@ -1646,6 +1665,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             if (hasCallingVideo) {
                 remoteUserId = userId + "";
                 callUserId = userId;
+                inputNum = roomNum;
                 callVideo(userId + "", roomNum);
             }
         } else {
@@ -2028,6 +2048,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     private void faceOnResuse(){
+        callUserId = 0;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
