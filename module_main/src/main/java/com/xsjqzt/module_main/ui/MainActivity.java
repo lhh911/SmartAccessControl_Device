@@ -923,8 +923,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         //通过房号获取到环信的账号名（接口）
         showCallVideoLayout();
-        setPushProvider();//设置不在线时发送离线通知
+        setPushProviderAndListeren();//设置不在线时发送离线通知
         callNumTv.setText(roomNum);
+
+        onFacePause();
+
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
         } catch (final EMServiceNotReadyException e) {
@@ -947,11 +950,56 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     }
                     Toast.makeText(MainActivity.this, st2, Toast.LENGTH_SHORT).show();
 
-
+                    endCall();
+                    faceOnResuse();
                 }
             });
         }
-        onFacePause();
+
+
+    }
+
+    private void setPushProviderAndListeren() {
+
+        pushProvider = new EMCallManager.EMCallPushProvider() {
+
+            void updateMessageText(final EMMessage oldMsg, final String to) {
+                // update local message text
+                EMConversation conv = EMClient.getInstance().chatManager().getConversation(oldMsg.getTo());
+                conv.removeMessage(oldMsg.getMsgId());
+            }
+
+            @Override
+            public void onRemoteOffline(final String to) {
+
+                LogUtil.d("onRemoteOffline, to:" + to);
+
+                final EMMessage message = EMMessage.createTxtSendMessage("您有一个视频电话呼入，请及时查看", to);
+                // set the user-defined extension field
+                message.setAttribute("em_apns_ext", true);
+                message.setAttribute("is_voice_call", true);
+                message.setMessageStatusCallback(new EMCallBack() {
+                    @Override
+                    public void onSuccess() {
+                        updateMessageText(message, to);
+                    }
+
+                    @Override
+                    public void onError(int code, String error) {
+                        updateMessageText(message, to);
+                    }
+
+                    @Override
+                    public void onProgress(int progress, String status) {
+                    }
+                });
+                // send messages
+                EMClient.getInstance().chatManager().sendMessage(message);
+            }
+        };
+
+        EMClient.getInstance().callManager().setPushProvider(pushProvider);
+
 
         callStateChangeListener = new EMCallStateChangeListener() {
             @Override
@@ -1002,23 +1050,23 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 String s4 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_on_the_phone_please);
                                 String s5 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_did_not_answer);
 
-                                String error = null;
-                                if (fError == CallError.REJECTED) {
-                                    error = s1;
-                                } else if (fError == CallError.ERROR_TRANSPORT) {
-                                    error = s2;
-                                } else if (fError == CallError.ERROR_UNAVAILABLE) {
-                                    error = s3;
-                                } else if (fError == CallError.ERROR_BUSY) {
-                                    error = s4;
-                                } else if (fError == CallError.ERROR_NORESPONSE) {
-                                    error = s5;
-                                } else if (fError == CallError.ERROR_LOCAL_SDK_VERSION_OUTDATED || fError == CallError.ERROR_REMOTE_SDK_VERSION_OUTDATED) {
-                                    error = getResources().getString(com.hyphenate.easeui.R.string.call_version_inconsistent);
-
-                                } else {
-                                    error = "无法接通";
-                                }
+//                                String error = null;
+//                                if (fError == CallError.REJECTED) {
+//                                    error = s1;
+//                                } else if (fError == CallError.ERROR_TRANSPORT) {
+//                                    error = s2;
+//                                } else if (fError == CallError.ERROR_UNAVAILABLE) {
+//                                    error = s3;
+//                                } else if (fError == CallError.ERROR_BUSY) {
+//                                    error = s4;
+//                                } else if (fError == CallError.ERROR_NORESPONSE) {
+//                                    error = s5;
+//                                } else if (fError == CallError.ERROR_LOCAL_SDK_VERSION_OUTDATED || fError == CallError.ERROR_REMOTE_SDK_VERSION_OUTDATED) {
+//                                    error = getResources().getString(com.hyphenate.easeui.R.string.call_version_inconsistent);
+//
+//                                } else {
+//                                    error = "无法接通";
+//                                }
 //                                startMusic(6);//对方未接听
 //                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
 
@@ -1063,18 +1111,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             public void onCmdMessageReceived(List<EMMessage> messages) {
                 //收到透传消息
             }
+
             @Override
             public void onMessageRead(List<EMMessage> messages) {
                 //收到已读回执
             }
+
             @Override
             public void onMessageDelivered(List<EMMessage> message) {
                 //收到已送达回执
             }
+
             @Override
             public void onMessageRecalled(List<EMMessage> messages) {
                 //消息被撤回
             }
+
             @Override
             public void onMessageChanged(EMMessage message, Object change) {
                 //消息状态变动
@@ -1083,45 +1135,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         EMClient.getInstance().chatManager().addMessageListener(msgListener);
 
-    }
-
-    private void setPushProvider() {
-        pushProvider = new EMCallManager.EMCallPushProvider() {
-
-            void updateMessageText(final EMMessage oldMsg, final String to) {
-                // update local message text
-                EMConversation conv = EMClient.getInstance().chatManager().getConversation(oldMsg.getTo());
-                conv.removeMessage(oldMsg.getMsgId());
-            }
-
-            @Override
-            public void onRemoteOffline(final String to) {
-
-                LogUtil.d("onRemoteOffline, to:" + to);
-
-                final EMMessage message = EMMessage.createTxtSendMessage("您有一个视频电话呼入，请及时查看", to);
-                // set the user-defined extension field
-                message.setAttribute("em_apns_ext", true);
-                message.setAttribute("is_voice_call", true);
-                message.setMessageStatusCallback(new EMCallBack() {
-                    @Override
-                    public void onSuccess() {
-                        updateMessageText(message, to);
-                    }
-                    @Override
-                    public void onError(int code, String error) {
-                        updateMessageText(message, to);
-                    }
-                    @Override
-                    public void onProgress(int progress, String status) {
-                    }
-                });
-                // send messages
-                EMClient.getInstance().chatManager().sendMessage(message);
-            }
-        };
-
-        EMClient.getInstance().callManager().setPushProvider(pushProvider);
     }
 
 
@@ -1177,15 +1190,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void endCall() {
         try {
-            if (callStateChangeListener != null) {
-                EMClient.getInstance().callManager().endCall();
-                EMClient.getInstance().callManager().removeCallStateChangeListener(callStateChangeListener);
-                callStateChangeListener = null;
-            }
-
+            EMClient.getInstance().callManager().endCall();
         } catch (EMNoActiveCallException e) {
             e.printStackTrace();
         }
+        if (callStateChangeListener != null) {
+
+            EMClient.getInstance().callManager().removeCallStateChangeListener(callStateChangeListener);
+            callStateChangeListener = null;
+        }
+
         if (msgListener != null) {
             EMClient.getInstance().chatManager().removeMessageListener(msgListener);
             msgListener = null;
@@ -1195,6 +1209,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             audioManager.setMicrophoneMute(false);
             audioManager = null;
         }
+
 
         removeTask();
         removeCallChecked();
@@ -1247,26 +1262,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         roomNumEt.setText(oldNum + inputNum);
     }
 
-    //显示密码输入框开门ui
-    private void showRoomNumOpen() {
-
-        startShowTime = System.currentTimeMillis();
-        startShowLayoutTime();
-        if (!inputLayoutShow) {
-            roomNumLayout.setVisibility(View.VISIBLE);
-            showAnim(roomNumLayout);
-
-            callVideoLayout.setVisibility(View.GONE);
-            mType = 1;
-            inputLayoutShow = true;
-        }
-
-    }
-
 
     //拨打视频通话，15秒计时，如果超过没接通，就中断，拨打第二次
+    private int callVideoTimeOut = 15000;
     private void startCallSuccessTime() {
-        if (callRunnable != null ) {
+        if (callRunnable != null) {
             doorHandler.removeCallbacks(callRunnable);
         }
 
@@ -1274,14 +1274,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             callRunnable = new InutLayoutShowTimeRunnable(this, 2);
         }
 
-        doorHandler.postDelayed(callRunnable, 15000);
+        doorHandler.postDelayed(callRunnable, callVideoTimeOut);
     }
 
-    private void removeCallChecked(){
+    private void removeCallChecked() {
         if (callRunnable != null && doorHandler != null) {
             doorHandler.removeCallbacks(callRunnable);
             callRunnable = null;
         }
+    }
+
+    //切换业主第二次拨号时间检查
+    private void startTwoCallVideoTime() {
+        InutLayoutShowTimeRunnable runnable = new InutLayoutShowTimeRunnable(this, 3);
+
+        doorHandler.postDelayed(runnable, callVideoTimeOut);
+
     }
 
 
@@ -1297,7 +1305,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
 
         doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10000);
-
 
     }
 
@@ -1324,20 +1331,44 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         endCall();
 
                         startMusic(7);//转接第二个人语音
-                        doorHandler.postDelayed(new Runnable() {
+                        new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
+                                hasCallingVideo = true;
                                 presenter.getUseridByRoom(inputNum, callUserId);
+                                startTwoCallVideoTime();
                             }
-                        },1000);
-
-
+                        }, 1500);
+                    }
+                }else if (type == 3) {
+                    if (!hasCallSuccess) {
+                        endCall();
+                        faceOnResuse();
                     }
                 }
             }
         }
     }
 
+
+
+
+
+    //显示密码输入框开门ui
+    private void showRoomNumOpen() {
+
+        startShowTime = System.currentTimeMillis();
+        startShowLayoutTime();
+        if (!inputLayoutShow) {
+            roomNumLayout.setVisibility(View.VISIBLE);
+//            showAnim(roomNumLayout);
+
+            callVideoLayout.setVisibility(View.GONE);
+            mType = 1;
+            inputLayoutShow = true;
+        }
+
+    }
 
     //掩藏所有底部输入布局
     private void hideRoomInputLayout() {
@@ -1352,16 +1383,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void showCallVideoLayout() {
         roomNumLayout.setVisibility(View.GONE);
         callVideoLayout.setVisibility(View.VISIBLE);
-        showAnim(callVideoLayout);
+//        showAnim(callVideoLayout);
         mType = 0;
     }
 
     //单独掩藏视频通话ui
     private void hideCallVideoLayout() {
         callVideoLayout.setVisibility(View.GONE);
-        callStatusTv.setText("呼叫中");
+        callStatusTv.setText("呼叫中，请稍候...");
         callNumTv.setText("");
-        dismissAnim(callVideoLayout);
+//        dismissAnim(callVideoLayout);
         mType = 0;
     }
 
@@ -2047,7 +2078,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    private void faceOnResuse(){
+    private void faceOnResuse() {
         callUserId = 0;
         new Handler().postDelayed(new Runnable() {
             @Override
