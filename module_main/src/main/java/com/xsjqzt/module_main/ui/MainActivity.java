@@ -1264,7 +1264,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //拨打视频通话，15秒计时，如果超过没接通，就中断，拨打第二次
-    private int callVideoTimeOut = 15000;
+    private int callVideoTimeOut = 20000;
     private void startCallSuccessTime() {
         if (callRunnable != null) {
             doorHandler.removeCallbacks(callRunnable);
@@ -1344,6 +1344,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     if (!hasCallSuccess) {
                         endCall();
                         faceOnResuse();
+                        ToastUtil.showCustomToast("对方不在线或未接听");
                     }
                 }
             }
@@ -1810,7 +1811,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mConfig.sdkAngle = mConfig.sdkAngle == -1 ? getSdkOrientation(mConfig.cameraFacing) : mConfig.sdkAngle;
                             //初始化算法sdk
                             FaceResult result = faceSet.startTrack(mConfig.sdkAngle);
-                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
+//                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
                             //保存配置
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
 
