@@ -53,7 +53,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private MyHandler doorHandler;
     //串口
     private SerialHelper serialHelper;
-    private String sPort = "/dev/ttyS3";
+    private String sPort = "/dev/ttyS1";
     private int iBaudRate = 115200;
     private boolean isShiftClick;
 
@@ -92,7 +92,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     }
 
     private void createQrCode() {
-        int width = CommUtil.dp2px(140);
+        int width = CommUtil.dp2px(130);
         qrCodeLayout.setVisibility(View.VISIBLE);
         Bitmap qrCode = CodeCreator.createQRCode(qrCodeNum, width, width, null);
 

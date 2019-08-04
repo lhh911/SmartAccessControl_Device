@@ -21,6 +21,7 @@ import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -123,6 +124,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
@@ -266,7 +268,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         emLoginUser();
 
         loadDeviceInfo();
-//        loadBanner();
+        loadBanner();
 
         initFaceCamera();
         initFaceEvent();
@@ -502,7 +504,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 } else {
                     LogUtil.w("keycode : " + "# 号拨号");
                     inputNum = roomNumEt.getText().toString().trim();
-                    if (!TextUtils.isEmpty(inputNum) && inputNum.length() >= 4)
+                    if (!TextUtils.isEmpty(inputNum) )
                         checkInput(inputNum);
                 }
 
@@ -855,7 +857,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         hideRoomInputLayout();
         if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
-            starEnterDown = false;
+
             if ("000".equals(inputNum)) {
                 goTo(SystemInfoActivity.class);
             } else if ("101".equals(inputNum)) {
@@ -901,7 +903,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             }
 
         }
-
+        starEnterDown = false;
     }
 
 
@@ -1601,7 +1603,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     }
-
+    long lastOpenTime = 0;
     public class MyHandler extends Handler {
         private WeakReference<Activity> weakReference;
 
@@ -1621,22 +1623,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         Gpio.setPull('0', 4, 1);
                         Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
                         Gpio.writeGpio('O', 4, 1);
-//                        Gpio.RelayOnOff(1);
+
                         uploadRecord(type, sn);
                         startMusic(2);
                         MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
-//                        onFacePause();
                         break;
                     case 2:
                         // close door;
-//                        onFaceResume();
 
                         Gpio.setPull('0', 4, 1);
                         Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
                         Gpio.writeGpio('O', 4, 0);
-                        isFacePause = false;
+//                        isFacePause = false;
                         break;
                     case 3:
                         String str = (String) msg.obj;
@@ -1738,6 +1738,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         yuvimage.compressToJpeg(new Rect(0, 0, 640,
                 460), 100, baos);
         Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
+
         return bitmap;
     }
 
@@ -1748,10 +1749,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         if (bitmapBytes != null) {
             Bitmap bitmap = getCameraBitmap();
+//
+            bitmap = BitmapUtil.rotateBitmap(90 , bitmap);
             Utils.saveBitmap(file.getPath(), bitmap);
-
-        } else {
-            Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(homebgIv));
         }
 
 
@@ -1770,20 +1770,25 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private long faceErrorStartTime;//人脸识别上一次提示的时间
-    private boolean isFacePause;//人脸识别成功后禁止再提示，等关锁后才能再触发提示
+//    private boolean isFacePause;//人脸识别成功后禁止再提示，等关锁后才能再触发提示
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
         if (bean.isRegist) {
-            if (!isFacePause) {
-                isFacePause = true;
+//            if (!isFacePause) {
+//                isFacePause = true;
+
+            long currentTime = System.currentTimeMillis();
+            if(currentTime -  lastOpenTime >= 2000){
+                lastOpenTime = currentTime;
                 Message msg = Message.obtain();
                 msg.what = 1;
                 msg.arg1 = 4;
                 msg.obj = String.valueOf(bean.user_id);
                 doorHandler.sendMessage(msg);
-
             }
+
+//            }
         } else {
             long now = System.currentTimeMillis();
             if (now - faceErrorStartTime > 3000) {

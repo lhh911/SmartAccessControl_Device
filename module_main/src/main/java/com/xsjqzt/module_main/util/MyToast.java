@@ -32,7 +32,7 @@ public class MyToast {
         parentLl.setLayoutParams(params);
         customToast.setView(view);
         customToast.setGravity(Gravity.BOTTOM|Gravity.FILL_HORIZONTAL,0,0);
-        customToast.setDuration(Toast.LENGTH_LONG);
+        customToast.setDuration(Toast.LENGTH_SHORT);
         customToast.show();
     }
 

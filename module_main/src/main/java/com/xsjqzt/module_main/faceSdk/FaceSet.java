@@ -219,7 +219,7 @@ public class FaceSet {
 
         float[] rect = new float[4];
         float[] faceFeature = faceTrack.getFaceFeatureFromBitmapNss(bitmap, rect);
-        if(faceFeature == null){//
+        if (faceFeature == null) {//
             result.code = 200;
             result.msg = "注册人脸失败";
             return result;
@@ -693,23 +693,18 @@ public class FaceSet {
                 break;
         }
         //人脸识别
-        if (isRecog && ymFace.getLiveness() == 1) {
+        if (isRecog) {
             int identifyPerson = -111;
-            if (!trackingMap.containsKey(trackId) || trackingMap.get(trackId).getPersonId() <= 0) {
-                //人脸识别：identifyPerson>0 为识别成功，identifyPerson为识别对应人脸的personid identifyPerson<0  即该人脸未注册
+            android.util.Log.d("wlDebug", "ymFace.getLiveness().... getConfidence" + ymFace.getConfidence());
+            android.util.Log.d("wlDebug", "ymFace.getLiveness().... getLiveness" + ymFace.getLiveness());
+
+            if (ymFace.getConfidence() >= 75 && ymFace.getLiveness() == 1) {
                 identifyPerson = faceTrack.identifyPerson(i);
                 int confidence = faceTrack.getRecognitionConfidence();
-                float[] faceFeature = faceTrack.getFaceFeature(i);//特征值（貌似识别时不唯一）
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
-//                    Map<Integer, User> userMap = UserDataUtil.updateDataSource(true);//查询数据库注册用户
-//                    User user = userMap.get(identifyPerson);
-//                    String name = user.getName();
-//                    int user_id = 0;
-//                    try {
-//                        user_id = Integer.parseInt(name);
-//                    }catch (Exception e){
-//                    }
+                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
+                    // 当liveeness == 1时活体识别通过;
                     int user_id = 0;
                     FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
                             .where(FaceImageDao.Properties.PersonId.eq(identifyPerson)).unique();
@@ -720,12 +715,28 @@ public class FaceSet {
                     LogUtil.w("user_id" + user_id);
                     EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 
+                }
+            }
+
+            if (!trackingMap.containsKey(trackId) || trackingMap.get(trackId).getPersonId() <= 0) {
+                //人脸识别：identifyPerson>0 为识别成功，identifyPerson为识别对应人脸的personid identifyPerson<0  即该人脸未注册
+                identifyPerson = faceTrack.identifyPerson(i);
+                int confidence = faceTrack.getRecognitionConfidence();
+//                float[] faceFeature = faceTrack.getFaceFeature(i);//特征值（貌似识别时不唯一）
+                ymFace.setIdentifiedPerson(identifyPerson, confidence);
+                if (identifyPerson >= 0) {
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
                     if (ymFace.getLiveness() == 1) {
-//                        String code = DataConversionUtil.floatToString(ymFace.getRect());
-//                        FaceImage faceImage = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.Code.eq(code)).unique();
-//                        if(faceImage != null)//数据库有这个人注册的数据
+//                        int user_id = 0;
+//                        FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+//                                .where(FaceImageDao.Properties.PersonId.eq(identifyPerson)).unique();
+//                        if (unique != null) {
+//                            user_id = unique.getUser_id();
+//                        }
+//
+//                        LogUtil.w("user_id" + user_id);
+//                        EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 
                     }
                 } else {//未注册
