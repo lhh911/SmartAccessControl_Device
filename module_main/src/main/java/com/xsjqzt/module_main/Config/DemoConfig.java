@@ -9,19 +9,19 @@ import java.io.Serializable;
 
 public class DemoConfig implements Serializable {
     //默认开启cameraId
-    public int cameraFacing = CameraView.FACING_FRONT;
+    public int cameraFacing = CameraView.FACING_BACK;
     //是否多人识别
     public boolean isMulti = false;
     public boolean isAdjustView = true;
     //后置摄像头绘制左右翻转
     public boolean screenrRotate90 = false;
     //特殊设备摄像头绘制左右翻转
-    public boolean specialCameraLeftRightReverse = false;
+    public boolean specialCameraLeftRightReverse = true;
     //特殊设备摄像头绘制上下翻转
     public boolean specialCameraTopDownReverse = false;
     //默认预览分辨率
-    public int previewSizeWidth = 1920;
-    public int previewSizeHeight = 1080;
+    public int previewSizeWidth = 640;
+    public int previewSizeHeight = 480;
     //默认预览缩放比例
     public float screenZoon = 1;
     //ir默认预览缩放比例
@@ -51,5 +51,24 @@ public class DemoConfig implements Serializable {
         if (!file.exists()) {
             file.mkdirs();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DemoConfig{" +
+                "cameraFacing=" + cameraFacing +
+                ", isMulti=" + isMulti +
+                ", isAdjustView=" + isAdjustView +
+                ", screenrRotate90=" + screenrRotate90 +
+                ", specialCameraLeftRightReverse=" + specialCameraLeftRightReverse +
+                ", specialCameraTopDownReverse=" + specialCameraTopDownReverse +
+                ", previewSizeWidth=" + previewSizeWidth +
+                ", previewSizeHeight=" + previewSizeHeight +
+                ", screenZoon=" + screenZoon +
+                ", screenIrZoon=" + screenIrZoon +
+                ", sdkAngle=" + sdkAngle +
+                ", cameraAngle=" + cameraAngle +
+                ", isDrawIr=" + isDrawIr +
+                '}';
     }
 }

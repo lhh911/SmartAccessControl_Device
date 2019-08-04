@@ -61,7 +61,7 @@ dependencies {
     api 'org.greenrobot:greendao:3.2.2'
     //greendao数据库lib
     annotationProcessor "com.alibaba:arouter-compiler:$rootProject.annotationProcessorVersion"
-    implementation files('libs/Gpio908F.jar')
+//    implementation files('libs/Gpio908F.jar')
 //    implementation 'tp.xmaihh:serialport:2.0'
 
     implementation files('libs/libreadface.jar')
@@ -76,7 +76,7 @@ dependencies {
     implementation 'com.android.support:cardview-v7:27.1.1'
 
 
-    compile 'com.tencent.bugly:crashreport:latest.release' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
-    compile 'com.tencent.bugly:nativecrashreport:latest.release' //其中latest.release指代最新Bugly NDK版本号，也可以指定明确的
+    api 'com.tencent.bugly:crashreport:latest.release' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
+    api 'com.tencent.bugly:nativecrashreport:latest.release' //其中latest.release指代最新Bugly NDK版本号，也可以指定明确的
 
 }

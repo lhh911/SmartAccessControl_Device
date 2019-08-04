@@ -89,7 +89,7 @@ public class TrackDrawUtil {
                 //每一行文字的高度
                 float fHeight = fontMetrics.bottom - fontMetrics.top;
                 //绘画人脸框
-                drawRect(canvas, xy.mX + 80, xy.mY + 100, xy.mWidth, faceInfo, fHeight, viewW, viewH);
+                drawRect(canvas, xy.mX, xy.mY, xy.mWidth, faceInfo, fHeight, viewW, viewH);
 
                 if (mConfig.isDrawIr) {
                     viewW = (int) (viewW * zoom);
@@ -262,7 +262,7 @@ public class TrackDrawUtil {
         int num = 6;
 
         // 是否绘制人脸虚线框 wlDebug;
-        // drawFaceInfo(canvas, faceInfo, x1, y1, rect_width, fontH * 10, fontH * num, fontH, viewW, viewH);
+        drawFaceInfo(canvas, faceInfo, x1, y1, rect_width, fontH * 10, fontH * num, fontH, viewW, viewH);
     }
 
     private static void drawFaceInfo(Canvas canvas, FaceInfo faceInfo, float x1, float y1, float rect_width, float w, float h, float fontH, float viewW, float viewH) {

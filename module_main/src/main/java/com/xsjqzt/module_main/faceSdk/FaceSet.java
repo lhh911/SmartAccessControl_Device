@@ -219,7 +219,7 @@ public class FaceSet {
 
         float[] rect = new float[4];
         float[] faceFeature = faceTrack.getFaceFeatureFromBitmapNss(bitmap, rect);
-        if(faceFeature == null){
+        if(faceFeature == null){//
             result.code = 200;
             result.msg = "注册人脸失败";
             return result;

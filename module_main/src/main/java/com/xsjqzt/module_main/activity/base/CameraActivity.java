@@ -253,7 +253,7 @@ public abstract class CameraActivity extends BaseActivity {
             if (facing == 0) sdkOrientation = 90;  //竖屏后置
             else sdkOrientation = 270;//竖屏前置
         }
-        return 0;
+        return sdkOrientation;
     }
 
     /**
