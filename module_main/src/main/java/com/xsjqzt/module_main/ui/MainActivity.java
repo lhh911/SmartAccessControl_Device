@@ -225,7 +225,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void init() {
-
+        EventBus.getDefault().register(this);
         entranceDetailTv = findViewById(R.id.enterinfo_tv);
         homebgIv = findViewById(R.id.homebg_iv);
         //视频通话
@@ -258,7 +258,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void initData() {
-        EventBus.getDefault().register(this);
+
         initView();
         registReceiver();
         setAlarm();
@@ -758,10 +758,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         downOpenCode();
                     } else if (type == 4) {//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
                         downFaceImage();
-                    } else if (type == 5) {//设置音量
-                        setVoice(json.getInt("volume"));
-                    } else if (type == 6) {//设备重启
+                    } else if (type == 100) {//设备重启
 
+                    }else if (type == 101) {//更新设备状态
+                        loadDeviceInfo();
+                    }else if (type == 102) {//设置音量
+                        setVoice(json.getInt("volume"));
+                    } else if (type == 104) {//开锁
+                        openDoor();
                     }
                 } catch (Exception e) {
 
@@ -940,6 +944,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
+
         } catch (final EMServiceNotReadyException e) {
             e.printStackTrace();
 //            runOnUiThread(new Runnable() {
@@ -1052,6 +1057,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 startTimer();
                                 openSpeakerOn();
                                 hasCallSuccess = true;
+                                EMClient.getInstance().callManager().switchCamera();
                             }
                         });
                         break;
@@ -1620,9 +1626,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         int type = msg.arg1;
                         String sn = (String) msg.obj;
 
-                        Gpio.setPull('0', 4, 1);
-                        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-                        Gpio.writeGpio('O', 4, 1);
+                        openDoor();
 
                         uploadRecord(type, sn);
                         startMusic(2);
@@ -1647,6 +1651,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
             }
         }
+    }
+
+
+    public void openDoor(){
+        Gpio.setPull('0', 4, 1);
+        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+        Gpio.writeGpio('O', 4, 1);
     }
 
 
@@ -1698,6 +1709,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     public void entranceDetailSuccess(EntranceDetailsResBean bean) {
         if (bean != null && bean.getData() != null) {
+            int status = bean.getData().getStatus();
+            if(status == 1){
+                ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
+                goTo(SplashActivity.class);
+                finish();
+                return;
+            }
+
             String garden_name = bean.getData().getGarden_name();
             String region_name = bean.getData().getRegion_name();
             String building_name = bean.getData().getBuilding_name();
@@ -1705,6 +1724,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             UserInfoInstance.getInstance().setDoor(name);
 
             entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
+
 
         }
     }
@@ -1788,13 +1808,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 doorHandler.sendMessage(msg);
             }
 
-//            }
         } else {
             long now = System.currentTimeMillis();
             if (now - faceErrorStartTime > 3000) {
 //                ToastUtil.showCustomToast(bean.faceResult);
                 startMusic(4);
-                faceErrorStartTime = System.currentTimeMillis();
+                faceErrorStartTime = now;
             }
         }
     }
