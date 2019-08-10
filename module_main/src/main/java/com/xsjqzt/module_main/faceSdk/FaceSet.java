@@ -246,6 +246,38 @@ public class FaceSet {
         return result;
     }
 
+    //通过唯一识别码注册阅面
+    public FaceResult registByfaceFeature(float[] faceFeature) {
+        FaceResult result = new FaceResult();
+        result.code = 0;
+        result.personId = -1;
+
+        if (faceFeature == null) {//
+            result.code = 200;
+            result.msg = "注册人脸失败";
+            return result;
+        }
+
+        result.personId = faceTrack.identifyPerson(faceFeature);
+        if (result.personId < 0) {
+            //未注册
+            result.personId = faceTrack.addPerson(faceFeature);
+            if (result.personId > 0) {
+                //注册成功
+                result.code = 0;
+                result.msg = "成功注册人脸";
+            } else {
+                result.code = 200;
+                result.msg = "注册人脸失败";
+            }
+        } else {
+            //已注册
+            int faceConfidence = faceTrack.getRecognitionConfidence();
+            result.code = 102;
+            result.msg = "用户(" + result.personId + ")已注册 ,相似对为" + faceConfidence;
+        }
+        return result;
+    }
 
     public int getPersonCount() {
         if (faceTrack == null) return -1;
