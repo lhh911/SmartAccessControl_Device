@@ -42,7 +42,7 @@ public class SubscribeUtils {
                     T bean = JSON.parseObject(result, resultClass);
                     return Observable.just(bean);
                 } else {
-                    if (baseBean.getCode() == 2001 || baseBean.getCode() == 2002) {//2001 token 过期， 2002 Refresh Token 过期
+                    if (baseBean.getCode() == 2001 || baseBean.getCode() == 2002 || baseBean.getCode() == 2004) {//2001 token 过期， 2002 Refresh Token 过期
                         Intent it = new Intent(KeyContacts.ACTION_API_KEY_INVALID);
                         it.putExtra("code", baseBean.getCode());
                         BaseApplication.getContext().sendBroadcast(it);

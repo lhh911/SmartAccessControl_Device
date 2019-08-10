@@ -71,7 +71,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-//                super.onError(e);
+                super.onError(e);
             }
         });
     }
@@ -106,7 +106,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-//                super.onError(e);
+                super.onError(e);
             }
         });
     }
@@ -162,7 +162,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     public void uploadIDCardRecord(final int type, final String sn) {
 
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadIDCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -188,7 +188,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     public void uploadICCardRecord(final int type, final String sn) {
 
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadICCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -231,7 +231,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-//                super.onError(e);
+                super.onError(e);
             }
         });
     }
@@ -239,7 +239,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     //获取身份证数据
     public void loadIDCards(int update_time) {
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), IDCardResBean.class, new NetListeren<IDCardResBean>() {
             @Override
             public void onSuccess(final IDCardResBean info) {
@@ -276,7 +276,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     //获取身份证数据
     public void loadICCards(int update_time) {
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), ICCardResBean.class, new NetListeren<ICCardResBean>() {
             @Override
             public void onSuccess(final ICCardResBean info) {
@@ -315,7 +315,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     //拉取业主端注册的人脸图片，并注册到阅面
     public void loadFaceImage(final Context context, int update_time) {
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), FaceImageResBean.class, new NetListeren<FaceImageResBean>() {
             @Override
             public void onSuccess(final FaceImageResBean info) {
@@ -339,7 +339,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     public void downOpenCode(int update_time) {
 
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .downOpenCode(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), PswCodeResBean.class, new NetListeren<PswCodeResBean>() {
             @Override
             public void onSuccess(final PswCodeResBean info) {
@@ -379,7 +379,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     public void uploadCodeRecord(final int type, final String code) {
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadCodeRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), code, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -397,7 +397,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     public void uploadFaceRecord(final int type, final int user_id) {
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadFaceRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -500,7 +500,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     public void uploadRemoteRecord(final int type, final int user_id) {
-        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadRemoteRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {

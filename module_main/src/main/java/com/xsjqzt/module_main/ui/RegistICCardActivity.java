@@ -24,11 +24,17 @@ import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
+import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
 import com.xsjqzt.module_main.presenter.RegistICCardPresenter;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.view.RegistICCardIView;
 import com.xsjqzt.module_main.widget.ImgTextView;
 import com.yzq.zxinglibrary.encode.CodeCreator;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.SubscriberMethod;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -69,6 +75,8 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 
     @Override
     public void init() {
+
+        EventBus.getDefault().register(this);
 //        homeBtn = findViewById(R.id.home_btn);
         registTipTv = findViewById(R.id.regist_tip_tv);
         imgTextView = findViewById(R.id.tip_layout);
@@ -140,7 +148,8 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
-//                String str = bytesToHex(paramComBean.bRec);
+                toast(paramComBean.bRec);
+
                 LogUtil.w("nfc原始数据 ：" + new String(paramComBean.bRec));
                 String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
@@ -155,6 +164,18 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
                 doorHandler.sendMessage(msg);
             }
         };
+    }
+
+    private void toast(final byte[] cardData) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String _str = ByteUtil.ByteArrToHex(cardData);
+                String cardID = new BigInteger(_str, 16).toString();
+                ToastUtil.showCustomToast(cardID);
+            }
+        });
+
     }
 
 
@@ -229,7 +250,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
                     case 3:
                         String str = (String) msg.obj;
                         if (TextUtils.isEmpty(str)) {
-                            ToastUtil.showCustomToast("未注册或无法识别的卡，请用ic卡或身份证开门");
+                            ToastUtil.showCustomToast("无法识别的卡,请刷IC卡或身份证");
                             setError();
                         } else {
                             qrCodeNum = str;
@@ -274,4 +295,16 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         return super.onKeyDown(keyCode, event);
     }
 
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void receiveBindSuccess(BindCardSuccessEventBus bean ){
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
+    }
 }

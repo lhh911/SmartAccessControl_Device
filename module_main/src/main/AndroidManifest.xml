@@ -36,14 +36,14 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application>
-
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
-
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
 
         <activity
             android:name=".ui.MainActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SplashActivity"
             android:screenOrientation="portrait"
@@ -81,14 +81,10 @@
             android:theme="@style/TransparentTheme" />
         <activity
             android:name=".ui.RegistICCardActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/TransparentTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SystemInfoActivity"
             android:screenOrientation="portrait" />
-
-
-
 
         <!-- 极光接收别名tag设置时的回调消息 -->
         <receiver
@@ -118,8 +114,7 @@
                 <category android:name="com.xsjqzt.app" />
             </intent-filter>
         </receiver>
-<!--
-
+        <!--
         &lt;!&ndash; 设置环信应用的AppKey &ndash;&gt;
         <meta-data
             android:name="EASEMOB_APPKEY"
@@ -145,8 +140,7 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-
--->
+        -->
         <!-- 开机启动 -->
         <receiver
             android:name=".receive.AppStartReceiver"
@@ -158,52 +152,36 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </receiver>
-       <!-- <receiver android:name=".receive.NetStatusReceiver">
+        <!--
+        <receiver android:name=".receive.NetStatusReceiver">
             <intent-filter >
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
-        </receiver>-->
-        <receiver android:name=".receive.AlarmReceiver"/>
+        </receiver>
+        -->
+        <receiver android:name=".receive.AlarmReceiver" />
 
-        <service
-            android:name=".service.OpenRecordService">
+        <service android:name=".service.OpenRecordService">
             <intent-filter>
-                <action android:name="com.xsjqzt.app.timer_upload_openrecord"/>
+                <action android:name="com.xsjqzt.app.timer_upload_openrecord" />
             </intent-filter>
         </service>
-        <service android:name=".service.DownAllDataService"/>
-        <service android:name=".service.FaceImageDownService"/>
+        <service android:name=".service.DownAllDataService" />
+        <service android:name=".service.FaceImageDownService" />
+        <service
+            android:name=".service.HeartBeatService"
+            android:enabled="true"
+            android:exported="true"/>
 
+        <activity android:name=".activity.FaceExamplesActivity" />
+        <activity android:name=".activity.MainActivity"></activity>
+        <activity android:name=".activity.register.IDCardRecognitionAcitvity" />
+        <activity android:name=".activity.FaceDemoActivity"></activity>
+        <activity android:name=".activity.register.RegistFromBatchPicActivity" />
+        <activity android:name=".activity.register.RegistFromCamAcitvity" />
+        <activity android:name=".activity.register.RegistFromPicActivity" />
+        <activity android:name=".activity.FaceRegistActivity" />
 
-
-
-
-        <activity
-            android:name=".activity.FaceExamplesActivity"
-            />
-        <activity
-            android:name=".activity.MainActivity"
-            >
-        </activity>
-        <activity
-            android:name=".activity.register.IDCardRecognitionAcitvity"
-            />
-        <activity
-            android:name=".activity.FaceDemoActivity">
-        </activity>
-
-        <activity
-            android:name=".activity.register.RegistFromBatchPicActivity"
-            />
-        <activity
-            android:name=".activity.register.RegistFromCamAcitvity"
-            />
-        <activity
-            android:name=".activity.register.RegistFromPicActivity"
-            />
-        <activity
-            android:name=".activity.FaceRegistActivity"
-            />
 
     </application>
 

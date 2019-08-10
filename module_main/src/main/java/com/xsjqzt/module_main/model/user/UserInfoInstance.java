@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.jbb.library_common.comfig.KeyContacts;
 import com.xsjqzt.module_main.model.UserInfoResBean;
 
 public class UserInfoInstance implements Parcelable {
@@ -106,6 +107,9 @@ public class UserInfoInstance implements Parcelable {
         UserInfoSerializUtil.serializUserInstance();
     }
 
+    public String getBearer(){
+        return KeyContacts.Bearer + token;
+    }
 
     public String getToken() {
         return token;

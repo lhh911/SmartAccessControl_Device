@@ -94,6 +94,7 @@ import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
 import com.xsjqzt.module_main.modle.DownVideoSuccessEventBus;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
@@ -101,6 +102,7 @@ import com.xsjqzt.module_main.modle.User;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
+import com.xsjqzt.module_main.service.HeartBeatService;
 import com.xsjqzt.module_main.service.OpenRecordService;
 import com.xsjqzt.module_main.util.DataConversionUtil;
 import com.xsjqzt.module_main.util.MyToast;
@@ -261,7 +263,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         initView();
         registReceiver();
-        setAlarm();
+//        setAlarm();
         startMeasuing();
         initMusic();
 //        test();
@@ -272,6 +274,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         initFaceCamera();
         initFaceEvent();
+
+        startService(new Intent(this,HeartBeatService.class));
     }
 
 
@@ -504,7 +508,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 } else {
                     LogUtil.w("keycode : " + "# 号拨号");
                     inputNum = roomNumEt.getText().toString().trim();
-                    if (!TextUtils.isEmpty(inputNum) )
+                    if (!TextUtils.isEmpty(inputNum))
                         checkInput(inputNum);
                 }
 
@@ -644,6 +648,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         removeTask();
         endCall();
         stopMeasuing();
+
+        stopService(new Intent(this,HeartBeatService.class));
     }
 
     @Override
@@ -726,6 +732,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     //
                     UserInfoInstance.getInstance().reset();
                     login();
+                }else if(code == 2004){//设备未绑定或不存在
+                    UserInfoInstance.getInstance().reset();
+                    goTo(SplashActivity.class);
+                    finish();
                 }
             } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION) {
                 //监听网络变化
@@ -752,17 +762,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                     if (type == 1) {//更新身份证
                         downIDCardData();
+                        EventBus.getDefault().post(new BindCardSuccessEventBus());
                     } else if (type == 2) {//更新ic卡信息
                         downICCardData();
+                        EventBus.getDefault().post(new BindCardSuccessEventBus());
                     } else if (type == 3) {//临时密码
                         downOpenCode();
                     } else if (type == 4) {//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
                         downFaceImage();
                     } else if (type == 100) {//设备重启
 
-                    }else if (type == 101) {//更新设备状态
+                    } else if (type == 101) {//更新设备状态
                         loadDeviceInfo();
-                    }else if (type == 102) {//设置音量
+                    } else if (type == 102) {//设置音量
                         setVoice(json.getInt("volume"));
                     } else if (type == 104) {//开锁
                         openDoor();
@@ -777,6 +789,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void downOpenCode() {
+
         OpenCodeDao openCodeDao = DbManager.getInstance().getDaoSession().getOpenCodeDao();
         OpenCode unique = openCodeDao.queryBuilder().limit(1).orderDesc(OpenCodeDao.Properties.Update_time).unique();
         int update_time = 0;
@@ -784,10 +797,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             update_time = unique.getUpdate_time();
         }
         presenter.downOpenCode(update_time);
+
     }
 
 
     private void downFaceImage() {
+
         FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
         FaceImage faceImage = faceImageDao.queryBuilder().limit(1).orderDesc(FaceImageDao.Properties.Update_time).unique();
         int update_time = 0;
@@ -795,6 +810,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             update_time = faceImage.getUpdate_time();
         }
         presenter.loadFaceImage(this, update_time);
+
+
     }
 
     private void setVoice(final int volume) {
@@ -813,6 +830,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void downICCardData() {
+
         ICCardDao icCardDao = DbManager.getInstance().getDaoSession().getICCardDao();
         ICCard iccard = icCardDao.queryBuilder().limit(1).orderDesc(ICCardDao.Properties.Update_time).unique();
         int update_time = 0;
@@ -820,9 +838,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             update_time = iccard.getUpdate_time();
         }
         presenter.loadICCards(update_time);
+
     }
 
     private void downIDCardData() {
+
         IDCardDao idCardDao = DbManager.getInstance().getDaoSession().getIDCardDao();
         IDCard idcard = idCardDao.queryBuilder().limit(1).orderDesc(IDCardDao.Properties.Update_time).unique();
         int update_time = 0;
@@ -830,6 +850,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             update_time = idcard.getUpdate_time();
         }
         presenter.loadIDCards(update_time);
+
 
     }
 
@@ -1435,9 +1456,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void savaICOrIDCardRecord(final int type, final int sid, final String sn, final String imagePath) {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
 
                 OpenRecord record = new OpenRecord();
                 record.setCreateTime(new Date().getTime());
@@ -1448,8 +1469,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 record.setSid(sid);
                 record.setType(type);
                 DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
-            }
-        }).start();
+
+                Intent in = new Intent(MainActivity.this, OpenRecordService.class);
+                startService(in);
+//            }
+//        }).start();
 
 
     }
@@ -1482,6 +1506,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
+                toast(paramComBean.bRec);
+
                 String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
 
@@ -1496,6 +1522,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         };
     }
 
+    private void toast(final byte[] cardData) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String _str = ByteUtil.ByteArrToHex(cardData);
+                String cardID = new BigInteger(_str, 16).toString();
+                ToastUtil.showCustomToast(cardID);
+            }
+        });
+
+    }
 
     public String parseCard(ComBean comBean) {
         String cardID = "";
@@ -1609,7 +1646,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     }
+
     long lastOpenTime = 0;
+
     public class MyHandler extends Handler {
         private WeakReference<Activity> weakReference;
 
@@ -1654,7 +1693,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    public void openDoor(){
+    public void openDoor() {
         Gpio.setPull('0', 4, 1);
         Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
         Gpio.writeGpio('O', 4, 1);
@@ -1710,7 +1749,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void entranceDetailSuccess(EntranceDetailsResBean bean) {
         if (bean != null && bean.getData() != null) {
             int status = bean.getData().getStatus();
-            if(status == 1){
+            if (status == 1) {
                 ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
                 goTo(SplashActivity.class);
                 finish();
@@ -1770,7 +1809,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (bitmapBytes != null) {
             Bitmap bitmap = getCameraBitmap();
 //
-            bitmap = BitmapUtil.rotateBitmap(90 , bitmap);
+            bitmap = BitmapUtil.rotateBitmap(90, bitmap);
             Utils.saveBitmap(file.getPath(), bitmap);
         }
 
@@ -1799,7 +1838,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                isFacePause = true;
 
             long currentTime = System.currentTimeMillis();
-            if(currentTime -  lastOpenTime >= 2000){
+            if (currentTime - lastOpenTime >= 2000) {
                 lastOpenTime = currentTime;
                 Message msg = Message.obtain();
                 msg.what = 1;

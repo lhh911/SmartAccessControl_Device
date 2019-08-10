@@ -96,7 +96,7 @@ public class DownAllDataService extends IntentService {
             update_time = unique.getUpdate_time();
         }
 
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .downOpenCode(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), PswCodeResBean.class, new NetListeren<PswCodeResBean>() {
             @Override
             public void onSuccess(final PswCodeResBean info) {
@@ -140,7 +140,7 @@ public class DownAllDataService extends IntentService {
             update_time = faceImage.getUpdate_time();
         }
 
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), FaceImageResBean.class, new NetListeren<FaceImageResBean>() {
             @Override
             public void onSuccess(final FaceImageResBean info) {
@@ -171,7 +171,7 @@ public class DownAllDataService extends IntentService {
             update_time = idcard.getUpdate_time();
         }
 
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadIDCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), IDCardResBean.class, new NetListeren<IDCardResBean>() {
             @Override
             public void onSuccess(final IDCardResBean info) {
@@ -215,7 +215,7 @@ public class DownAllDataService extends IntentService {
             update_time = iccard.getUpdate_time();
         }
 
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .loadICCards(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), ICCardResBean.class, new NetListeren<ICCardResBean>() {
             @Override
             public void onSuccess(final ICCardResBean info) {

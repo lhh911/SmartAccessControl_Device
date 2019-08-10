@@ -129,5 +129,7 @@ public interface ApiService {
     @POST("entrance/data/ad_list")
     Observable<ResponseBody> loadBanner(@Header("Authorization") String token ,  @Field("update_time")long update_time);
 
-
+    //发送心跳请求
+    @POST("entrance/upload/heartbeat")
+    Observable<ResponseBody> sendHeartBeat(@Header("Authorization") String token );
 }
