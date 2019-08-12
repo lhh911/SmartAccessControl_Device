@@ -517,4 +517,25 @@ public class StringUtil {
         return df.format(num);
     }
 
+
+    public static  float[] stringToFolatArray(String string,String regex) {
+        String[] strings = string.split(regex);
+
+        float[] fs = new float[strings.length];
+        for (int i = 0; i < strings.length; i++) {
+            fs[i] = Float.parseFloat(strings[i]);
+        }
+
+        return fs;
+    }
+
+    public static String arrayToString(float[] fs) {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < fs.length; i++) {
+            stringBuilder.append(fs[i] + ",");
+        }
+        String str = stringBuilder.toString();
+        return str;
+    }
 }
