@@ -101,10 +101,7 @@ public class FaceImageDownService extends IntentService {
         FaceImageResBean.DataBean poll = queue.poll();
 
         if (poll != null) {
-            if (TextUtils.isEmpty(poll.getImage())) {
-                downImage();
-                return;
-            }
+
             if (poll.isIs_delete()) {
                 FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
                 if (unique != null) {
@@ -120,9 +117,13 @@ public class FaceImageDownService extends IntentService {
                 if (!TextUtils.isEmpty(codeX)) {//有阅面唯一识别码，直接注册阅面
                     registYM(poll);
                 } else {//无，下载图片
+                    if (TextUtils.isEmpty(poll.getImage())) {
+                        downImage();
+                        return;
+                    }
                     subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                             .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                                    InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
+                                    InterfaceConfig.BASEURL + poll.getImage()),  poll);
                 }
             }
 
@@ -156,12 +157,12 @@ public class FaceImageDownService extends IntentService {
 
             subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                     .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                            InterfaceConfig.BASEURL + poll.getImage()), poll.getUser_id(), poll);
+                            InterfaceConfig.BASEURL + poll.getImage()),  poll);
         }
     }
 
 
-    public void subscribe(Observable<ResponseBody> observable, final int user_id, final FaceImageResBean.DataBean dataBean) {
+    public void subscribe(Observable<ResponseBody> observable,  final FaceImageResBean.DataBean dataBean) {
         if (!DeviceUtil.isNetWorkEnable()) {
             if (isReExecute)
                 reExecute();
@@ -188,7 +189,7 @@ public class FaceImageDownService extends IntentService {
 
                     @Override
                     public void onNext(InputStream inputStream) {
-                        writeFile(inputStream, user_id, dataBean);
+                        writeFile(inputStream,  dataBean);
                     }
 
                     @Override
@@ -209,7 +210,7 @@ public class FaceImageDownService extends IntentService {
     }
 
 
-    private void writeFile(InputStream inputString, int user_id, FaceImageResBean.DataBean dataBean) {
+    private void writeFile(InputStream inputString,  FaceImageResBean.DataBean dataBean) {
         //存到本地文件，按日期建文件夹
         String facePath = FileUtil.getAppFacePicturePath(this);
         File file = new File(facePath, new Date().getTime() + ".jpg");
@@ -240,12 +241,12 @@ public class FaceImageDownService extends IntentService {
             } catch (Exception e) {
             }
         }
-        registYM(file.getPath(), user_id, dataBean);
+        registYM(file.getPath(),  dataBean);
     }
 
 
     //注册阅面，成功与否上传人脸识别状态
-    public void registYM(String facePath, int user_id, FaceImageResBean.DataBean dataBean) {
+    public void registYM(String facePath,  FaceImageResBean.DataBean dataBean) {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
 
@@ -258,13 +259,13 @@ public class FaceImageDownService extends IntentService {
             for (int i = 0; i < 10; i++) {
                 LogUtil.w("注册人脸循环次数 ：" + i);
                 faceResult = faceSet.getFaceFeatureFromBitmap(bitmap);
-//            faceResult = faceSet.registByBitmap(bitmap, user_id + "");
+
                 if (faceResult == null)
                     continue;
                 LogUtil.w("人脸已注册 code = " + faceResult.code);
                 if (faceResult.code == 0) {//成功
                     //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-                    code = DataConversionUtil.floatToString(faceResult.rect);
+                    code = StringUtil.arrayToString(faceResult.rect);
                     LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
                     status = 2;
                     //插入本地数据
@@ -277,8 +278,7 @@ public class FaceImageDownService extends IntentService {
                     break;
                 } else {//失败
                     status = 3;
-//                if (!isReExecute)//添加失败数据到重试集合
-//                    reQueue.add(dataBean);
+
                 }
             }
         } catch (Exception e) {
@@ -286,7 +286,7 @@ public class FaceImageDownService extends IntentService {
         }
 
         if (dataBean.getStatus() != 2)
-            updateFacesStatus(status, user_id, code);
+            updateFacesStatus(status, dataBean.getUser_id(), code);
         downImage();//继续下一个
     }
 

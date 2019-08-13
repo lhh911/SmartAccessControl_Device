@@ -1,6 +1,11 @@
 package com.xsjqzt.module_main.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -12,21 +17,30 @@ import android.widget.TextView;
 
 import com.jbb.library_common.basemvp.BaseActivity;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
+import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.ScreenShotUtil;
+import com.jbb.library_common.utils.Utils;
+import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.model.EntranceInfoResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
 import com.xsjqzt.module_main.presenter.SystemInfoPresenter;
+import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.view.SystemInfoIView;
 import com.yzq.zxinglibrary.encode.CodeCreator;
 
 import org.apache.http.conn.util.InetAddressUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.json.JSONObject;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+
+import cn.jpush.android.api.JPushInterface;
 
 public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemInfoPresenter> implements SystemInfoIView {
 
@@ -34,6 +48,8 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
     private ImageView voiceIv, qrCodeIv;
     private boolean isShiftClick;
 //    private Button confirmBtn;
+
+    private MyBroadcastReceiver mReceiver;
 
     @Override
     public void init() {
@@ -49,6 +65,10 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
         if (UserInfoInstance.getInstance().hasLogin())
             presenter.loadDevice();
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
+        mReceiver = new MyBroadcastReceiver();
+        registerReceiver(mReceiver, filter);
     }
 
 
@@ -147,5 +167,31 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mReceiver != null)
+            unregisterReceiver(mReceiver);
+    }
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+           if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
+               if(intent.getExtras() == null)return;
+               try {
+                   String extras = intent.getExtras().getString(JPushInterface.EXTRA_EXTRA);
+                   JSONObject json = new JSONObject(extras);
+                   int type = json.optInt("type");
+
+                   if (type == 105) {//设备绑定成功
+                       finish();
+                   }
+               } catch (Exception e) {
+
+               }
+            }
+        }
+    }
 
 }

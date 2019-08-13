@@ -189,7 +189,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean starEnterDown;// * 号被按了
 
     public static SoundPool mSound = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
-    private boolean haPermission;
+//    private boolean haPermission;
 
     private EMMessageListener msgListener;//消息接收监听
     private EMCallStateChangeListener callStateChangeListener;//通话状态监听
@@ -253,9 +253,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         banner = findViewById(R.id.banner);
         videoPlayer = findViewById(R.id.videoplayer);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            requestPermiss();
-        else
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+//            requestPermiss();
+//        else
             initData();
     }
 
@@ -657,56 +657,56 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         return new MainPresenter();
     }
 
-    private void requestPermiss() {
-
-        DefaultRationale rationale = new DefaultRationale();
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA, Manifest.permission.RECORD_AUDIO)
-                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
-                .onGranted(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                        haPermission = true;
-                        initData();
-                        onFaceResume();
-                    }
-                })
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                        if (AndPermission.hasAlwaysDeniedPermission(MainActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
-                            List<String> permissionNames = Permission.transformText(MainActivity.this, data);
-                            String message = MainActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setCancelable(false)
-                                    .setTitle("提示")
-                                    .setMessage(message)
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            AndPermission.with(MainActivity.this)
-                                                    .runtime()
-                                                    .setting()
-                                                    .onComeback(new Setting.Action() {
-                                                        @Override
-                                                        public void onAction() {
-                                                            //返回
-                                                            requestPermiss();
-                                                        }
-                                                    }).start();
-                                        }
-                                    })
-                                    .show();
-
-                        }
-                    }
-                })
-                .start();
-    }
+//    private void requestPermiss() {
+//
+//        DefaultRationale rationale = new DefaultRationale();
+//        AndPermission.with(this)
+//                .runtime()
+//                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA, Manifest.permission.RECORD_AUDIO)
+//                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
+//                .onGranted(new Action<List<String>>() {
+//                    @Override
+//                    public void onAction(List<String> data) {
+//
+////                        haPermission = true;
+//                        initData();
+//                        onFaceResume();
+//                    }
+//                })
+//                .onDenied(new Action<List<String>>() {
+//                    @Override
+//                    public void onAction(List<String> data) {
+//
+//                        if (AndPermission.hasAlwaysDeniedPermission(MainActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
+//                            List<String> permissionNames = Permission.transformText(MainActivity.this, data);
+//                            String message = MainActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
+//                            new AlertDialog.Builder(MainActivity.this)
+//                                    .setCancelable(false)
+//                                    .setTitle("提示")
+//                                    .setMessage(message)
+//                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            dialog.dismiss();
+//                                            AndPermission.with(MainActivity.this)
+//                                                    .runtime()
+//                                                    .setting()
+//                                                    .onComeback(new Setting.Action() {
+//                                                        @Override
+//                                                        public void onAction() {
+//                                                            //返回
+//                                                            requestPermiss();
+//                                                        }
+//                                                    }).start();
+//                                        }
+//                                    })
+//                                    .show();
+//
+//                        }
+//                    }
+//                })
+//                .start();
+//    }
 
 
     private void registReceiver() {
@@ -751,6 +751,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void handleNotity(final Bundle bundle) {
+        if(bundle == null)return;
 
         new Thread(new Runnable() {
             @Override
@@ -962,6 +963,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv.setText(roomNum);
 
         onFacePause();
+        hideFaceLayout();
 
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
@@ -1092,6 +1094,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                                 endCall();
                                 faceOnResuse();
+                                showFaceLayout();
 
                                 String s1 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_refused_to_accept);
                                 String s2 = getResources().getString(com.hyphenate.easeui.R.string.Connection_failure);
@@ -1619,12 +1622,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         open();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            onFaceResume();
-        } else {
-            if (haPermission)
-                onFaceResume();
-        }
+        onFaceResume();
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//
+//        } else {
+//            if (haPermission)
+//                onFaceResume();
+//        }
 
     }
 
@@ -1637,12 +1641,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         stopMeasuing();
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            onFacePause();
-        } else {
-            if (haPermission)
-                onFacePause();
-        }
+        onFacePause();
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//            onFacePause();
+//        } else {
+//            if (haPermission)
+//                onFacePause();
+//        }
 
 
     }
@@ -1883,7 +1888,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         userMap = UserDataUtil.updateDataSource(true);
         RxPermissions permissions = new RxPermissions(this);
         permissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE)
+                Manifest.permission.READ_PHONE_STATE,Manifest.permission.RECORD_AUDIO)
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
@@ -1950,6 +1955,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 public void onPreviewFrame(byte[] data, Camera camera) {
                     final byte[] mdata = data;
                     synchronized (lock) {
+
+
                         //调用sdk获取人脸集合
                         ymFaces = onCameraPreviewFrame(mdata, irData,
                                 mCameraView.getCameraResolution().getWidth(), mCameraView.getCameraResolution().getHeight(), mConfig.isMulti);
@@ -1968,21 +1975,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             public void run() {
                                 // 显示/隐藏 Camera界面；
                                 if (ymFaces != null && !isFaceViewShow) {
-                                    isFaceViewShow = true;
-                                    mCameraView.bringToFront();
-                                    entranceDetailTv.bringToFront();
-                                    // if (mIRCameraView != null) mIRCameraView.bringToFront();
+                                    showFaceLayout();
+
                                 } else if (ymFaces == null && isFaceViewShow) {
-                                    isFaceViewShow = false;
-                                    homebgIv.bringToFront();
-                                    banner.bringToFront();
-                                    toolsBar.bringToFront();
-                                    callVideoLayout.bringToFront();
-                                    roomNumLayout.bringToFront();
-                                    entranceDetailTv.bringToFront();
+                                    hideFaceLayout();
                                 }
                                 // 绘画人脸框
-                                drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
+                                if(isFaceViewShow)
+                                    drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
                             }
                         });
                     }
@@ -1990,6 +1990,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             });
         }
     }
+
+    private void showFaceLayout(){
+        isFaceViewShow = true;
+        mCameraView.bringToFront();
+        entranceDetailTv.bringToFront();
+        // if (mIRCameraView != null) mIRCameraView.bringToFront();
+    }
+
+    private void hideFaceLayout(){
+        isFaceViewShow = false;
+        homebgIv.bringToFront();
+        banner.bringToFront();
+        toolsBar.bringToFront();
+        callVideoLayout.bringToFront();
+        roomNumLayout.bringToFront();
+        entranceDetailTv.bringToFront();
+    }
+
 
     /**
      * 相机帧回调

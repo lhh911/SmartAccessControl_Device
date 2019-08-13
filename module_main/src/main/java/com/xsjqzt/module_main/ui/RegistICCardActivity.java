@@ -63,6 +63,10 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private int iBaudRate = 115200;
     private boolean isShiftClick;
 
+    private int duration = 15 * 1000;//自动关闭时间
+    private long startTime;
+    private MyRunnable runnable;
+
     @Override
     public RegistICCardPresenter initPresenter() {
         return new RegistICCardPresenter();
@@ -97,7 +101,20 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 //        homeBtn.setOnClickListener(this);
 
         startMeasuing();
+
+       startTask();
+
     }
+
+    private void startTask(){
+       if(runnable != null){
+           doorHandler.removeCallbacks(runnable);
+           runnable = null;
+       }
+       runnable = new MyRunnable(this);
+       doorHandler.postAtTime(runnable,1000);
+    }
+
 
     private void createQrCode() {
         int width = CommUtil.dp2px(130);
@@ -148,6 +165,8 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
+                startTime = System.currentTimeMillis();
+
                 toast(paramComBean.bRec);
 
                 LogUtil.w("nfc原始数据 ：" + new String(paramComBean.bRec));
@@ -306,5 +325,31 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         super.onDestroy();
         if(EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
+
+        if(doorHandler != null)
+            doorHandler.removeCallbacks(runnable);
     }
+
+
+
+
+    class MyRunnable implements Runnable{
+        WeakReference<Activity> weakReference ;
+        public MyRunnable(Activity activity) {
+            startTime = System.currentTimeMillis();
+            this.weakReference = new WeakReference(activity);
+        }
+
+        @Override
+        public void run() {
+            if(weakReference.get() != null){
+                if(System.currentTimeMillis() - startTime > duration){
+                    finish();
+                }else{
+                    doorHandler.postAtTime(runnable,1000);
+                }
+            }
+        }
+    }
+
 }

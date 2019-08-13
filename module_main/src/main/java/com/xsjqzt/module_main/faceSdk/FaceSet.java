@@ -233,6 +233,7 @@ public class FaceSet {
                 //注册成功
                 result.code = 0;
                 result.msg = "成功注册人脸";
+                result.rect = faceFeature;
             } else {
                 result.code = 200;
                 result.msg = "注册人脸失败";
