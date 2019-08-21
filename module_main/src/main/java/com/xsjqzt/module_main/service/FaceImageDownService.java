@@ -294,9 +294,12 @@ public class FaceImageDownService extends IntentService {
     public void registYM(FaceImageResBean.DataBean dataBean) {
         //注册阅面
         String codeX = dataBean.getCodeX();
-        float[] faceFeature = StringUtil.stringToFolatArray(codeX, ",");
+        float[] faceFeature = StringUtil.stringToFolatArray(codeX);
+        if(faceFeature == null){
+            downImage();//继续下一个
+            return;
+        }
 
-        int status = 0;
         FaceResult faceResult = null;
         try {
             //注册 10次，保证注册成功率
@@ -308,7 +311,7 @@ public class FaceImageDownService extends IntentService {
                 LogUtil.w("人脸已注册 code = " + faceResult.code);
                 if (faceResult.code == 0) {//成功
                     LogUtil.w("人脸的中唯⼀一标识 personId = " + codeX);
-                    status = 2;
+//                    status = 2;
                     //插入本地数据
                     insert(dataBean, faceResult.personId);
                     break;

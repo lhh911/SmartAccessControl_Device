@@ -593,7 +593,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void getTokenSuccess() {
-
+        String registrationID = JPushInterface.getRegistrationID(this);
+        if(!TextUtils.isEmpty(registrationID)) {
+            presenter.registrationId(registrationID);
+        }
     }
 
 
@@ -957,14 +960,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //拨打视频通话
     private void callVideo(String userId, String roomNum) {
 
-        //通过房号获取到环信的账号名（接口）
         showCallVideoLayout();
-        setPushProviderAndListeren();//设置不在线时发送离线通知
         callNumTv.setText(roomNum);
 
         onFacePause();
         hideFaceLayout();
 
+        setPushProviderAndListeren();//设置不在线时发送离线通知
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
 
@@ -998,7 +1000,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void setPushProviderAndListeren() {
-
+        EMClient.getInstance().callManager().getCallOptions().setIsSendPushIfOffline(true);
         pushProvider = new EMCallManager.EMCallPushProvider() {
 
             void updateMessageText(final EMMessage oldMsg, final String to) {
@@ -1011,23 +1013,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             public void onRemoteOffline(final String to) {
                 LogUtil.d("onRemoteOffline, to:" + to);
 
-                final EMMessage message = EMMessage.createSendMessage(EMMessage.Type.TXT);
-                message.setTo(to);
-                // 设置自定义推送提示
-                JSONObject extObject = new JSONObject();
-                try {
-                    extObject.put("em_push_name", "视频电话");
-                    extObject.put("em_push_content", "您有一个视频电话呼入，请及时查看");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                // 将推送扩展设置到消息中
-                message.setAttribute("em_apns_ext", extObject);
-
-//                final EMMessage message = EMMessage.createTxtSendMessage("您有一个视频电话呼入，请及时查看", to);
-
+                final EMMessage message = EMMessage.createTxtSendMessage("您有一个视频电话呼入，请及时查看", to);
                 message.setAttribute("em_apns_ext", true);
-                message.setAttribute("is_voice_call", true);
+                message.setAttribute("is_voice_call", false);
                 message.setMessageStatusCallback(new EMCallBack() {
                     @Override
                     public void onSuccess() {
@@ -1253,7 +1241,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         } catch (EMNoActiveCallException e) {
             e.printStackTrace();
         }
-
+        if (pushProvider != null) {
+            EMClient.getInstance().callManager().setPushProvider(null);
+            pushProvider = null;
+        }
         if (msgListener != null) {
             EMClient.getInstance().chatManager().removeMessageListener(msgListener);
             msgListener = null;
@@ -1272,10 +1263,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         hasCallingVideo = false;
         hasCallSuccess = false;
 
-        if (pushProvider != null) {
-            EMClient.getInstance().callManager().setPushProvider(null);
-            pushProvider = null;
-        }
+
     }
 
     //开启免提
@@ -1459,9 +1447,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void savaICOrIDCardRecord(final int type, final int sid, final String sn, final String imagePath) {
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
                 OpenRecord record = new OpenRecord();
                 record.setCreateTime(new Date().getTime());
@@ -1475,8 +1463,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                 Intent in = new Intent(MainActivity.this, OpenRecordService.class);
                 startService(in);
-//            }
-//        }).start();
+            }
+        }).start();
 
 
     }
@@ -1509,7 +1497,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
-                toast(paramComBean.bRec);
+//                toast(paramComBean.bRec);
 
                 String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
@@ -1756,6 +1744,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             int status = bean.getData().getStatus();
             if (status == 1) {
                 ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
+                UserInfoInstance.getInstance().reset();
                 goTo(SplashActivity.class);
                 finish();
                 return;
@@ -1800,7 +1789,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 480, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         yuvimage.compressToJpeg(new Rect(0, 0, 640,
-                460), 100, baos);
+                480), 100, baos);
         Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
 
         return bitmap;
@@ -1885,7 +1874,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     // For Face end..
 
     private void onFaceResume() {
-        userMap = UserDataUtil.updateDataSource(true);
+
         RxPermissions permissions = new RxPermissions(this);
         permissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_PHONE_STATE,Manifest.permission.RECORD_AUDIO)
@@ -1893,6 +1882,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         if (aBoolean) {
+                            userMap = UserDataUtil.updateDataSource(true);
                             //预览适配
                             mCameraView.setAdjustViewBounds(mConfig.isAdjustView);
                             //设置cameraId
@@ -1909,7 +1899,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mConfig.sdkAngle = mConfig.sdkAngle == -1 ? getSdkOrientation(mConfig.cameraFacing) : mConfig.sdkAngle;
                             //初始化算法sdk
                             FaceResult result = faceSet.startTrack(mConfig.sdkAngle);
-                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
+//                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
                             mConfig.specialCameraLeftRightReverse = true;
                             //保存配置
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
@@ -1981,8 +1971,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                     hideFaceLayout();
                                 }
                                 // 绘画人脸框
-                                if(isFaceViewShow)
-                                    drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
+                                drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
+
                             }
                         });
                     }

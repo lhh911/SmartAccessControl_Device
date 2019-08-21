@@ -12,6 +12,7 @@ import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.jbb.library_common.utils.SharePreferensUtil;
+import com.jbb.library_common.utils.ToastUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
@@ -162,7 +163,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     public void uploadIDCardRecord(final int type, final String sn) {
 
-        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadIDCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -188,7 +189,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
     public void uploadICCardRecord(final int type, final String sn) {
 
-        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadICCardRecordNoImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sn, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -379,7 +380,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     public void uploadCodeRecord(final int type, final String code) {
-        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadCodeRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), code, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -397,7 +398,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     public void uploadFaceRecord(final int type, final int user_id) {
-        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadFaceRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -500,7 +501,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
     }
 
     public void uploadRemoteRecord(final int type, final int user_id) {
-        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                 .uploadRemoteRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
@@ -512,6 +513,18 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             @Override
             public void onError(Exception e) {
 //                super.onError(e);
+            }
+        });
+    }
+
+
+    public void registrationId(String registrationId) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
+            @Override
+            public void onSuccess(BaseBean bean) {
+                ToastUtil.showCustomToast("极光id推送服务器成功");
+                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_USERINFO);
             }
         });
     }

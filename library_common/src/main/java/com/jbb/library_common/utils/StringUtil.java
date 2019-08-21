@@ -518,9 +518,9 @@ public class StringUtil {
     }
 
 
-    public static  float[] stringToFolatArray(String string,String regex) {
-        String[] strings = string.split(regex);
-
+    public static  float[] stringToFolatArray(String string) {
+        String[] strings = string.split(",");
+        if(strings == null)return null;
         float[] fs = new float[strings.length];
         for (int i = 0; i < strings.length; i++) {
             fs[i] = Float.parseFloat(strings[i]);
@@ -533,7 +533,9 @@ public class StringUtil {
 
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < fs.length; i++) {
-            stringBuilder.append(fs[i] + ",");
+            stringBuilder.append(fs[i]);
+            if(i < fs.length -1)
+                stringBuilder.append(",");
         }
         String str = stringBuilder.toString();
         return str;
