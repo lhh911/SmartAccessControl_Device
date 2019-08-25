@@ -1297,8 +1297,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    //拨打视频通话，15秒计时，如果超过没接通，就中断，拨打第二次
-    private int callVideoTimeOut = 20000;
+    //拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二次
+    private int callVideoTimeOut = 30*1000;
 
     private void startCallSuccessTime() {
         if (callRunnable != null) {
