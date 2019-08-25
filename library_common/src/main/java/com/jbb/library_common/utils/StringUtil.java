@@ -540,4 +540,23 @@ public class StringUtil {
         String str = stringBuilder.toString();
         return str;
     }
+
+    public static String getWeekDay(int week) {
+        if(week == 1){
+            return "星期日";
+        }else if(week == 2){
+            return "星期一";
+        }else if(week == 3){
+            return "星期二";
+        }else if(week == 4){
+            return "星期三";
+        }else if(week == 5){
+            return "星期四";
+        }else if(week == 6){
+            return "星期五";
+        }else if(week == 7){
+            return "星期六";
+        }
+        return "星期八";
+    }
 }

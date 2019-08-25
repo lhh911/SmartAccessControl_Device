@@ -6,35 +6,68 @@
     android:background="@color/black">
 
 
+    <RelativeLayout
+        android:id="@+id/face_parentlayout"
+        android:layout_width="match_parent"
+        android:layout_height="370dp"
+        android:layout_margin="20dp"
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
+        android:background="@drawable/half_transtant_corners5">
 
-    <!-- CameraView Start..-->
-    <com.readsense.cameraview.camera.CameraView
-        android:id="@+id/ir_camera"
-        android:layout_width="1dp"
-        android:layout_height="1dp"
-        android:adjustViewBounds="true" />
-    <com.readsense.cameraview.camera.CameraView
-        android:id="@+id/camera"
-        android:layout_width="480dp"
-        android:layout_height="640dp"
-        android:layout_centerInParent="true"
-        android:adjustViewBounds="true"
-        android:background="@android:color/black" />
+        <TextView
+            android:id="@+id/date_tv"
+            style="@style/textview14"
+            android:layout_marginLeft="20dp"
+            android:textColor="@color/common_white"
+            android:text="2019-08-20"/>
 
-    <SurfaceView
-        android:id="@+id/sfv_draw_view"
-        android:layout_width="480dp"
-        android:layout_height="640dp"
-        android:layout_centerInParent="true"
-        android:adjustViewBounds="true" />
-    <!-- CameraView Start end-->
+        <TextView
+            android:id="@+id/open_staus_tv"
+            style="@style/textview14"
+            android:textColor="@color/common_white"
+            android:layout_toRightOf="@+id/sfv_draw_view"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40dp"
+            android:gravity="center"
+            android:text=""/>
+
+        <!-- CameraView Start..-->
+        <com.readsense.cameraview.camera.CameraView
+            android:id="@+id/ir_camera"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:adjustViewBounds="true" />
+
+        <com.readsense.cameraview.camera.CameraView
+            android:id="@+id/camera"
+            android:layout_width="244dp"
+            android:layout_height="324dp"
+            android:padding="2dp"
+            android:adjustViewBounds="true"
+            android:background="@android:color/black"
+            android:layout_below="@+id/date_tv"
+            android:layout_marginTop="10dp"/>
+
+        <SurfaceView
+            android:id="@+id/sfv_draw_view"
+            android:layout_width="240dp"
+            android:layout_height="320dp"
+            android:layout_marginLeft="2dp"
+            android:adjustViewBounds="true"
+            android:layout_below="@+id/date_tv"
+            android:layout_marginTop="12dp"/>
+        <!-- CameraView Start end-->
+
+    </RelativeLayout>
 
 
     <ImageView
         android:id="@+id/homebg_iv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/splash_bg"/>
+        android:background="@mipmap/splash_bg" />
 
 
     <com.youth.banner.Banner
@@ -62,8 +95,8 @@
         style="@style/textview13"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="30dp"
-        android:textColor="@color/common_white"
-        android:text=""/>
+        android:text=""
+        android:textColor="@color/common_white" />
 
 
     <LinearLayout
@@ -96,8 +129,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="btn4Click"
-            android:visibility="gone"
-            android:text="人脸识别开门" />
+            android:text="人脸识别开门"
+            android:visibility="gone" />
     </LinearLayout>
 
 </RelativeLayout>

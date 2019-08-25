@@ -16,4 +16,5 @@
 
     <color name="normal_text_color">#666666</color>
     <color name="highlight_text_color">#3e6cbb</color>
+    <color name="color_00FF00">#00FF00</color>
 </resources>

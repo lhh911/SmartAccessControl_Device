@@ -744,10 +744,11 @@ public class FaceSet {
                     if (unique != null) {
                         user_id = unique.getUser_id();
                     }
-
                     LogUtil.w("user_id" + user_id);
                     EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 
+                }else{
+                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
             }
 
@@ -761,20 +762,10 @@ public class FaceSet {
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
                     if (ymFace.getLiveness() == 1) {
-//                        int user_id = 0;
-//                        FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
-//                                .where(FaceImageDao.Properties.PersonId.eq(identifyPerson)).unique();
-//                        if (unique != null) {
-//                            user_id = unique.getUser_id();
-//                        }
 //
-//                        LogUtil.w("user_id" + user_id);
-//                        EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
-
                     }
                 } else {//未注册
-
-                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
+//                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
             }
         } else {

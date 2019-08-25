@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -37,6 +38,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +67,7 @@ import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.SharePreferensUtil;
+import com.jbb.library_common.utils.StringUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.compress.CompressImageUtil;
@@ -1828,8 +1831,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
         if (bean.isRegist) {
-//            if (!isFacePause) {
-//                isFacePause = true;
+            mCameraView.setBackgroundResource(R.drawable.green_line_bg);
+            openStatusTv.setText("您好！\n认证成功");
+            openStatusTv.setTextColor(Color.parseColor("#ffffff"));
 
             long currentTime = System.currentTimeMillis();
             if (currentTime - lastOpenTime >= 2000) {
@@ -1840,8 +1844,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 msg.obj = String.valueOf(bean.user_id);
                 doorHandler.sendMessage(msg);
             }
-
         } else {
+            mCameraView.setBackgroundResource(R.drawable.red_line_bg);
+            openStatusTv.setText("抱歉！\n认证失败");
+            openStatusTv.setTextColor(Color.parseColor("#ff0000"));
+
             long now = System.currentTimeMillis();
             if (now - faceErrorStartTime > 3000) {
 //                ToastUtil.showCustomToast(bean.faceResult);
@@ -1859,6 +1866,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     // -----------------------------------------------------------
     // For Face start..
+
+    private RelativeLayout faceParentRl;
+    private TextView dateTv,openStatusTv;
     private SurfaceView sfv_draw_view; //人脸框绘画层
     public FaceSet faceSet = null; //sdk逻辑层
     public CameraView mIRCameraView; //红外摄像头
@@ -1929,6 +1939,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void initFaceCamera() {
         initConfig();
 
+        faceParentRl = findViewById(R.id.face_parentlayout);
+        dateTv = findViewById(R.id.date_tv);
+        openStatusTv = findViewById(R.id.open_staus_tv);
+        Calendar calendar = Calendar.getInstance();
+        int week = calendar.get(Calendar.DAY_OF_WEEK);
+        int today = calendar.get(Calendar.DAY_OF_YEAR);
+        dateTv.setText(StringUtil.getWeekDay(week) + " " + today);
+
         mCameraView = findViewById(R.id.camera);
         sfv_draw_view = findViewById(R.id.sfv_draw_view);
         sfv_draw_view.setZOrderOnTop(true);
@@ -1983,7 +2001,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void showFaceLayout(){
         isFaceViewShow = true;
-        mCameraView.bringToFront();
+//        mCameraView.bringToFront();
+        faceParentRl.bringToFront();
         entranceDetailTv.bringToFront();
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
@@ -1996,6 +2015,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callVideoLayout.bringToFront();
         roomNumLayout.bringToFront();
         entranceDetailTv.bringToFront();
+
+        mCameraView.setBackground(null);
+        openStatusTv.setText("");
     }
 
 
