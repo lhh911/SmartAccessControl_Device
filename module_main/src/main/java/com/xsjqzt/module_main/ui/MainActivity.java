@@ -1874,7 +1874,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public CameraView mIRCameraView; //红外摄像头
     public CameraView mCameraView; //RGB摄像头
     private byte[] irData; //ir视频流
-    private int screenW = 640;//屏幕分辨率w
+    private int screenW = 240;//屏幕分辨率w
     private final Object lock = new Object();
     private Size ratio;//摄像头预览分辨率
     private float scale_bit = 1;
