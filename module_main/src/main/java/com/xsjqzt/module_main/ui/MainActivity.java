@@ -63,6 +63,7 @@ import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.BitmapUtil;
 import com.jbb.library_common.utils.CommUtil;
+import com.jbb.library_common.utils.DateFormateUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
@@ -1665,7 +1666,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                         uploadRecord(type, sn);
                         startMusic(2);
-                        MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
+                        if(type != 4)
+                            MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
                         break;
@@ -1786,13 +1788,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initView();
     }
 
+
     public Bitmap getCameraBitmap() {
         //格式成YUV格式
-        YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, 640,
-                480, null);
+        YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, preWidth,
+                preHeight, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        yuvimage.compressToJpeg(new Rect(0, 0, 640,
-                480), 100, baos);
+        yuvimage.compressToJpeg(new Rect(0, 0, preWidth,
+                preHeight), 100, baos);
         Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
 
         return bitmap;
@@ -1874,7 +1877,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public CameraView mIRCameraView; //红外摄像头
     public CameraView mCameraView; //RGB摄像头
     private byte[] irData; //ir视频流
-    private int screenW = 240;//屏幕分辨率w
+    private int screenW = 320;//屏幕分辨率w
     private final Object lock = new Object();
     private Size ratio;//摄像头预览分辨率
     private float scale_bit = 1;
@@ -1882,6 +1885,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public DemoConfig mConfig;
     // For Face end..
+    private int preWidth = 480;//根据相机流生成图片的宽
+    private int preHeight = 640;//生成图片的高
 
     private void onFaceResume() {
 
@@ -1939,13 +1944,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void initFaceCamera() {
         initConfig();
 
+        //识别预览框的背景层
         faceParentRl = findViewById(R.id.face_parentlayout);
         dateTv = findViewById(R.id.date_tv);
         openStatusTv = findViewById(R.id.open_staus_tv);
         Calendar calendar = Calendar.getInstance();
         int week = calendar.get(Calendar.DAY_OF_WEEK);
-        int today = calendar.get(Calendar.DAY_OF_YEAR);
-        dateTv.setText(StringUtil.getWeekDay(week) + " " + today);
+        String today = DateFormateUtil.getCurrentDate();
+        dateTv.setText(today + " " + StringUtil.getWeekDay(week));
+
 
         mCameraView = findViewById(R.id.camera);
         sfv_draw_view = findViewById(R.id.sfv_draw_view);

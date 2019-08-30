@@ -9,7 +9,7 @@
     <RelativeLayout
         android:id="@+id/face_parentlayout"
         android:layout_width="match_parent"
-        android:layout_height="370dp"
+        android:layout_height="372dp"
         android:layout_margin="20dp"
         android:layout_alignParentBottom="true"
         android:padding="10dp"
@@ -17,14 +17,14 @@
 
         <TextView
             android:id="@+id/date_tv"
-            style="@style/textview14"
+            style="@style/textview16"
             android:layout_marginLeft="20dp"
             android:textColor="@color/common_white"
             android:text="2019-08-20"/>
 
         <TextView
             android:id="@+id/open_staus_tv"
-            style="@style/textview14"
+            style="@style/textview18"
             android:textColor="@color/common_white"
             android:layout_toRightOf="@+id/sfv_draw_view"
             android:layout_alignParentRight="true"

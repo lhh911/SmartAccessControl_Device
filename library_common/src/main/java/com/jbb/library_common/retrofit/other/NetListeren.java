@@ -18,12 +18,11 @@ public abstract class NetListeren<T> {
         if (AppConfig.LOG_SWITCH_FLAG == LogUtil.LOG_ON) {
             e.printStackTrace();
         }
-        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
             if (e instanceof NetException) {
                 NetException exception = (NetException) e;
                 ToastUtil.showCustomToast(exception.message());
             } else {//其他异常都要统计
-
                 ToastUtil.showCustomToast(HttpRespStatus.MSG_UNKNOWN_ERROR);
             }
         }

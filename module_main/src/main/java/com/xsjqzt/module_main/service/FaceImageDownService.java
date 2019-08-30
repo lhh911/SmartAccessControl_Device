@@ -330,7 +330,7 @@ public class FaceImageDownService extends IntentService {
 
     //上传人脸识别状态
     public void updateFacesStatus(int status, int user_id, String code) {
-        SubscribeUtils.subscribe3(RetrofitManager.getInstance().getService(ApiService.class)
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .updateFacesStatus(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), status, user_id, code), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean info) {

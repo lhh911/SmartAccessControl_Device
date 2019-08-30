@@ -392,7 +392,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
             @Override
             public void onError(Exception e) {
-//                super.onError(e);
+                super.onError(e);
             }
         });
     }
