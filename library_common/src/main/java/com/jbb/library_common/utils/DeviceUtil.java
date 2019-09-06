@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -39,19 +40,12 @@ import java.util.Locale;
 /**
  * 类: DeviceUtils <p>
  * 描述: 拿到设备上的一些信息 <p>
- * 作者: nn <p>
- * 时间: 2014年7月25日 上午11:18:41 <p>
  */
 public class DeviceUtil {
 
     /**
      * 方法: isHasNetWork <p>
      * 描述: 判断网络是否可用 <p>
-     * 参数: @return <p>
-     * 返回: boolean <p>
-     * 异常  <p>
-     * 作者: nn <p>
-     * 时间: 2014年7月25日 上午11:19:05
      */
     public static boolean isNetWorkEnable() {
         try {
@@ -73,11 +67,6 @@ public class DeviceUtil {
     /**
      * 方法: IsWiFi <p>
      * 描述: 判断当前网络是否是wifi <p>
-     * 参数: @return <p>
-     * 返回: boolean <p>
-     * 异常  <p>
-     * 作者: nn <p>
-     * 时间: 2014年7月25日 上午11:59:11
      */
     public static boolean IsWiFiState() {
         boolean is = false;
@@ -201,9 +190,6 @@ public class DeviceUtil {
 
     /**
      * 描述:获取本地IP信息
-     * 作者:nn
-     * 时间:2016/1/24 14:16
-     * 版本:3.1.6
      */
     public static String getLocalIpAddress() {
         try {
@@ -340,6 +326,43 @@ public class DeviceUtil {
             }
         }
         return "";
+    }
+
+
+    public static boolean checkCameraEnable() {
+        boolean result;
+        Camera camera = null;
+        try {
+            camera = Camera.open();
+            if (camera == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                boolean connected = false;
+                for (int camIdx = 0; camIdx < Camera.getNumberOfCameras(); ++camIdx) {
+//                    Log.d(TAG, "Trying to open camera with new open(" + Integer.valueOf(camIdx) + ")");
+                    try {
+                        camera = Camera.open(camIdx);
+                        connected = true;
+                    } catch (RuntimeException e) {
+//                        Log.e(TAG, "Camera #" + camIdx + "failed to open: " + e.getLocalizedMessage());
+                    }
+                    if (connected) {
+                        break;
+                    }
+                }
+            }
+            List<Camera.Size> supportedPreviewSizes = camera.getParameters().getSupportedPreviewSizes();
+            result = supportedPreviewSizes != null;
+            /* Finally we are ready to start the preview */
+//            Log.d(TAG, "startPreview");
+            camera.startPreview();
+        } catch (Exception e) {
+//            Log.e(TAG, "Camera is not available (in use or does not exist): " + e.getLocalizedMessage());
+            result = false;
+        } finally {
+            if (camera != null) {
+                camera.release();
+            }
+        }
+        return result;
     }
 
 }

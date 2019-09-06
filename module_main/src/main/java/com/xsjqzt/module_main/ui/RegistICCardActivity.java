@@ -1,9 +1,11 @@
 package com.xsjqzt.module_main.ui;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,9 +17,11 @@ import android.widget.Toast;
 
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.utils.CommUtil;
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.ScreenShotUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
+import com.jbb.library_common.widght.DoubleButtonDialog;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.ICCardDao;
@@ -96,23 +100,37 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
             registTipTv.setText("注册IC卡");
             imgTextView.setText("请刷IC卡");
         }
-//        numTv.setText(qrCodeNum);
-//        createQrCode();
-//        homeBtn.setOnClickListener(this);
 
         startMeasuing();
 
-       startTask();
+        startTask();
+
+        if (!DeviceUtil.isNetWorkEnable()) {
+            showTip();
+        }
+    }
+
+    private void showTip() {
+        new AlertDialog.Builder(this)
+                .setTitle("提示！")
+                .setMessage("网络异常此功能暂不能使用请联系管理处")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                }).show();
 
     }
 
-    private void startTask(){
-       if(runnable != null){
-           doorHandler.removeCallbacks(runnable);
-           runnable = null;
-       }
-       runnable = new MyRunnable(this);
-       doorHandler.postAtTime(runnable,1000);
+    private void startTask() {
+        if (runnable != null) {
+            doorHandler.removeCallbacks(runnable);
+            runnable = null;
+        }
+        runnable = new MyRunnable(this);
+        doorHandler.postAtTime(runnable, 1000);
     }
 
 
@@ -155,7 +173,6 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     public void error(Exception e) {
 
     }
-
 
 
     //初始化nfc串口
@@ -225,7 +242,6 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     }
 
 
-
     public void stopMeasuing() {
         if (serialHelper != null && serialHelper.isOpen()) {
             serialHelper.close();
@@ -287,12 +303,12 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private void checkRegist(String str) {
         if (mType == 1) {
             IDCard unique = DbManager.getInstance().getDaoSession().getIDCardDao().queryBuilder().where(IDCardDao.Properties.Sn.eq(str)).unique();
-            if(unique != null){
+            if (unique != null) {
                 ToastUtil.showCustomToast("卡号已注册");
             }
-        }else{
+        } else {
             ICCard unique = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder().where(ICCardDao.Properties.Sn.eq(str)).unique();
-            if(unique != null){
+            if (unique != null) {
                 ToastUtil.showCustomToast("卡号已注册");
             }
         }
@@ -302,11 +318,11 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {// * 号
-            isShiftClick  = true;
+            isShiftClick = true;
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_3) {
-            if(isShiftClick){// # 号
+            if (isShiftClick) {// # 号
                 finish();
                 return true;
             }
@@ -316,25 +332,24 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void receiveBindSuccess(BindCardSuccessEventBus bean ){
+    public void receiveBindSuccess(BindCardSuccessEventBus bean) {
         finish();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(EventBus.getDefault().isRegistered(this))
+        if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
 
-        if(doorHandler != null)
+        if (doorHandler != null)
             doorHandler.removeCallbacks(runnable);
     }
 
 
+    class MyRunnable implements Runnable {
+        WeakReference<Activity> weakReference;
 
-
-    class MyRunnable implements Runnable{
-        WeakReference<Activity> weakReference ;
         public MyRunnable(Activity activity) {
             startTime = System.currentTimeMillis();
             this.weakReference = new WeakReference(activity);
@@ -342,11 +357,11 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 
         @Override
         public void run() {
-            if(weakReference.get() != null){
-                if(System.currentTimeMillis() - startTime > duration){
+            if (weakReference.get() != null) {
+                if (System.currentTimeMillis() - startTime > duration) {
                     finish();
-                }else{
-                    doorHandler.postAtTime(runnable,1000);
+                } else {
+                    doorHandler.postAtTime(runnable, 1000);
                 }
             }
         }

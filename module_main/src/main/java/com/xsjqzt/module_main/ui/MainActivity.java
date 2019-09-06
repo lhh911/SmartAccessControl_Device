@@ -64,6 +64,7 @@ import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.BitmapUtil;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.DateFormateUtil;
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.GlideUtils;
 import com.jbb.library_common.utils.MD5Util;
@@ -205,6 +206,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private String inputNum;//输入号码
     private EMCallManager.EMCallPushProvider pushProvider;
     private InutLayoutShowTimeRunnable callRunnable;
+    private boolean cameraEnable = true;
 
 
     @Override
@@ -261,6 +263,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            requestPermiss();
 //        else
             initData();
+
     }
 
     private void initData() {
@@ -276,8 +279,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         loadDeviceInfo();
         loadBanner();
 
-        initFaceCamera();
-        initFaceEvent();
+        cameraEnable = DeviceUtil.checkCameraEnable();
+        if(cameraEnable) {
+            initFaceCamera();
+            initFaceEvent();
+        }else{
+            new AlertDialog.Builder(this)
+                    .setTitle("提示！")
+                    .setMessage("摄像头不可用或已损坏")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
+        }
 
         startService(new Intent(this,HeartBeatService.class));
     }
@@ -966,8 +981,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         showCallVideoLayout();
         callNumTv.setText(roomNum);
-
-        onFacePause();
+        if(cameraEnable) {
+            onFacePause();
+        }
         hideFaceLayout();
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
@@ -1614,13 +1630,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         open();
 
-        onFaceResume();
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-//
-//        } else {
-//            if (haPermission)
-//                onFaceResume();
-//        }
+        if(cameraEnable) {
+            onFaceResume();
+        }
 
     }
 
@@ -1633,15 +1645,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         stopMeasuing();
 
-        onFacePause();
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-//            onFacePause();
-//        } else {
-//            if (haPermission)
-//                onFacePause();
-//        }
-
-
+        if(cameraEnable) {
+            onFacePause();
+        }
     }
 
     long lastOpenTime = 0;
@@ -2210,7 +2216,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                onFaceResume();
+                if(cameraEnable)
+                    onFaceResume();
             }
         }, 500);
     }

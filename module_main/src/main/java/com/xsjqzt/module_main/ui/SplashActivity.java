@@ -45,7 +45,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     @Override
     public void init() {
         EMHelper.getInstance().init(getApplicationContext());//环信初始化，有注册过就会直接登录
-        checkFirstInstall();
+//        checkFirstInstall();
         initMac();
         initView();
 //        requestPermiss();
