@@ -61,4 +61,6 @@ dependencies {
 
 //    api 'com.google.zxing:core:3.2.1'
     api 'com.github.yuzhiqiang1993:zxing:2.2.8'
+
+    api 'com.github.a-voyager:AutoInstaller:v1.0'//静默安装
 }

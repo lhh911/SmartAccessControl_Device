@@ -4,9 +4,12 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -15,6 +18,10 @@ import com.jbb.library_common.R;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
+
+import java.lang.ref.WeakReference;
+
+import top.wuhaojie.installerlibrary.AutoInstaller;
 
 
 /**
@@ -33,6 +40,7 @@ public class AppDownloadService extends DownloadBaseIntentService {
     private static final String PUSH_CHANNEL_ID = "PUSH_NOTIFY_ID";
     private static final String PUSH_CHANNEL_NAME = "PUSH_NOTIFY_NAME";
 
+    private MyHandler mHandler;
 
     public AppDownloadService() {
         super(AppDownloadService.class.getSimpleName());
@@ -40,6 +48,30 @@ public class AppDownloadService extends DownloadBaseIntentService {
 
     public AppDownloadService(String name) {
         super(name);
+    }
+
+    public class MyHandler extends Handler{
+        private WeakReference<Service> weakReference ;
+
+        public MyHandler(Service service) {
+            this.weakReference = new WeakReference<>(service);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(weakReference.get() != null){
+                Intent intent = new Intent();
+                intent.setAction("android.intent.action.BOOT_COMPLETED");
+                sendBroadcast(intent);
+            }
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mHandler = new MyHandler(this);
     }
 
     @Override
@@ -104,8 +136,28 @@ public class AppDownloadService extends DownloadBaseIntentService {
     @Override
     public void success() {
         updateNotification(DownloadUtil.FINISH, 0);
-        DownloadUtil.installApk(AppDownloadService.this, DownloadUtil.getTargetFile(AppDownloadService.this, url));
+//        DownloadUtil.installApk(AppDownloadService.this, DownloadUtil.getTargetFile(AppDownloadService.this, url));
+        installApk(DownloadUtil.getTargetFile(AppDownloadService.this, url));//
     }
+
+    //静默安装，安装完后重启系统，来启动app，目前没找到能监听安装完成打开app的方法
+    private void installApk(String appFile){
+        final AutoInstaller installer = AutoInstaller.getDefault(this);
+        installer.install(appFile);
+        installer.setOnStateChangedListener(new AutoInstaller.OnStateChangedListener() {
+            @Override
+            public void onStart() {
+            }
+            @Override
+            public void onComplete() {
+                mHandler.sendEmptyMessageDelayed(1,30*1000);
+            }
+            @Override
+            public void onNeed2OpenService() {
+            }
+        });
+    }
+
 
     public void error(int errorType) {
         if (errorType == DownloadUtil.ERROR) {

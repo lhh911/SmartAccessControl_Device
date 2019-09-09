@@ -32,6 +32,7 @@ import com.xsjqzt.module_main.model.RefreshTokenResBean;
 import com.xsjqzt.module_main.model.RoomNumByUserIdResBean;
 import com.xsjqzt.module_main.model.TokenResBean;
 import com.xsjqzt.module_main.model.UploadCardResBean;
+import com.xsjqzt.module_main.model.VersionResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
@@ -525,6 +526,24 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             public void onSuccess(BaseBean bean) {
                 ToastUtil.showCustomToast("极光id推送服务器成功");
                 SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_USERINFO);
+            }
+        });
+    }
+
+    public void checkVersion(String versionName) {
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .checkUpload(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), versionName), VersionResBean.class, new NetListeren<VersionResBean>() {
+            @Override
+            public void onSuccess(VersionResBean bean) {
+                if (mView != null)
+                    mView.checkVersionSuccess(bean);
+
+            }
+
+
+            @Override
+            public void onError(Exception e) {
+//                super.onError(e);
             }
         });
     }

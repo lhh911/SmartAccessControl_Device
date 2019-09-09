@@ -60,6 +60,7 @@ import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.hyphenate.util.EMLog;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.download.AppDownloadService;
 import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.BitmapUtil;
 import com.jbb.library_common.utils.CommUtil;
@@ -98,6 +99,7 @@ import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
+import com.xsjqzt.module_main.model.VersionResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
 import com.xsjqzt.module_main.modle.DownVideoSuccessEventBus;
@@ -274,7 +276,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         startMeasuing();
         initMusic();
 //        test();
-        emLoginUser();
+//        emLoginUser();
 
         loadDeviceInfo();
         loadBanner();
@@ -295,6 +297,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
 
         startService(new Intent(this,HeartBeatService.class));
+
+        //延迟3秒检查版本是否需要更新
+        entranceDetailTv.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkVersion();
+            }
+        },3000);
     }
 
 
@@ -358,22 +368,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         new AlertDialog.Builder(this).setMessage(sf.toString()).show();
 
-//        startService(new Intent(this,OpenRecordService.class));
-
-
-//        Bitmap bitmap = BitmapFactory.decodeFile("/storage/emulated/0/SmartAccessControl_Device/picture/face_picture_1559912142780.jpg");
-//        String code = "";//识别码
-//        FaceSet faceSet = new FaceSet(getApplication());
-//        faceSet.startTrack(0);
-//        FaceResult faceResult = faceSet.registByBitmap(bitmap,  "张三");
-//        if (faceResult == null) return;
-//        if (faceResult.code == 0) {//成功
-//            //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
-//            code = DataConversionUtil.floatToString(faceResult.rect);
-//            LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
-//
-//
-//        }
     }
 
     @Override
@@ -801,6 +795,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         setVoice(json.getInt("volume"));
                     } else if (type == 104) {//开锁
                         openDoor();
+                    }else if(type == 105){//app有更新，检查更新
+                        checkVersion();
                     }
                 } catch (Exception e) {
 
@@ -809,6 +805,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }).start();
 
 
+    }
+
+
+    private void checkVersion() {
+        presenter.checkVersion(CommUtil.getVersionName());
     }
 
     private void downOpenCode() {
@@ -1792,6 +1793,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     public void loadBannerSuccess() {
         initView();
+    }
+
+    @Override
+    public void checkVersionSuccess(VersionResBean bean) {
+        if(bean.getData() != null){
+            if(bean.getData().isUpgrade()){
+                String path = bean.getData().getPath();
+                Intent intent = new Intent(this,AppDownloadService.class);
+                intent.putExtra(KeyContacts.KEY_URL,path);
+                intent.putExtra(KeyContacts.KEY_TITLE,"下载中..");
+                startService(intent);
+            }
+        }
     }
 
 
