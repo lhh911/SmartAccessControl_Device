@@ -15,10 +15,12 @@ import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
+import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.ToastUtil;
+import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
@@ -31,6 +33,7 @@ import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.Setting;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -95,6 +98,9 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         LogUtil.w("序列号 macAddress = " + macAddress);
         LogUtil.w("序列号 sn1 = " + str1);
         LogUtil.w("序列号 sn1 = " + str2);
+
+        JPushInterface.setAlias(this, CommUtil.getRandomInt(9),(str1+str2));
+
     }
 
 

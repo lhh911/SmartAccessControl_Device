@@ -36,6 +36,9 @@ public class KeyContacts {
 
     public static final String SP_KEY_FIRSTINSTALL = "sp_key_firstinstall";//是否是第一次启动
     public static final String SP_KEY_REGISTRATIONID = "sp_key_registrationid";//是否将极光注册id发给后台绑定设备
+    public static final String SP_KEY_JPUSH_ALIAS = "sp_key_jpush_alias";//是否将极光alias
+    public static final String SP_NAME_JPUSH= "sp_name_jpush"; //SP sp_name_jpush文件名
+
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key
     public static final String SP_NAME_USERINFO= "userinfo"; //SP userinfo文件名
 

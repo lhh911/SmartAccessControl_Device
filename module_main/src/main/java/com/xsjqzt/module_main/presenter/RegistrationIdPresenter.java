@@ -17,7 +17,7 @@ public class RegistrationIdPresenter {
             @Override
             public void onSuccess(BaseBean bean) {
                 ToastUtil.showCustomToast("设备接入成功");
-                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_USERINFO);
+                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_JPUSH);
             }
             @Override
             public void onError(Exception e) {

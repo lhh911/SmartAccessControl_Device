@@ -525,7 +525,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             @Override
             public void onSuccess(BaseBean bean) {
                 ToastUtil.showCustomToast("极光id推送服务器成功");
-                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_USERINFO);
+                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_JPUSH);
             }
         });
     }

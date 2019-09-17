@@ -10,6 +10,7 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
+import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
@@ -75,17 +76,21 @@ public class DownAllDataService extends IntentService {
     //将注册的极光registId上传到服务器
     public void registrationId() {
         String registrationId = JPushInterface.getRegistrationID(this);
-        boolean uploadRegist = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_REGISTRATIONID,false ,KeyContacts.SP_NAME_USERINFO);
+        boolean uploadRegist = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_REGISTRATIONID,false ,KeyContacts.SP_NAME_JPUSH);
         if(!uploadRegist) {
             SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                     .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
                 @Override
                 public void onSuccess(BaseBean bean) {
                     ToastUtil.showCustomToast("设备接入成功");
-                    SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_USERINFO);
+                    SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_JPUSH);
                 }
             });
         }
+
+        boolean hasAlias = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_JPUSH_ALIAS, false, KeyContacts.SP_NAME_JPUSH);
+        if(!hasAlias)
+            JPushInterface.setAlias(this, CommUtil.getRandomInt(9),UserInfoInstance.getInstance().getSn1() + UserInfoInstance.getInstance().getSn2());
     }
 
     private void downOpenCode() {

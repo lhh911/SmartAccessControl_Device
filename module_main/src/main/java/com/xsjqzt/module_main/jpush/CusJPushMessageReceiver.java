@@ -2,6 +2,9 @@ package com.xsjqzt.module_main.jpush;
 
 import android.content.Context;
 
+import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.utils.SharePreferensUtil;
+
 import java.util.Set;
 
 import cn.jpush.android.api.JPushMessage;
@@ -35,6 +38,11 @@ public class CusJPushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onAliasOperatorResult(Context context, JPushMessage jPushMessage) {
         super.onAliasOperatorResult(context, jPushMessage);
+        int errorCode = jPushMessage.getErrorCode();
+        if(errorCode == 0){
+            String alias = jPushMessage.getAlias();
+            SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_JPUSH_ALIAS,true ,KeyContacts.SP_NAME_JPUSH);
+        }
     }
 
     //设置手机号码会在此方法中回调结果。

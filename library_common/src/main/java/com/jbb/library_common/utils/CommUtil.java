@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 
 /**
@@ -600,5 +601,16 @@ public class CommUtil {
         if(imm !=null){
             imm.hideSoftInputFromWindow(view.getWindowToken(),0);
         }
+    }
+
+
+    public static int getRandomInt(int length) {
+        StringBuffer sf = new StringBuffer();
+        Random random = new Random();
+        for(int i = 0;i< length;i++){
+            sf.append(random.nextInt(10));
+        }
+        String string = sf.toString();
+        return Integer.parseInt(string);
     }
 }
