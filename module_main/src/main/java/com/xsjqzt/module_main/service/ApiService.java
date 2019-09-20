@@ -134,6 +134,7 @@ public interface ApiService {
     Observable<ResponseBody> sendHeartBeat(@Header("Authorization") String token );
 
     //检查更新
+    @FormUrlEncoded
     @POST("entrance/data/upgrade")
     Observable<ResponseBody> checkUpload(@Header("Authorization") String token , @Field("version") String versionName);
 }

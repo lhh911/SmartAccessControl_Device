@@ -7,7 +7,7 @@ import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.BuildConfig;
 import com.jbb.library_common.comfig.AppConfig;
 import com.jbb.library_common.utils.log.LogUtil;
-import com.tencent.bugly.crashreport.CrashReport;
+//import com.tencent.bugly.crashreport.CrashReport;
 import com.xsjqzt.module_main.util.CrashHandler;
 
 import cn.jpush.android.api.JPushInterface;
@@ -31,7 +31,7 @@ public class ExApplication extends BaseApplication {
 
         JPushInterface.init(getApplicationContext());
 
-        CrashReport.initCrashReport(getApplicationContext(),AppConfig.BUGLY_APPID,false);
+//        CrashReport.initCrashReport(getApplicationContext(),AppConfig.BUGLY_APPID,false);
 
         CrashHandler.getInstance().init(getApplicationContext());//异常捕捉，重启应用
     }

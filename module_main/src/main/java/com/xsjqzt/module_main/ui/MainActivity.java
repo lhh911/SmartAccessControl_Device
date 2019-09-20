@@ -208,7 +208,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private String inputNum;//输入号码
     private EMCallManager.EMCallPushProvider pushProvider;
     private InutLayoutShowTimeRunnable callRunnable;
-    private boolean cameraEnable = true;
+
+    private boolean isCheckedCamera;
+
 
 
     @Override
@@ -261,12 +263,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         banner = findViewById(R.id.banner);
         videoPlayer = findViewById(R.id.videoplayer);
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//            requestPermiss();
-//        else
-            initData();
+        initData();
 
     }
+
 
     private void initData() {
 
@@ -281,22 +281,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         loadDeviceInfo();
         loadBanner();
 
-        cameraEnable = DeviceUtil.checkCameraEnable();
-        if(cameraEnable) {
-            initFaceCamera();
-            initFaceEvent();
-        }else{
-            new AlertDialog.Builder(this)
-                    .setTitle("提示！")
-                    .setMessage("摄像头不可用或已损坏")
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    }).show();
-        }
 
-        startService(new Intent(this,HeartBeatService.class));
+        initFaceCamera();
+        initFaceEvent();
+
+        startService(new Intent(this, HeartBeatService.class));
 
         //延迟3秒检查版本是否需要更新
         entranceDetailTv.postDelayed(new Runnable() {
@@ -304,9 +293,27 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             public void run() {
                 checkVersion();
             }
-        },3000);
+        }, 3000);
     }
 
+
+    private void checkCameraEnable() {
+        if(!isCheckedCamera) {
+            isCheckedCamera = true;
+            boolean cameraEnable = DeviceUtil.checkCameraEnable();
+            if (!cameraEnable) {
+                new AlertDialog.Builder(this)
+                        .setTitle("提示！")
+                        .setMessage("摄像头不可用或已损坏")
+                        .setCancelable(false)
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).show();
+            }
+        }
+    }
 
     private void loadDeviceInfo() {
         presenter.entranceDetail();
@@ -607,7 +614,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     public void getTokenSuccess() {
         String registrationID = JPushInterface.getRegistrationID(this);
-        if(!TextUtils.isEmpty(registrationID)) {
+        if (!TextUtils.isEmpty(registrationID)) {
             presenter.registrationId(registrationID);
         }
     }
@@ -665,7 +672,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         endCall();
         stopMeasuing();
 
-        stopService(new Intent(this,HeartBeatService.class));
+        stopService(new Intent(this, HeartBeatService.class));
     }
 
     @Override
@@ -748,7 +755,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     //
                     UserInfoInstance.getInstance().reset();
                     login();
-                }else if(code == 2004){//设备未绑定或不存在
+                } else if (code == 2004) {//设备未绑定或不存在
                     UserInfoInstance.getInstance().reset();
                     goTo(SplashActivity.class);
                     finish();
@@ -767,7 +774,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void handleNotity(final Bundle bundle) {
-        if(bundle == null)return;
+        if (bundle == null) return;
 
         new Thread(new Runnable() {
             @Override
@@ -795,7 +802,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         setVoice(json.getInt("volume"));
                     } else if (type == 104) {//开锁
                         openDoor();
-                    }else if(type == 105){//app有更新，检查更新
+                    } else if (type == 105) {//app有更新，检查更新
                         checkVersion();
                     }
                 } catch (Exception e) {
@@ -982,9 +989,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         showCallVideoLayout();
         callNumTv.setText(roomNum);
-        if(cameraEnable) {
-            onFacePause();
-        }
+//        if(cameraEnable) {
+        onFacePause();
+//        }
         hideFaceLayout();
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
@@ -1319,7 +1326,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二次
-    private int callVideoTimeOut = 30*1000;
+    private int callVideoTimeOut = 30 * 1000;
 
     private void startCallSuccessTime() {
         if (callRunnable != null) {
@@ -1631,9 +1638,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         open();
 
-        if(cameraEnable) {
-            onFaceResume();
-        }
+        onFaceResume();
+
 
     }
 
@@ -1646,9 +1652,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         stopMeasuing();
 
-        if(cameraEnable) {
-            onFacePause();
-        }
+        onFacePause();
+
     }
 
     long lastOpenTime = 0;
@@ -1673,7 +1678,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                         uploadRecord(type, sn);
                         startMusic(2);
-                        if(type != 4)
+                        if (type != 4)
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 5000);
@@ -1797,12 +1802,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void checkVersionSuccess(VersionResBean bean) {
-        if(bean.getData() != null){
-            if(bean.getData().isUpgrade()){
+        if (bean.getData() != null) {
+            if (bean.getData().isUpgrade()) {
                 String path = bean.getData().getPath();
-                Intent intent = new Intent(this,AppDownloadService.class);
-                intent.putExtra(KeyContacts.KEY_URL,path);
-                intent.putExtra(KeyContacts.KEY_TITLE,"下载中..");
+                Intent intent = new Intent(this, AppDownloadService.class);
+                intent.putExtra(KeyContacts.KEY_URL, path);
+                intent.putExtra(KeyContacts.KEY_TITLE, "下载中..");
                 startService(intent);
             }
         }
@@ -1891,7 +1896,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     // For Face start..
 
     private RelativeLayout faceParentRl;
-    private TextView dateTv,openStatusTv;
+    private TextView dateTv, openStatusTv;
     private SurfaceView sfv_draw_view; //人脸框绘画层
     public FaceSet faceSet = null; //sdk逻辑层
     public CameraView mIRCameraView; //红外摄像头
@@ -1912,11 +1917,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         RxPermissions permissions = new RxPermissions(this);
         permissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_PHONE_STATE,Manifest.permission.RECORD_AUDIO)
+                Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO)
                 .subscribe(new Consumer<Boolean>() {
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         if (aBoolean) {
+                            checkCameraEnable();
+
                             userMap = UserDataUtil.updateDataSource(true);
                             //预览适配
                             mCameraView.setAdjustViewBounds(mConfig.isAdjustView);
@@ -2026,7 +2033,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
-    private void showFaceLayout(){
+    private void showFaceLayout() {
         isFaceViewShow = true;
 //        mCameraView.bringToFront();
         faceParentRl.bringToFront();
@@ -2034,7 +2041,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
 
-    private void hideFaceLayout(){
+    private void hideFaceLayout() {
         isFaceViewShow = false;
         homebgIv.bringToFront();
         banner.bringToFront();
@@ -2230,8 +2237,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(cameraEnable)
-                    onFaceResume();
+//                if(cameraEnable)
+                onFaceResume();
             }
         }, 500);
     }

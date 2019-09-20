@@ -184,7 +184,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
                    JSONObject json = new JSONObject(extras);
                    int type = json.optInt("type");
 
-                   if (type == 105) {//设备绑定成功
+                   if (type == 106) {//设备绑定成功
                        finish();
                    }
                } catch (Exception e) {

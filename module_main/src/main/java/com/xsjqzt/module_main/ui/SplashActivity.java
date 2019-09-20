@@ -1,5 +1,6 @@
 package com.xsjqzt.module_main.ui;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -22,11 +23,15 @@ import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.dataSource.UserDataUtil;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
+import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.presenter.TokenPresenter;
+import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.view.TokenView;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
@@ -39,8 +44,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.jpush.android.api.JPushInterface;
+import io.reactivex.functions.Consumer;
 
-public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> implements TokenView {
+public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> implements TokenView {
 
 
     String macAddress = "2047DAF3E9AB";//测试写死的mac地址，绑定3出入口
@@ -48,15 +54,15 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     @Override
     public void init() {
         EMHelper.getInstance().init(getApplicationContext());//环信初始化，有注册过就会直接登录
-//        checkFirstInstall();
+
         initMac();
         initView();
 //        requestPermiss();
     }
 
-    private void checkFirstInstall(){
+    private void checkFirstInstall() {
         boolean firstInstall = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_FIRSTINSTALL, true, KeyContacts.SP_NAME_USERINFO);
-        if(firstInstall){
+        if (firstInstall) {
             SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_FIRSTINSTALL, false, KeyContacts.SP_NAME_USERINFO);
             FaceSet faceSet = new FaceSet(getApplication());
             faceSet.startTrack(0);
@@ -65,14 +71,14 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         }
     }
 
-    private void  initView(){
+    private void initView() {
         ActivityManager.getInstance().setAppStatus(KeyContacts.STATUS_NORMAL);
 
         UserInfoSerializUtil.initUserInstance();
-        if(!UserInfoInstance.getInstance().hasLogin()){
-             loadKey();
+        if (!UserInfoInstance.getInstance().hasLogin()) {
+            loadKey();
 //            bindDevice();
-        }else{
+        } else {
             next(4000);
         }
 //        loadKey();
@@ -82,13 +88,13 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     private void initMac() {
 
         macAddress = DeviceUtil.getEthernetMac();
-        if(TextUtils.isEmpty(macAddress)) {
+        if (TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
         }
-        macAddress = macAddress.replaceAll(":","").toUpperCase();
+        macAddress = macAddress.replaceAll(":", "").toUpperCase();
         String str1 = macAddress;
-        String str2 = MD5Util.md5(macAddress).substring(0 , 4).toUpperCase();
+        String str2 = MD5Util.md5(macAddress).substring(0, 4).toUpperCase();
 
         UserInfoInstance.getInstance().setSn1(str1);
         UserInfoInstance.getInstance().setSn2(str2);
@@ -99,16 +105,15 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         LogUtil.w("序列号 sn1 = " + str1);
         LogUtil.w("序列号 sn1 = " + str2);
 
-        JPushInterface.setAlias(this, CommUtil.getRandomInt(9),(str1+str2));
+        JPushInterface.setAlias(this, CommUtil.getRandomInt(9), (str1 + str2));
 
     }
 
 
-
-    private void bindDevice(){
+    private void bindDevice() {
 
         int eid = 7;
-        presenter.bindDevice(UserInfoInstance.getInstance().getSn1(),UserInfoInstance.getInstance().getSn2() ,eid);
+        presenter.bindDevice(UserInfoInstance.getInstance().getSn1(), UserInfoInstance.getInstance().getSn2(), eid);
     }
 
     //获取加密key
@@ -126,7 +131,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
                 finish();
             }
         };
-        timer.schedule(task,time);
+        timer.schedule(task, time);
     }
 
     @Override
@@ -138,8 +143,6 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     public String getATitle() {
         return null;
     }
-
-
 
 
     @Override
@@ -174,22 +177,22 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
         //获取token
         //获取token的key，生成规则：skey = md5(sn1+sn2+key)
         String skey = MD5Util.md5(UserInfoInstance.getInstance().getSn1() + UserInfoInstance.getInstance().getSn2() + key);
-        presenter.getToken(UserInfoInstance.getInstance().getSn1(),skey);
+        presenter.getToken(UserInfoInstance.getInstance().getSn1(), skey);
     }
 
     @Override
     public void loadKeyFail() {
-        goToForResult(SystemInfoActivity.class,10);
+        goToForResult(SystemInfoActivity.class, 10);
     }
 
     @Override
     public void getTokenSuccess() {
         String registrationID = JPushInterface.getRegistrationID(this);
-        if(!TextUtils.isEmpty(registrationID)) {
+        if (!TextUtils.isEmpty(registrationID)) {
             presenter.registrationId(registrationID);
         }
 //        next(3000);
-        registHX(UserInfoInstance.getInstance().getMacAddress().toLowerCase(),"123456");
+        registHX(UserInfoInstance.getInstance().getMacAddress().toLowerCase(), "123456");
     }
 
     @Override
@@ -200,67 +203,82 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == 10){
+        if (requestCode == 10) {
             loadKey();
         }
     }
 
     private void requestPermiss() {
 
-        DefaultRationale rationale = new DefaultRationale();
-        AndPermission.with(this)
-                .runtime()
-                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA)
-                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
-                .onGranted(new Action<List<String>>() {
+        RxPermissions permissions = new RxPermissions(this);
+        permissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(new Consumer<Boolean>() {
                     @Override
-                    public void onAction(List<String> data) {
-                        initView();
-                                           }
-                })
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                        if (AndPermission.hasAlwaysDeniedPermission(SplashActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
-                            List<String> permissionNames = Permission.transformText(SplashActivity.this, data);
-                            String message = SplashActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
-                            new AlertDialog.Builder(SplashActivity.this)
-                                    .setCancelable(false)
-                                    .setTitle("提示")
-                                    .setMessage(message)
-                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            AndPermission.with(SplashActivity.this)
-                                                    .runtime()
-                                                    .setting()
-                                                    .onComeback(new Setting.Action() {
-                                                        @Override
-                                                        public void onAction() {
-                                                            //返回
-                                                            requestPermiss();
-                                                        }
-                                                    }).start();
-                                        }
-                                    })
-                                    .show();
-
+                    public void accept(Boolean aBoolean) throws Exception {
+                        if (aBoolean) {
+                            initMac();
+                            initView();
                         }
                     }
-                })
-                .start();
+                });
+
+
+
+
+//        DefaultRationale rationale = new DefaultRationale();
+//        AndPermission.with(this)
+//                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA)
+//                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
+//                .onGranted(new Action<List<String>>() {
+//                    @Override
+//                    public void onAction(List<String> data) {
+//
+//                    }
+//                })
+//                .onDenied(new Action<List<String>>() {
+//                    @Override
+//                    public void onAction(List<String> data) {
+//
+//                        if (AndPermission.hasAlwaysDeniedPermission(SplashActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
+//                            List<String> permissionNames = Permission.transformText(SplashActivity.this, data);
+//                            String message = SplashActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
+//                            new AlertDialog.Builder(SplashActivity.this)
+//                                    .setCancelable(false)
+//                                    .setTitle("提示")
+//                                    .setMessage(message)
+//                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            dialog.dismiss();
+//                                            AndPermission.with(SplashActivity.this)
+//                                                    .runtime()
+//                                                    .setting()
+//                                                    .onComeback(new Setting.Action() {
+//                                                        @Override
+//                                                        public void onAction() {
+//                                                            //返回
+//                                                            requestPermiss();
+//                                                        }
+//                                                    }).start();
+//                                        }
+//                                    })
+//                                    .show();
+//
+//                        }
+//                    }
+//                })
+//                .start();
     }
 
 
     /**
-     *  注册环信用户
-     * @param username  mac地址注册
+     * 注册环信用户
+     *
+     * @param username mac地址注册
      * @param psw
      */
 
-    public void registHX(final String username, final String psw){
+    public void registHX(final String username, final String psw) {
         new Thread(new Runnable() {
             public void run() {
                 try {
@@ -268,7 +286,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
 //                    EMClient.getInstance().check();
 
                     EMClient.getInstance().createAccount(username, psw);
-                    loginHX(username,psw);
+                    loginHX(username, psw);
 
                 } catch (final HyphenateException e) {
                     runOnUiThread(new Runnable() {
@@ -290,7 +308,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
                             }
                         }
                     });
-                    loginHX(username,psw);
+                    loginHX(username, psw);
                 }
             }
         }).start();
@@ -298,7 +316,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
     }
 
 
-    private void loginHX(String userName,String psw){
+    private void loginHX(String userName, String psw) {
         EMClient.getInstance().login(userName, psw, new EMCallBack() {
             @Override
             public void onSuccess() {
@@ -317,6 +335,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView,TokenPresenter> im
                     }
                 });
             }
+
             @Override
             public void onProgress(int i, String s) {
             }

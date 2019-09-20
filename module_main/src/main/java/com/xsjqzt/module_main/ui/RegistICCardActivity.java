@@ -101,6 +101,8 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
             imgTextView.setText("请刷IC卡");
         }
 
+        doorHandler = new MyHandler(this);
+
         startMeasuing();
 
         startTask();
@@ -130,7 +132,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
             runnable = null;
         }
         runnable = new MyRunnable(this);
-        doorHandler.postAtTime(runnable, 1000);
+        doorHandler.postDelayed(runnable, 1000);
     }
 
 
@@ -178,7 +180,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     //初始化nfc串口
     public void startMeasuing() {
         LogUtil.w("SerialPort  startMeasuing");
-        doorHandler = new MyHandler(this);
+
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
@@ -361,7 +363,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
                 if (System.currentTimeMillis() - startTime > duration) {
                     finish();
                 } else {
-                    doorHandler.postAtTime(runnable, 1000);
+                    doorHandler.postDelayed(runnable, 1000);
                 }
             }
         }
