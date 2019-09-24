@@ -143,7 +143,7 @@ public class AppDownloadService extends DownloadBaseIntentService {
     //静默安装，安装完后重启系统，来启动app，目前没找到能监听安装完成打开app的方法
     private void installApk(String appFile){
         final AutoInstaller installer = AutoInstaller.getDefault(this);
-        installer.install(appFile);
+
         installer.setOnStateChangedListener(new AutoInstaller.OnStateChangedListener() {
             @Override
             public void onStart() {
@@ -156,6 +156,7 @@ public class AppDownloadService extends DownloadBaseIntentService {
             public void onNeed2OpenService() {
             }
         });
+        installer.install(appFile);
     }
 
 

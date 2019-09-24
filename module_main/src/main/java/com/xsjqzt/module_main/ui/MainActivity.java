@@ -138,6 +138,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -211,7 +212,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private boolean isCheckedCamera;
 
-
+    int time8 = 800;//早上八点
+    int time19 = 1900;//19点
+    int time24 = 2400;//24点
+    int lastVolume ;//设备音量开关  0 默认白天，1 晚上
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -799,7 +803,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     } else if (type == 101) {//更新设备状态
                         loadDeviceInfo();
                     } else if (type == 102) {//设置音量
-                        setVoice(json.getInt("volume"));
+                        int volume = json.getInt("volume");
+                        int volume_night = json.getInt("volume_night");
+                        SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME,volume,KeyContacts.SP_NAME_JPUSH);
+                        SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT,volume_night,KeyContacts.SP_NAME_JPUSH);
+                        setVoice();
                     } else if (type == 104) {//开锁
                         openDoor();
                     } else if (type == 105) {//app有更新，检查更新
@@ -845,13 +853,36 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-    private void setVoice(final int volume) {
+    //设置音量，每次拨报前检查是白天还是夜间音量
+    private void setVoice() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
+                String nowHouse = new SimpleDateFormat("HHmm").format(System.currentTimeMillis());
+                int now = Integer.parseInt(nowHouse);
+
+                int isNight = 0;
+                if ((now > time19 && now < time24) || (now > 0 && now < time8)) {//夜间音量
+                    isNight = 1;
+                }else{               //白天音量
+                    isNight = 0;
+                }
+                if(lastVolume == isNight){
+                    return;
+                }
+                lastVolume = isNight;
+
+                int volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,0,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+                if(volume == 0)
+                    volume = 100;
                 //设置音量
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND);
+                int maxSyetem = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
+                int maxMusic = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+
+                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);
 
                 //通知服务器设置成功
                 presenter.setVoice(volume);
@@ -1724,6 +1755,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
          * 第六个设置播放速度
          * 返回值 不为0即代表成功
          */
+
+        setVoice();
         int type = mSound.play(resId, 1, 1, 1, 0, 1);
     }
 
