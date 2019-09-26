@@ -34,7 +34,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- app开机广播 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
+    <uses-permission android:name="android.permission.REBOOT"/>
     <application>
         <uses-library
             android:name="org.apache.http.legacy"
