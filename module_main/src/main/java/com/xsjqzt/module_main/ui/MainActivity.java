@@ -799,7 +799,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     } else if (type == 4) {//下载人脸图片，并注册到阅面的人脸库，将注册状态发送给后台服务器
                         downFaceImage();
                     } else if (type == 100) {//设备重启
-
+                        rebootDevice();
                     } else if (type == 101) {//更新设备状态
                         loadDeviceInfo();
                     } else if (type == 102) {//设置音量
@@ -822,6 +822,21 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
+    private void rebootDevice(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showCustomToast("即将重启");
+
+                doorHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        DeviceUtil.rebootDevice();
+                    }
+                },1000);
+            }
+        });
+
+    }
 
     private void checkVersion() {
         presenter.checkVersion(CommUtil.getVersionName());

@@ -365,4 +365,15 @@ public class DeviceUtil {
         return result;
     }
 
+
+    public static void rebootDevice(){
+        String cmd = "su -c reboot";//
+        try {
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 }
