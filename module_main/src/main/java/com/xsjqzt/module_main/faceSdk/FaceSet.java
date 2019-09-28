@@ -243,6 +243,7 @@ public class FaceSet {
             int faceConfidence = faceTrack.getRecognitionConfidence();
             result.code = 102;
             result.msg = "用户(" + result.personId + ")已注册 ,相似对为" + faceConfidence;
+            result.rect = faceFeature;
         }
         return result;
     }

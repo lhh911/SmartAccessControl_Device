@@ -1046,8 +1046,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         } catch (final EMServiceNotReadyException e) {
             e.printStackTrace();
-//            runOnUiThread(new Runnable() {
-//                public void run() {
+            runOnUiThread(new Runnable() {
+                public void run() {
 //                    String st2 = e.getMessage();
 //                    if (e.getErrorCode() == EMError.CALL_REMOTE_OFFLINE) {
 //                        st2 = getResources().getString(R.string.The_other_is_not_online);
@@ -1064,10 +1064,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                    }
 //                    Toast.makeText(MainActivity.this, st2, Toast.LENGTH_SHORT).show();
 //
-////                    endCall();
-////                    faceOnResuse();
-//                }
-//            });
+                    endCall();
+                    faceOnResuse();
+                }
+            });
         }
 
 
@@ -1222,6 +1222,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 msg.arg1 = 5;
                 msg.obj = remoteUserId;
                 doorHandler.sendMessage(msg);
+
+                //开门后自动挂断
+                doorHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        endCall();
+                        faceOnResuse();
+                    }
+                },10 * 1000);
             }
 
             @Override

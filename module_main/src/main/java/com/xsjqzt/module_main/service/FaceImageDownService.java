@@ -19,6 +19,7 @@ import com.jbb.library_common.retrofit.other.SubscribeUtils;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.StringUtil;
+import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
@@ -43,8 +44,10 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 
 public class FaceImageDownService extends IntentService {
@@ -111,7 +114,7 @@ public class FaceImageDownService extends IntentService {
                         deleteList.add(unique);
                     }
                 }
-
+                downImage();
             } else {
                 String codeX = poll.getCodeX();
                 if (!TextUtils.isEmpty(codeX)) {//有阅面唯一识别码，直接注册阅面
@@ -200,6 +203,7 @@ public class FaceImageDownService extends IntentService {
                             reQueue.add(dataBean);
                             downImage();//继续下一个
                         }
+                        toast("人脸图片下载失败| userid="+dataBean.getUser_id());
                     }
 
                     @Override
@@ -230,9 +234,9 @@ public class FaceImageDownService extends IntentService {
             }
 
         } catch (FileNotFoundException e) {
-
+            toast("人脸图片下载失败，FileNotFoundException| userid="+dataBean.getUser_id());
         } catch (IOException e) {
-
+            toast("人脸图片下载失败，IOException| userid="+dataBean.getUser_id());
         } finally {
             try {
                 fos.flush();
@@ -250,10 +254,13 @@ public class FaceImageDownService extends IntentService {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
 
-        int status = 0;
+        int status = 3;
         String code = "";//识别码
         FaceResult faceResult = null;
-
+        if(bitmap == null){
+            downImage();
+            return;
+        }
         try {
             //注册 10次，保证注册成功率
             for (int i = 0; i < 10; i++) {
@@ -267,6 +274,7 @@ public class FaceImageDownService extends IntentService {
                     //添加成功，此返回值即为数据库对当前⼈人脸的中唯⼀一标识
                     code = StringUtil.arrayToString(faceResult.rect);
                     LogUtil.w("人脸的中唯⼀一标识 personId = " + code);
+                    toast("用图片注册成功| userid="+dataBean.getUser_id());
                     status = 2;
                     //插入本地数据
                     dataBean.setCodeX(code);
@@ -274,15 +282,16 @@ public class FaceImageDownService extends IntentService {
 
                     break;
                 } else if (faceResult.code == 102) {//已注册,
-//                status = 4;
+                    code = StringUtil.arrayToString(faceResult.rect);
+                    status = 2;
                     break;
                 } else {//失败
                     status = 3;
-
+                    toast("用图片注册失败| userid="+dataBean.getUser_id());
                 }
             }
         } catch (Exception e) {
-
+            toast("Exception用图片注册失败| userid="+dataBean.getUser_id());
         }
 
         if (dataBean.getStatus() != 2)
@@ -312,6 +321,7 @@ public class FaceImageDownService extends IntentService {
                 if (faceResult.code == 0) {//成功
                     LogUtil.w("人脸的中唯⼀一标识 personId = " + codeX);
 //                    status = 2;
+                    toast("用唯一标识注册成功| userid="+dataBean.getUser_id());
                     //插入本地数据
                     insert(dataBean, faceResult.personId);
                     break;
@@ -319,27 +329,28 @@ public class FaceImageDownService extends IntentService {
 //                status = 4;
                     break;
                 } else {//失败
+                    toast("用唯一标识注册失败|userid="+dataBean.getUser_id());
                 }
             }
         } catch (Exception e) {
-
+            toast("Exception用唯一标识注册失败|userid="+dataBean.getUser_id());
         }
 
         downImage();//继续下一个
     }
 
     //上传人脸识别状态
-    public void updateFacesStatus(int status, int user_id, String code) {
+    public void updateFacesStatus(int status, final int user_id, String code) {
         SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                 .updateFacesStatus(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), status, user_id, code), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean info) {
-
+                toast("上传注册状态成功|userid="+ user_id);
             }
 
             @Override
             public void onError(Exception e) {
-//                super.onError(e);
+                toast("上传注册状态失败|userid="+ user_id);
             }
         });
     }
@@ -358,4 +369,32 @@ public class FaceImageDownService extends IntentService {
 
 
     }
+
+    private void toast(String msg){
+        Observable.just(msg)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(String integer) {
+                        ToastUtil.showCustomToast("人脸注册： "+integer);
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
 }
