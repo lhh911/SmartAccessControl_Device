@@ -732,9 +732,10 @@ public class FaceSet {
             android.util.Log.d("wlDebug", "ymFace.getLiveness().... getConfidence" + ymFace.getConfidence());
             android.util.Log.d("wlDebug", "ymFace.getLiveness().... getLiveness" + ymFace.getLiveness());
 
+            identifyPerson = faceTrack.identifyPerson(i);
+            int confidence = faceTrack.getRecognitionConfidence();
+
             if (ymFace.getConfidence() >= 75 && ymFace.getLiveness() == 1) {
-                identifyPerson = faceTrack.identifyPerson(i);
-                int confidence = faceTrack.getRecognitionConfidence();
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
                     android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
@@ -755,8 +756,8 @@ public class FaceSet {
 
             if (!trackingMap.containsKey(trackId) || trackingMap.get(trackId).getPersonId() <= 0) {
                 //人脸识别：identifyPerson>0 为识别成功，identifyPerson为识别对应人脸的personid identifyPerson<0  即该人脸未注册
-                identifyPerson = faceTrack.identifyPerson(i);
-                int confidence = faceTrack.getRecognitionConfidence();
+//                identifyPerson = faceTrack.identifyPerson(i);
+//                int confidence = faceTrack.getRecognitionConfidence();
 //                float[] faceFeature = faceTrack.getFaceFeature(i);//特征值（貌似识别时不唯一）
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
@@ -766,7 +767,7 @@ public class FaceSet {
 //
                     }
                 } else {//未注册
-//                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
+                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
             }
         } else {
