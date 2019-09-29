@@ -34,6 +34,12 @@ android {
 
     sourceSets.main.jniLibs.srcDirs = ['jniLibs']
 
+//    sourceSets{
+//        main{
+//            jniLibs.srcDirs = ['libs']
+//        }
+//    }
+
     greendao {
         schemaVersion 1//数据库版本号
         daoPackage 'com.xsjqzt.module_main.greendao'//设置DaoMaster、DaoSession、Dao包名
