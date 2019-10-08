@@ -32,7 +32,7 @@ android {
         }
     }
 
-    sourceSets.main.jniLibs.srcDirs = ['jniLibs']
+//    sourceSets.main.jniLibs.srcDirs = ['jniLibs']
 
 //    sourceSets{
 //        main{
