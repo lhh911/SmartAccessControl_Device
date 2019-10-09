@@ -29,6 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import mobile.ReadFace.YMFace;
 import mobile.ReadFace.YMFaceTrack;
 
@@ -313,6 +317,11 @@ public class FaceSet {
         return false;
     }
 
+
+    public int getUserSize(){
+        if (faceTrack == null) return 0;
+        return faceTrack.getAlbumSize();
+    }
 
     public float[] getFaceFeatureByBitmap(Bitmap bitmap) {
         if (faceTrack == null) return null;
@@ -748,11 +757,15 @@ public class FaceSet {
                     }
                     LogUtil.w("user_id" + user_id);
                     EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
-
+                    toast("人脸已注册");
                 }else{
+                    toast("人脸未注册");
                     EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
+            }else{
+                toast("活体未通过或getConfidence < 75");
             }
+
 
             if (!trackingMap.containsKey(trackId) || trackingMap.get(trackId).getPersonId() <= 0) {
                 //人脸识别：identifyPerson>0 为识别成功，identifyPerson为识别对应人脸的personid identifyPerson<0  即该人脸未注册
@@ -775,6 +788,24 @@ public class FaceSet {
         }
         trackingMap.put(trackId, ymFace);
     }
+
+
+    private void toast(String msg){
+        Observable.just(msg)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    public void onSubscribe(Disposable d) {
+                    }
+                    public void onNext(String integer) {
+                        ToastUtil.showCustomToast("人脸识别： "+integer);
+                    }
+                    public void onError(Throwable e) {
+                    }
+                    public void onComplete() {
+                    }
+                });
+    }
+
 
 
     /**

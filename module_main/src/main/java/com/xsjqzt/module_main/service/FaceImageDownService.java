@@ -113,6 +113,7 @@ public class FaceImageDownService extends IntentService {
                     if (!delete) {
                         deleteList.add(unique);
                     }
+                    LogUtil.d("delectFaceImage = " + delete + "userId = " + unique.getUser_id());
                 }
                 downImage();
             } else {

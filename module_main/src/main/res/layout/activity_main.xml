@@ -110,13 +110,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="btn1Click"
-            android:text="密码开门" />
+            android:text="清空人脸" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btn5Click"
+            android:text="人脸库数量" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="btn2Click"
-            android:text="IC卡身份证注册" />
+            android:text="IC卡注册" />
 
 
         <Button

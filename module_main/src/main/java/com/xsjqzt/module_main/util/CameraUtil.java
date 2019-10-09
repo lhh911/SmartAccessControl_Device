@@ -4,6 +4,11 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 
+import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.utils.SharePreferensUtil;
+import com.xsjqzt.module_main.activity.base.ExApplication;
+import com.xsjqzt.module_main.faceSdk.FaceSet;
+
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,5 +45,18 @@ public class CameraUtil {
 
         }
 
+    }
+
+
+    public static void clearAllFace( FaceSet faceSet) {
+        if(faceSet == null)
+            return;
+        faceSet.removeAllUser();
+    }
+
+    public static int getFaceSize( FaceSet faceSet) {
+        if(faceSet == null)
+            return 0;
+        return faceSet.getUserSize();
     }
 }

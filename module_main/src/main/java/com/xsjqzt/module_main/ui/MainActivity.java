@@ -111,6 +111,7 @@ import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.HeartBeatService;
 import com.xsjqzt.module_main.service.OpenRecordService;
+import com.xsjqzt.module_main.util.CameraUtil;
 import com.xsjqzt.module_main.util.DataConversionUtil;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
@@ -457,16 +458,43 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     public void btn1Click(View view) {
-        if (inputLayoutShow) {
-            String inputNum = roomNumEt.getText().toString().trim();
-            if (TextUtils.isEmpty(inputNum))
-                return;
+//        if (inputLayoutShow) {
+//            String inputNum = roomNumEt.getText().toString().trim();
+//            if (TextUtils.isEmpty(inputNum))
+//                return;
+//
+//            checkInput(inputNum);
+//        } else {
+//            showRoomNumOpen();
+//        }
 
-            checkInput(inputNum);
-        } else {
-            showRoomNumOpen();
-        }
+        new AlertDialog.Builder(this)
+                .setCancelable(true)
+                .setMessage("确定清空人脸库？")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CameraUtil.clearAllFace(faceSet);
+                    }
+                }).show();
     }
+
+
+    public void btn5Click(View view) {
+        int faceSize = CameraUtil.getFaceSize(faceSet);
+
+        new AlertDialog.Builder(this)
+                .setCancelable(true)
+                .setMessage("人脸数量 ： " + faceSize)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+    }
+
 
     public void btn2Click(View view) {
         Bundle bundle = new Bundle();
@@ -873,6 +901,37 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                String nowHouse = new SimpleDateFormat("HHmm").format(System.currentTimeMillis());
+                int now = Integer.parseInt(nowHouse);
+                int isNight = 0;
+                if ((now > time19 && now < time24) || (now > 0 && now < time8)) {//夜间音量
+                    isNight = 1;
+                }else{               //白天音量
+                    isNight = 0;
+                }
+                lastVolume = isNight;
+                int volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+
+                //设置音量
+                AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                int maxSyetem = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
+                int maxMusic = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+
+                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);
+
+                //通知服务器设置成功
+                presenter.setVoice(volume);
+            }
+        });
+
+    }
+
+    //设置音量，每次拨报前检查是白天还是夜间音量
+    private void checkVoice() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
                 String nowHouse = new SimpleDateFormat("HHmm").format(System.currentTimeMillis());
                 int now = Integer.parseInt(nowHouse);
@@ -888,9 +947,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
                 lastVolume = isNight;
 
-                int volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,0,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
-                if(volume == 0)
-                    volume = 100;
+                int volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+
                 //设置音量
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                 int maxSyetem = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
@@ -899,12 +957,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);
 
-                //通知服务器设置成功
-                presenter.setVoice(volume);
             }
         });
 
     }
+
+
 
     private void downICCardData() {
 
@@ -1780,7 +1838,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
          * 返回值 不为0即代表成功
          */
 
-        setVoice();
+        checkVoice();
         int type = mSound.play(resId, 1, 1, 1, 0, 1);
     }
 
@@ -1823,6 +1881,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 finish();
                 return;
             }
+
+            int volume = bean.getData().getVolume();
+            int volume_night =  bean.getData().getVolume_night();
+            SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME,volume,KeyContacts.SP_NAME_JPUSH);
+            SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT,volume_night,KeyContacts.SP_NAME_JPUSH);
 
             String garden_name = bean.getData().getGarden_name();
             String region_name = bean.getData().getRegion_name();

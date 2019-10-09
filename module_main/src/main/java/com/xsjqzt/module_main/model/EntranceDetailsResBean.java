@@ -38,6 +38,7 @@ public class EntranceDetailsResBean extends BaseBean {
         private String sn;
         private int status;
         private int volume;
+        private int volume_night;
         private int distance_type;
         private int garden_id;
         private String garden_name;
@@ -84,6 +85,14 @@ public class EntranceDetailsResBean extends BaseBean {
 
         public void setVolume(int volume) {
             this.volume = volume;
+        }
+
+        public int getVolume_night() {
+            return volume_night;
+        }
+
+        public void setVolume_night(int volume_night) {
+            this.volume_night = volume_night;
         }
 
         public int getDistance_type() {
