@@ -523,7 +523,11 @@ public class StringUtil {
         if(strings == null)return null;
         float[] fs = new float[strings.length];
         for (int i = 0; i < strings.length; i++) {
-            fs[i] = Float.parseFloat(strings[i]);
+            try {
+                fs[i] = Float.parseFloat(strings[i]);
+            }catch (Exception e){
+                return fs;
+            }
         }
 
         return fs;

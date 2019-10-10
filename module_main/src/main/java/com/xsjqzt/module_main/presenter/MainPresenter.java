@@ -452,7 +452,7 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 .loadBanner(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), update_time), ADResBean.class, new NetListeren<ADResBean>() {
             @Override
             public void onSuccess(ADResBean bean) {
-                if(bean.getData() != null){
+                if(bean.getData() != null ){
                     int type = bean.getData().getType();
                     int update_time1 = bean.getData().getUpdate_time();
                     List<ADResBean.DataBean.ListBean> list = bean.getData().getList();
