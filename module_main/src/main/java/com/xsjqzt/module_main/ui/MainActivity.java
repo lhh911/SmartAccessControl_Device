@@ -910,18 +910,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     isNight = 0;
                 }
                 lastVolume = isNight;
-                int volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+                float volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
 
                 //设置音量
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                int maxSyetem = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
-                int maxMusic = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+                int maxSyetem = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
+                int maxMusic = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
 
                 audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);
 
                 //通知服务器设置成功
-                presenter.setVoice(volume);
+                presenter.setVoice((int) volume);
             }
         });
 
@@ -947,12 +947,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
                 lastVolume = isNight;
 
-                int volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+                float volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
 
                 //设置音量
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                int maxSyetem = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
-                int maxMusic = (volume/100) * (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+                int maxSyetem = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
+                int maxMusic = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
 
                 audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);

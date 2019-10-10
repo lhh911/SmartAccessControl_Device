@@ -201,9 +201,9 @@ public class FaceSet {
                 result.msg = "用户(" + result.personId + ")已注册 ,相似对为" + faceConfidence;
             }
         } else {
-            User user = getUser(0);
-            user.setName(name);
-            result.personId = insertPerson(user, 0, bitmap, result.rect);
+//            User user = getUser(0);
+//            user.setName(name);
+            result.personId = insertPerson(null, 0, bitmap, result.rect);
             if (result.personId > 0) {
                 result.code = 0;
                 result.msg = "成功注册人脸";
@@ -300,9 +300,9 @@ public class FaceSet {
     public boolean removeAllUser() {
         if (faceTrack == null) return false;
         if (faceTrack.resetAlbum() == 0) {
-            UserDataUtil.clearDb();
-            DataSource dataSource = new DataSource(ExApplication.getContext());
-            dataSource.deleteAllUser();
+//            UserDataUtil.clearDb();
+//            DataSource dataSource = new DataSource(ExApplication.getContext());
+//            dataSource.deleteAllUser();
             return true;
         }
         return false;
@@ -340,9 +340,9 @@ public class FaceSet {
         if (result.personId > 0) {
             faceTrack.deletePerson(result.personId);
         }
-        User user = getUser(0);
-        user.setName(name);
-        result.personId = insertPerson(user, index, bitmap, rect);
+//        User user = getUser(0);
+//        user.setName(name);
+        result.personId = insertPerson(null, index, bitmap, rect);
         if (result.personId > index) {
             result.code = 0;
             result.msg = "成功注册人脸";
@@ -358,13 +358,14 @@ public class FaceSet {
         int personId = faceTrack.addPerson(index);
 
         if (personId > 0) {
-            user.setPersonId(personId + "");
-            if (UserDataUtil.addDataSource(head, user, rect, 0)) {
-                return personId;
-            } else {
-                faceTrack.deletePerson(personId);
-                return -1;
-            }
+            return personId;
+//            user.setPersonId(personId + "");
+//            if (UserDataUtil.addDataSource(head, user, rect, 0)) {
+//                return personId;
+//            } else {
+//                faceTrack.deletePerson(personId);
+//                return -1;
+//            }
         }
         return -1;
     }
@@ -373,7 +374,7 @@ public class FaceSet {
     public boolean deleteUserByPersonId(int personId) {
         if (faceTrack == null) return false;
         if (faceTrack.deletePerson(personId) == 0) {
-            UserDataUtil.deleteByPersonId(String.valueOf(personId));
+//            UserDataUtil.deleteByPersonId(String.valueOf(personId));
             return true;
         }
         return false;
