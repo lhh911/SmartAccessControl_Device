@@ -525,7 +525,8 @@ public class StringUtil {
         for (int i = 0; i < strings.length; i++) {
             try {
                 fs[i] = Float.parseFloat(strings[i]);
-            }catch (Exception e){
+            }catch (NumberFormatException e){
+                e.printStackTrace();
                 return fs;
             }
         }
@@ -534,14 +535,16 @@ public class StringUtil {
     }
 
     public static String arrayToString(float[] fs) {
-
+        String str = "";
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < fs.length; i++) {
-            stringBuilder.append(fs[i]);
-            if(i < fs.length -1)
-                stringBuilder.append(",");
+            stringBuilder.append(fs[i]).append(",");
         }
-        String str = stringBuilder.toString();
+        if(stringBuilder.length() > 1){
+            str = stringBuilder.substring(0,stringBuilder.length()-1);
+        }else {
+            str = stringBuilder.toString();
+        }
         return str;
     }
 

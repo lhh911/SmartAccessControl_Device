@@ -1877,6 +1877,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             if (status == 1) {
                 ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
                 UserInfoInstance.getInstance().reset();
+                CameraUtil.clearAllFace(faceSet);
+                FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(this)));
+
                 goTo(SplashActivity.class);
                 finish();
                 return;
