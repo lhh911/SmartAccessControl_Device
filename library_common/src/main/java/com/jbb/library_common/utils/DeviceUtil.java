@@ -366,15 +366,32 @@ public class DeviceUtil {
     }
 
 
-    public static void rebootDevice(){
+//    public static void rebootDevice(){
+//        try {
+////            Runtime.getRuntime().exec("su -c reboot");
+//            //如果您的系统使用串行端口，请执行以下命令，
+//            Runtime.getRuntime().exec(new String[]{"/system/bin/su","-c","reboot now"});
+//        } catch (IOException e) {
+//            try {
+//                //如果使用普通端口，则使用下面的命令
+//                Runtime.getRuntime().exec(new String[]{"/system/xbin/su","-c","reboot now"});
+//            } catch (IOException e1) {
+//                e1.printStackTrace();
+//            }
+//            e.printStackTrace();
+//        }
+//    }
+
+    public static void rebootDevice()
+    {
         try {
 //            Runtime.getRuntime().exec("su -c reboot");
             //如果您的系统使用串行端口，请执行以下命令，
-            Runtime.getRuntime().exec(new String[]{"/system/bin/su","-c","reboot now"});
+            Runtime.getRuntime().exec("reboot now");
         } catch (IOException e) {
             try {
                 //如果使用普通端口，则使用下面的命令
-                Runtime.getRuntime().exec(new String[]{"/system/xbin/su","-c","reboot now"});
+                Runtime.getRuntime().exec(new String []{ "/system/xbin/su", "-c", "reboot now" });
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

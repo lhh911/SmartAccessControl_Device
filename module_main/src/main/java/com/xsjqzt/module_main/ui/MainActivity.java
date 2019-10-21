@@ -1893,10 +1893,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             String garden_name = bean.getData().getGarden_name();
             String region_name = bean.getData().getRegion_name();
             String building_name = bean.getData().getBuilding_name();
+
+
             String name = bean.getData().getName();
             UserInfoInstance.getInstance().setDoor(name);
 
-            entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
+//            entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
+            entranceDetailTv.setText(bean.getData().getDisplay_name());
 
 
         }

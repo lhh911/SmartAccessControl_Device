@@ -208,67 +208,6 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
         }
     }
 
-    private void requestPermiss() {
-
-        RxPermissions permissions = new RxPermissions(this);
-        permissions.request(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .subscribe(new Consumer<Boolean>() {
-                    @Override
-                    public void accept(Boolean aBoolean) throws Exception {
-                        if (aBoolean) {
-                            initMac();
-                            initView();
-                        }
-                    }
-                });
-
-
-
-
-//        DefaultRationale rationale = new DefaultRationale();
-//        AndPermission.with(this)
-//                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA)
-//                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
-//                .onGranted(new Action<List<String>>() {
-//                    @Override
-//                    public void onAction(List<String> data) {
-//
-//                    }
-//                })
-//                .onDenied(new Action<List<String>>() {
-//                    @Override
-//                    public void onAction(List<String> data) {
-//
-//                        if (AndPermission.hasAlwaysDeniedPermission(SplashActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
-//                            List<String> permissionNames = Permission.transformText(SplashActivity.this, data);
-//                            String message = SplashActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
-//                            new AlertDialog.Builder(SplashActivity.this)
-//                                    .setCancelable(false)
-//                                    .setTitle("提示")
-//                                    .setMessage(message)
-//                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            dialog.dismiss();
-//                                            AndPermission.with(SplashActivity.this)
-//                                                    .runtime()
-//                                                    .setting()
-//                                                    .onComeback(new Setting.Action() {
-//                                                        @Override
-//                                                        public void onAction() {
-//                                                            //返回
-//                                                            requestPermiss();
-//                                                        }
-//                                                    }).start();
-//                                        }
-//                                    })
-//                                    .show();
-//
-//                        }
-//                    }
-//                })
-//                .start();
-    }
 
 
     /**
