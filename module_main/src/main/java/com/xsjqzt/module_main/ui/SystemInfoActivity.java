@@ -17,9 +17,12 @@ import android.widget.TextView;
 
 import com.jbb.library_common.basemvp.BaseActivity;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
+import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.ScreenShotUtil;
+import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
@@ -118,7 +121,9 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
             String building_name = bean.getData().getBuilding_name();
             String name = bean.getData().getName();
 
-            deviceNameTv.setText(garden_name + region_name + building_name + name);
+            String display_name = bean.getData().getDisplay_name();
+
+            deviceNameTv.setText(display_name);
 
             ipAddressTv.setText(getLocalIp());
         }
@@ -185,7 +190,15 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
                    int type = json.optInt("type");
 
                    if (type == 106) {//设备绑定成功
+                       String url_root = json.optString("url_root", "");
+                       SharePreferensUtil.putString(KeyContacts.URL_ROOT,url_root,KeyContacts.SP_NAME_JPUSH);
+                       if(!TextUtils.isEmpty(url_root)  && !InterfaceConfig.BASEURL.equals(url_root)) {
+                           InterfaceConfig.BASEURL = url_root;
+
+                           RetrofitManager.getInstance().switchUrl(url_root);
+                       }
                        finish();
+
                    }
                } catch (Exception e) {
 

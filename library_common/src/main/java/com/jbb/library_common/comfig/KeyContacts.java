@@ -40,6 +40,7 @@ public class KeyContacts {
     public static final String SP_NAME_JPUSH= "sp_name_jpush"; //SP sp_name_jpush文件名
     public static final String SP_KEY_VOLUME = "sp_key_volume";//白天音量
     public static final String SP_KEY_VOLUME_NIGHT = "sp_key_volume_night";//晚上音量
+    public static final String URL_ROOT = "url_root";//设备绑定是返回的接口域名，灵活配置
 
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key
     public static final String SP_NAME_USERINFO= "userinfo"; //SP userinfo文件名

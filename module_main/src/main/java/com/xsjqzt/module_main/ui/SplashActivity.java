@@ -3,6 +3,7 @@ package com.xsjqzt.module_main.ui;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -14,6 +15,7 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.exceptions.HyphenateException;
 import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
+import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.CommUtil;
@@ -54,10 +56,15 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
     @Override
     public void init() {
         EMHelper.getInstance().init(getApplicationContext());//环信初始化，有注册过就会直接登录
+        //检查服务器配置的url是否改变
+        String url_root = SharePreferensUtil.getString(KeyContacts.URL_ROOT, KeyContacts.SP_NAME_JPUSH);
+        if(!TextUtils.isEmpty(url_root)){
+            InterfaceConfig.BASEURL = url_root;
+        }
 
         initMac();
         initView();
-//        requestPermiss();
+
     }
 
     private void checkFirstInstall() {

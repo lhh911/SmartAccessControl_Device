@@ -45,6 +45,7 @@ public class EntranceInfoResBean extends BaseBean {
         private String region_name;
         private int building_id;
         private String building_name;
+        private String display_name;
 
         public int getId() {
             return id;
@@ -140,6 +141,14 @@ public class EntranceInfoResBean extends BaseBean {
 
         public void setBuilding_name(String building_name) {
             this.building_name = building_name;
+        }
+
+        public String getDisplay_name() {
+            return display_name;
+        }
+
+        public void setDisplay_name(String display_name) {
+            this.display_name = display_name;
         }
     }
 }

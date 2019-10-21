@@ -55,12 +55,31 @@ public class RetrofitManager {
                 .baseUrl(InterfaceConfig.BASEURL)
                 .build();
 
-//        apiService = retrofit.create(ApiService.class);
     }
 
 
     public <T> T getService(Class<T> service){
         return mRetrofit.create(service);
+    }
+
+
+    public void switchUrl(String baseUrl){
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        builder.connectTimeout(20,TimeUnit.SECONDS);
+        builder.writeTimeout(20,TimeUnit.SECONDS);
+        builder.readTimeout(20,TimeUnit.SECONDS);
+        builder.addInterceptor(new HttpLoggingInterceptor());
+        builder.addInterceptor(new ParamsInterceptor());
+        builder.sslSocketFactory(OkHttpClineUtils.getSSLSocketFactory(),OkHttpClineUtils.getX509TrustManager());
+        builder.hostnameVerifier(OkHttpClineUtils.getHostnameVerifier());
+
+        mRetrofit = new Retrofit.Builder()
+                .client(builder.build())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl(baseUrl)
+                .build();
     }
 
 }
