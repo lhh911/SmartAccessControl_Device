@@ -290,7 +290,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initFaceCamera();
         initFaceEvent();
 
-        startService(new Intent(this, HeartBeatService.class));
+
+        if(deviceEnable()) {
+            startService(new Intent(this, DownAllDataService.class));
+            startService(new Intent(this, HeartBeatService.class));
+        }
 
         //延迟3秒检查版本是否需要更新
         entranceDetailTv.postDelayed(new Runnable() {
@@ -712,56 +716,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         return new MainPresenter();
     }
 
-//    private void requestPermiss() {
-//
-//        DefaultRationale rationale = new DefaultRationale();
-//        AndPermission.with(this)
-//                .runtime()
-//                .permission(Permission.WRITE_EXTERNAL_STORAGE, Permission.CAMERA, Manifest.permission.RECORD_AUDIO)
-//                .rationale(rationale)//如果用户拒绝过该权限，则下次会走showRationale方法
-//                .onGranted(new Action<List<String>>() {
-//                    @Override
-//                    public void onAction(List<String> data) {
-//
-////                        haPermission = true;
-//                        initData();
-//                        onFaceResume();
-//                    }
-//                })
-//                .onDenied(new Action<List<String>>() {
-//                    @Override
-//                    public void onAction(List<String> data) {
-//
-//                        if (AndPermission.hasAlwaysDeniedPermission(MainActivity.this, data)) {//点击了不再提示后，不会弹出申请框，需要手动跳转设置权限页面
-//                            List<String> permissionNames = Permission.transformText(MainActivity.this, data);
-//                            String message = MainActivity.this.getString(R.string.message_permission_rationale) + permissionNames.toString();
-//                            new AlertDialog.Builder(MainActivity.this)
-//                                    .setCancelable(false)
-//                                    .setTitle("提示")
-//                                    .setMessage(message)
-//                                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            dialog.dismiss();
-//                                            AndPermission.with(MainActivity.this)
-//                                                    .runtime()
-//                                                    .setting()
-//                                                    .onComeback(new Setting.Action() {
-//                                                        @Override
-//                                                        public void onAction() {
-//                                                            //返回
-//                                                            requestPermiss();
-//                                                        }
-//                                                    }).start();
-//                                        }
-//                                    })
-//                                    .show();
-//
-//                        }
-//                    }
-//                })
-//                .start();
-//    }
+
 
 
     private void registReceiver() {
@@ -1014,6 +969,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
     private void checkInput(String inputNum) {
+
+        if(!deviceEnable()){
+            showEnableToast();
+            return;
+        }
 
         hideRoomInputLayout();
         if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
@@ -1638,7 +1598,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
             protected void onDataReceived(ComBean paramComBean) {
-//                toast(paramComBean.bRec);
+
+                if(!deviceEnable()){
+                    showEnableToast();
+                    return;
+                }
 
                 String str = parseCard(paramComBean);
                 LogUtil.w("nfc 十六进制 = " + str);
@@ -1649,7 +1613,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 msg.obj = str;
 //                msg.obj = "ic20190501";
                 doorHandler.sendMessage(msg);
-//                parseData(str);
+
             }
         };
     }
@@ -1875,13 +1839,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (bean != null && bean.getData() != null) {
             int status = bean.getData().getStatus();
             if (status == 1) {
-                ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
-                UserInfoInstance.getInstance().reset();
-                CameraUtil.clearAllFace(faceSet);
-                FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(this)));
+                showEnableToast();
+                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,false,KeyContacts.SP_NAME_JPUSH);
 
-                goTo(SplashActivity.class);
-                finish();
                 return;
             }
 
@@ -1939,6 +1899,31 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
+    //清除设备信息，设备解绑了
+    private void clearDeviceData(){
+        UserInfoInstance.getInstance().reset();
+        CameraUtil.clearAllFace(faceSet);
+        FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(this)));
+
+        goTo(SplashActivity.class);
+        finish();
+    }
+
+    //检查设备是否可用，被禁用时返回false
+    private boolean deviceEnable(){
+        boolean enable = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,true,KeyContacts.SP_NAME_JPUSH);
+        return enable;
+    }
+
+    private void showEnableToast(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
+            }
+        });
+    }
+
 
     public Bitmap getCameraBitmap() {
         //格式成YUV格式
@@ -1984,6 +1969,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
+
+        if(!deviceEnable()){
+            showEnableToast();
+            return;
+        }
+
         if (bean.isRegist) {
             mCameraView.setBackgroundResource(R.drawable.green_line_bg);
             openStatusTv.setText("您好！\n认证成功");

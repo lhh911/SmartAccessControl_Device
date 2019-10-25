@@ -42,6 +42,8 @@ public class KeyContacts {
     public static final String SP_KEY_VOLUME_NIGHT = "sp_key_volume_night";//晚上音量
     public static final String URL_ROOT = "url_root";//设备绑定是返回的接口域名，灵活配置
 
+    public static final String SP_KEY_DEVICE_ENABLE = "sp_key_device_enable";//设备是否禁用
+
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key
     public static final String SP_NAME_USERINFO= "userinfo"; //SP userinfo文件名
 
@@ -59,4 +61,5 @@ public class KeyContacts {
     public static final int STATUS_FORCE_KILLED = -1;//应用在后台被强杀了
     public static final int STATUS_NORMAL = 2; //APP正常态
     public static final String START_LAUNCH_ACTION = "start_launch_action";
+
 }

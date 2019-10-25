@@ -36,12 +36,9 @@ import com.xsjqzt.module_main.model.VersionResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
 import com.xsjqzt.module_main.service.ApiService;
-import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.FaceImageDownService;
 import com.xsjqzt.module_main.service.VideoAdDownService;
 import com.xsjqzt.module_main.view.MainView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;

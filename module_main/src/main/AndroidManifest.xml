@@ -47,6 +47,7 @@
         <activity
             android:name=".ui.SplashActivity"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
