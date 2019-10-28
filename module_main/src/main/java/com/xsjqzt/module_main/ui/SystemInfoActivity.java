@@ -5,37 +5,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jbb.library_common.basemvp.BaseActivity;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.utils.CommUtil;
-import com.jbb.library_common.utils.ScreenShotUtil;
 import com.jbb.library_common.utils.SharePreferensUtil;
-import com.jbb.library_common.utils.Utils;
-import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.model.EntranceInfoResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
-import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
 import com.xsjqzt.module_main.presenter.SystemInfoPresenter;
-import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.view.SystemInfoIView;
 import com.yzq.zxinglibrary.encode.CodeCreator;
 
 import org.apache.http.conn.util.InetAddressUtils;
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 
 import java.net.InetAddress;

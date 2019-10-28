@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.jbb.library_common.R;
 import com.jbb.library_common.comfig.KeyContacts;
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 
@@ -61,9 +62,11 @@ public class AppDownloadService extends DownloadBaseIntentService {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if(weakReference.get() != null){
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.BOOT_COMPLETED");
-                sendBroadcast(intent);
+//                Intent intent = new Intent();
+//                intent.setAction("android.intent.action.BOOT_COMPLETED");
+//                sendBroadcast(intent);
+
+                DeviceUtil.rebootDevice();
             }
         }
     }
@@ -150,7 +153,7 @@ public class AppDownloadService extends DownloadBaseIntentService {
             }
             @Override
             public void onComplete() {
-                mHandler.sendEmptyMessageDelayed(1,30*1000);
+                mHandler.sendEmptyMessageDelayed(1,3*1000);
             }
             @Override
             public void onNeed2OpenService() {

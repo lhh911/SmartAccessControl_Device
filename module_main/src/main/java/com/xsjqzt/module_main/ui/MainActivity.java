@@ -22,8 +22,6 @@ import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.ConnectivityManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -45,23 +43,17 @@ import android.widget.Toast;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.fastjson.JSON;
 import com.hyphenate.EMCallBack;
-import com.hyphenate.EMError;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMCallManager;
 import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
-import com.hyphenate.chat.EMVideoCallHelper;
-import com.hyphenate.easeui.ui.CallActivity;
-import com.hyphenate.easeui.ui.VideoCallActivity;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.hyphenate.exceptions.EMServiceNotReadyException;
-import com.hyphenate.util.EMLog;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.download.AppDownloadService;
-import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.BitmapUtil;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.DateFormateUtil;
@@ -112,15 +104,10 @@ import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.HeartBeatService;
 import com.xsjqzt.module_main.service.OpenRecordService;
 import com.xsjqzt.module_main.util.CameraUtil;
-import com.xsjqzt.module_main.util.DataConversionUtil;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.util.TrackDrawUtil;
 import com.xsjqzt.module_main.view.MainView;
-import com.yanzhenjie.permission.Action;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
-import com.yanzhenjie.permission.Setting;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
@@ -129,14 +116,11 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -743,9 +727,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     UserInfoInstance.getInstance().reset();
                     login();
                 } else if (code == 2004) {//设备未绑定或不存在
-                    UserInfoInstance.getInstance().reset();
-                    goTo(SplashActivity.class);
-                    finish();
+                    clearDeviceData();
                 }
             } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION) {
                 //监听网络变化
@@ -753,6 +735,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     LogUtil.w("NetWorkState = " + true);
                     startService(new Intent(context, DownAllDataService.class));
                     login();
+                }
+                //如果监听程序没有运行，则启动监听app
+                if(!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")){
+                    Intent startIntent = context.getPackageManager().getLaunchIntentForPackage("com.test.monitor_appinstall");
+                    if (startIntent != null) {
+                        startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(startIntent);
+                    }
                 }
             } else if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
                 handleNotity(intent.getExtras());
@@ -795,6 +785,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         openDoor();
                     } else if (type == 105) {//app有更新，检查更新
                         checkVersion();
+                    }else if(type == 107){
+                        loadDeviceInfo();
                     }
                 } catch (Exception e) {
 
@@ -1901,6 +1893,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //清除设备信息，设备解绑了
     private void clearDeviceData(){
+        ToastUtil.showCustomToast("设备已解绑");
         UserInfoInstance.getInstance().reset();
         CameraUtil.clearAllFace(faceSet);
         FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(this)));

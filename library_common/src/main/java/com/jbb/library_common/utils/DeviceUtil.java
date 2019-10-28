@@ -1,6 +1,7 @@
 package com.jbb.library_common.utils;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -398,5 +399,27 @@ public class DeviceUtil {
             e.printStackTrace();
         }
     }
+
+
+
+    public static boolean isRunBackground(Context context,String packageName) {
+        ActivityManager activityManager = (ActivityManager) context
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.processName.equals(packageName)) {
+//                if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND) {
+//                    // 表明程序在后台运行
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }
