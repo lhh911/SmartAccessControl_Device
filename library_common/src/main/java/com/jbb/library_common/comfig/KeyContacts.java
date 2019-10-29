@@ -55,7 +55,7 @@ public class KeyContacts {
 
     public static final String system  = "android";//手机系统
 
-    public static final String Bearer  = "Bearer ";//手机系统
+    public static final String Bearer  = "Bearer ";//
 
 
     public static final int STATUS_FORCE_KILLED = -1;//应用在后台被强杀了

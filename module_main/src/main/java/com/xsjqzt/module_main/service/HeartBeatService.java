@@ -10,6 +10,7 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
 import com.jbb.library_common.retrofit.other.NetListeren;
 import com.jbb.library_common.retrofit.other.SubscribeUtils;
+import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
@@ -49,7 +50,8 @@ public class HeartBeatService extends Service {
     }
 
     private void sendHeartBeat() {
-        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class).sendHeartBeat(UserInfoInstance.getInstance().getBearer()),
+        SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
+                        .sendHeartBeat(UserInfoInstance.getInstance().getBearer(),CommUtil.getVersionName()),
                 BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean baseBean) {

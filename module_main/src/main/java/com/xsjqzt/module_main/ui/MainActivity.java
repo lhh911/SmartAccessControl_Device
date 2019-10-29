@@ -329,46 +329,46 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //打印环信登录状态
-    private void emLoginUser() {
-        String currentUser = EMClient.getInstance().getCurrentUser();
-        LogUtil.w("currentUser = " + currentUser);
-        ToastUtil.showCustomToast("currentUser = " + currentUser);
-        ToastUtil.showCustomToast("连接服务器：" + EMClient.getInstance().isConnected());
-        ToastUtil.showCustomToast("登录状态：" + EMClient.getInstance().isLoggedInBefore());
-    }
+//    private void emLoginUser() {
+//        String currentUser = EMClient.getInstance().getCurrentUser();
+//        LogUtil.w("currentUser = " + currentUser);
+//        ToastUtil.showCustomToast("currentUser = " + currentUser);
+//        ToastUtil.showCustomToast("连接服务器：" + EMClient.getInstance().isConnected());
+//        ToastUtil.showCustomToast("登录状态：" + EMClient.getInstance().isLoggedInBefore());
+//    }
 
-    private void test() {
-        List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
-                .queryBuilder()
-                .where(OpenRecordDao.Properties.UploadStatus.eq(false))
-                .list();
-
-        List<FaceImage> faceImages = DbManager.getInstance().getDaoSession().getFaceImageDao().loadAll();
-        List<ICCard> icCards = DbManager.getInstance().getDaoSession().getICCardDao().loadAll();
-        List<IDCard> idCards = DbManager.getInstance().getDaoSession().getIDCardDao().loadAll();
-        List<OpenCode> openCodes = DbManager.getInstance().getDaoSession().getOpenCodeDao().loadAll();
-
-        String str = "";
-        for (FaceImage face : faceImages) {
-            str += face.getCode() + "\n";
-        }
-
-        StringBuffer sf = new StringBuffer();
-        sf.append("开门图片记录：" + records.size())
-                .append("\n")
-                .append("人脸注册：" + str)
-                .append("\n")
-                .append("IC卡数：" + icCards.size())
-                .append("\n")
-                .append("身份证数：" + idCards.size())
-                .append("\n")
-                .append("临时密码数：" + openCodes.size())
-                .append("\n")
-                .append("registrationId：" + JPushInterface.getRegistrationID(this));
-
-        new AlertDialog.Builder(this).setMessage(sf.toString()).show();
-
-    }
+//    private void test() {
+//        List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
+//                .queryBuilder()
+//                .where(OpenRecordDao.Properties.UploadStatus.eq(false))
+//                .list();
+//
+//        List<FaceImage> faceImages = DbManager.getInstance().getDaoSession().getFaceImageDao().loadAll();
+//        List<ICCard> icCards = DbManager.getInstance().getDaoSession().getICCardDao().loadAll();
+//        List<IDCard> idCards = DbManager.getInstance().getDaoSession().getIDCardDao().loadAll();
+//        List<OpenCode> openCodes = DbManager.getInstance().getDaoSession().getOpenCodeDao().loadAll();
+//
+//        String str = "";
+//        for (FaceImage face : faceImages) {
+//            str += face.getCode() + "\n";
+//        }
+//
+//        StringBuffer sf = new StringBuffer();
+//        sf.append("开门图片记录：" + records.size())
+//                .append("\n")
+//                .append("人脸注册：" + str)
+//                .append("\n")
+//                .append("IC卡数：" + icCards.size())
+//                .append("\n")
+//                .append("身份证数：" + idCards.size())
+//                .append("\n")
+//                .append("临时密码数：" + openCodes.size())
+//                .append("\n")
+//                .append("registrationId：" + JPushInterface.getRegistrationID(this));
+//
+//        new AlertDialog.Builder(this).setMessage(sf.toString()).show();
+//
+//    }
 
     @Override
     public int getLayoutId() {
@@ -665,13 +665,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-    private List<String> getImages() {
-        List<String> images = new ArrayList<>();
-        images.add("http://i1.mopimg.cn/img/dzh/2015-05/1288/20150502115717123.jpg");
-        images.add("http://i1.mopimg.cn/img/dzh/2015-05/855/2015050211571275.jpg");
-        images.add("http://i1.mopimg.cn/img/dzh/2015-05/389/20150502115712989.jpg");
-        return images;
-    }
+//    private List<String> getImages() {
+//        List<String> images = new ArrayList<>();
+//        images.add("http://i1.mopimg.cn/img/dzh/2015-05/1288/20150502115717123.jpg");
+//        images.add("http://i1.mopimg.cn/img/dzh/2015-05/855/2015050211571275.jpg");
+//        images.add("http://i1.mopimg.cn/img/dzh/2015-05/389/20150502115712989.jpg");
+//        return images;
+//    }
 
 
     @Override
@@ -735,6 +735,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 if (Utils.getNetWorkState(MainActivity.this)) {
                     LogUtil.w("NetWorkState = " + true);
                     startService(new Intent(MainActivity.this, DownAllDataService.class));
+                    startService(new Intent(MainActivity.this, HeartBeatService.class));
                     login();
 
                     checkVersion();

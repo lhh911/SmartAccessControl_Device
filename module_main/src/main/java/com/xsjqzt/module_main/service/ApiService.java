@@ -131,7 +131,7 @@ public interface ApiService {
 
     //发送心跳请求
     @POST("entrance/upload/heartbeat")
-    Observable<ResponseBody> sendHeartBeat(@Header("Authorization") String token );
+    Observable<ResponseBody> sendHeartBeat(@Header("Authorization") String token ,@Header("version") String version);
 
     //检查更新
     @FormUrlEncoded
