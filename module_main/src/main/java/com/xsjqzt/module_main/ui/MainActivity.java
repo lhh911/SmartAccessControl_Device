@@ -463,7 +463,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        CameraUtil.clearAllFace(faceSet);
+                        CameraUtil.clearAllFace(faceSet);//删除阅面人脸
+//                        DbManager.getInstance().getDaoSession().getFaceImageDao().getDatabase().execSQL("delete from FACE_IMAGE");//删除数据库中人脸记录数据
                     }
                 }).show();
     }
@@ -733,12 +734,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 //监听网络变化
                 if (Utils.getNetWorkState(MainActivity.this)) {
                     LogUtil.w("NetWorkState = " + true);
-                    startService(new Intent(context, DownAllDataService.class));
+                    startService(new Intent(MainActivity.this, DownAllDataService.class));
                     login();
+
+                    checkVersion();
                 }
                 //如果监听程序没有运行，则启动监听app
                 if(!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")){
-                    Intent startIntent = context.getPackageManager().getLaunchIntentForPackage("com.test.monitor_appinstall");
+                    Intent startIntent = getPackageManager().getLaunchIntentForPackage("com.test.monitor_appinstall");
                     if (startIntent != null) {
                         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(startIntent);
