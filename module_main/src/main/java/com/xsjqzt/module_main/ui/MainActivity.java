@@ -1923,7 +1923,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     public Bitmap getCameraBitmap() {
-        //格式成YUV格式
+        //bitmapBytes格式成YuvImage格式，YuvImage格式是横的，宽高反的
         YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, preWidth,
                 preHeight, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2024,8 +2024,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public DemoConfig mConfig;
     // For Face end..
-    private int preWidth = 480;//根据相机流生成图片的宽
-    private int preHeight = 640;//生成图片的高
+    private int preWidth = 640;//根据相机流生成图片的宽
+    private int preHeight = 480;//生成图片的高
 
     private void onFaceResume() {
 
