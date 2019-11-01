@@ -43,6 +43,7 @@ public class KeyContacts {
     public static final String URL_ROOT = "url_root";//设备绑定是返回的接口域名，灵活配置
 
     public static final String SP_KEY_DEVICE_ENABLE = "sp_key_device_enable";//设备是否禁用
+    public static final String SP_KEY_DISPLAY_NAME = "sp_key_display_name";//设备出入口信息
 
     public static final String SP_KEY_USERINFO = "key_userinfo";//用户信息sp 中key
     public static final String SP_NAME_USERINFO= "userinfo"; //SP userinfo文件名

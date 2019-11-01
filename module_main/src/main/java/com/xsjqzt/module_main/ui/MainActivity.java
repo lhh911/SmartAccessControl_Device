@@ -280,6 +280,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             startService(new Intent(this, HeartBeatService.class));
         }
 
+        String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME,KeyContacts.SP_NAME_JPUSH);
+        entranceDetailTv.setText(display_name);
+
         //延迟3秒检查版本是否需要更新
         entranceDetailTv.postDelayed(new Runnable() {
             @Override
@@ -734,11 +737,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 //监听网络变化
                 if (Utils.getNetWorkState(MainActivity.this)) {
                     LogUtil.w("NetWorkState = " + true);
+                    login();
                     startService(new Intent(MainActivity.this, DownAllDataService.class));
                     startService(new Intent(MainActivity.this, HeartBeatService.class));
-                    login();
 
                     checkVersion();
+                    loadDeviceInfo();
                 }
                 //如果监听程序没有运行，则启动监听app
                 if(!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")){
@@ -1855,8 +1859,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             UserInfoInstance.getInstance().setDoor(name);
 
 //            entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
-            entranceDetailTv.setText(bean.getData().getDisplay_name());
-
+            String display_name = bean.getData().getDisplay_name();
+            entranceDetailTv.setText(display_name);
+            SharePreferensUtil.putString(KeyContacts.SP_KEY_DISPLAY_NAME,display_name,KeyContacts.SP_NAME_JPUSH);
 
         }
     }
