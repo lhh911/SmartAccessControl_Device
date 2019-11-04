@@ -369,6 +369,16 @@ class Camera2 extends CameraViewImpl {
         return false;
     }
 
+    @Override
+    void addCallbackBuffer(byte[] callbackBuffer) {
+
+    }
+
+    @Override
+    void setPreviewCallbackWithBuffer(Camera.PreviewCallback cb) {
+
+    }
+
     /**
      * <p>Chooses a camera ID by the specified camera facing ({@link #mFacing}).</p>
      * <p>This rewrites {@link #mCameraId}, {@link #mCameraCharacteristics}, and optionally

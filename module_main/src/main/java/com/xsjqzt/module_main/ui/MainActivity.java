@@ -201,6 +201,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     int time19 = 1900;//19点
     int time24 = 2400;//24点
     int lastVolume ;//设备音量开关  0 默认白天，1 晚上
+    private byte[] mPreviewBuffer = new byte[]{};
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -2146,9 +2147,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                             }
                         });
+                        mCameraView.addCallbackBuffer(mPreviewBuffer);
                     }
                 }
             });
+
+            //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组
+            mCameraView.addCallbackBuffer(mPreviewBuffer);
+            mCameraView.setPreviewCallbackWithBuffer();
         }
     }
 

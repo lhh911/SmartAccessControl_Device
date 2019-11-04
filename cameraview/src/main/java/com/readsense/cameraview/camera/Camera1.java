@@ -324,4 +324,22 @@ class Camera1 extends CameraViewImpl {
             return false;
         }
     }
+
+
+    /**
+     * 在调用Camera.startPreview()接口前，我们需要setPreviewCallbackWithBuffer，而setPreviewCallbackWithBuffer之前我们需要重新addCallbackBuffer，
+     * 因为setPreviewCallbackWithBuffer 使用时需要指定一个字节数组作为缓冲区，用于预览图像数据 即addCallbackBuffer，然后你在onPerviewFrame中的data才会有值；
+     *
+     * addCallbackBuffer 和 我们需要setPreviewCallbackWithBuffer 配合使用，可以把数组传入回到中，onPerviewFrame预览回调中的 data数组不用频繁 GC  而导致内存暴增，o
+     *  onPerviewFrame执行完后data数组会回收，会导致频繁GC
+     * @param callbackBuffer
+     */
+    public  void addCallbackBuffer(byte[] callbackBuffer) {
+        mCamera.addCallbackBuffer(callbackBuffer);
+    }
+
+    @Override
+    void setPreviewCallbackWithBuffer(Camera.PreviewCallback cb) {
+        mCamera.setPreviewCallbackWithBuffer(cb);
+    }
 }
