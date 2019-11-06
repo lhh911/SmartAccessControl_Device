@@ -193,7 +193,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int callUserId = 0;//不通时，自动转呼一次，视频呼叫时第几个业主  0 第一个，1 第二个
     private String inputNum;//输入号码
     private EMCallManager.EMCallPushProvider pushProvider;
-    private InutLayoutShowTimeRunnable callRunnable;
+    private InutLayoutShowTimeRunnable callRunnable, twoCallVideoRunnable ;
 
     private boolean isCheckedCamera;
 
@@ -970,6 +970,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
     private void checkInput(String inputNum) {
+        if(!DeviceUtil.isNetWorkEnable()){
+            ToastUtil.showCustomToast("设备未联网，暂不支持呼叫");
+            return;
+        }
 
         if(!deviceEnable()){
             showEnableToast();
@@ -1054,10 +1058,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         showCallVideoLayout();
         callNumTv.setText(roomNum);
-//        if(cameraEnable) {
-        onFacePause();
-//        }
-        hideFaceLayout();
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
         try {//单参数
@@ -1419,13 +1419,21 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             doorHandler.removeCallbacks(callRunnable);
             callRunnable = null;
         }
+        if (twoCallVideoRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(twoCallVideoRunnable);
+            twoCallVideoRunnable = null;
+        }
+        if (inutLayoutShowTimeRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
+            inutLayoutShowTimeRunnable = null;
+        }
     }
 
     //切换业主第二次拨号时间检查
     private void startTwoCallVideoTime() {
-        InutLayoutShowTimeRunnable runnable = new InutLayoutShowTimeRunnable(this, 3);
+        twoCallVideoRunnable = new InutLayoutShowTimeRunnable(this, 3);
 
-        doorHandler.postDelayed(runnable, callVideoTimeOut);
+        doorHandler.postDelayed(twoCallVideoRunnable, callVideoTimeOut);
 
     }
 
@@ -1459,9 +1467,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             if (weakReference.get() != null) {
                 if (type == 1) {
                     long endTime = System.currentTimeMillis();
-                    if (endTime - startShowTime >= 10000) {
+                    if (endTime - startShowTime >= 10000) {//十秒未操作关闭输入框
                         hideRoomInputLayout();
-
+                        faceOnResuse();
                     }
                 } else if (type == 2) {
                     if (!hasCallSuccess) {
@@ -1491,6 +1499,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //显示密码输入框开门ui
     private void showRoomNumOpen() {
+        hideAndStopFace();//输入时禁止识别
 
         startShowTime = System.currentTimeMillis();
         startShowLayoutTime();
@@ -1731,7 +1740,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         stopMeasuing();
 
         onFacePause();
-
+        endCall();
     }
 
     long lastOpenTime = 0;
@@ -2147,12 +2156,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                             }
                         });
+                        //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
                         mCameraView.addCallbackBuffer(mPreviewBuffer);
                     }
                 }
             });
 
-            //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组
+            //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
             mCameraView.addCallbackBuffer(mPreviewBuffer);
             mCameraView.setPreviewCallbackWithBuffer();
         }
@@ -2167,6 +2177,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void hideFaceLayout() {
+        if(!isFaceViewShow)return;
         isFaceViewShow = false;
         homebgIv.bringToFront();
         banner.bringToFront();
@@ -2179,6 +2190,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         openStatusTv.setText("");
     }
 
+
+    private void hideAndStopFace(){
+        onFacePause();
+        hideFaceLayout();
+    }
 
     /**
      * 相机帧回调
