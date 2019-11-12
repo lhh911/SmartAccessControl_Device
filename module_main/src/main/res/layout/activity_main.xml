@@ -110,7 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="btn1Click"
-            android:text="清空人脸" />
+            android:text="输入" />
 
         <Button
             android:layout_width="wrap_content"

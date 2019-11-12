@@ -201,7 +201,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     int time19 = 1900;//19点
     int time24 = 2400;//24点
     int lastVolume ;//设备音量开关  0 默认白天，1 晚上
-    private byte[] mPreviewBuffer = new byte[]{};
+    private byte[] mPreviewBuffer;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -450,27 +450,27 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     public void btn1Click(View view) {
-//        if (inputLayoutShow) {
-//            String inputNum = roomNumEt.getText().toString().trim();
-//            if (TextUtils.isEmpty(inputNum))
-//                return;
-//
-//            checkInput(inputNum);
-//        } else {
-//            showRoomNumOpen();
-//        }
+        if (inputLayoutShow) {
+            String inputNum = roomNumEt.getText().toString().trim();
+            if (TextUtils.isEmpty(inputNum))
+                return;
 
-        new AlertDialog.Builder(this)
-                .setCancelable(true)
-                .setMessage("确定清空人脸库？")
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        CameraUtil.clearAllFace(faceSet);//删除阅面人脸
-//                        DbManager.getInstance().getDaoSession().getFaceImageDao().getDatabase().execSQL("delete from FACE_IMAGE");//删除数据库中人脸记录数据
-                    }
-                }).show();
+            checkInput(inputNum);
+        } else {
+            showRoomNumOpen();
+        }
+
+//        new AlertDialog.Builder(this)
+//                .setCancelable(true)
+//                .setMessage("确定清空人脸库？")
+//                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                        CameraUtil.clearAllFace(faceSet);//删除阅面人脸
+////                        DbManager.getInstance().getDaoSession().getFaceImageDao().getDatabase().execSQL("delete from FACE_IMAGE");//删除数据库中人脸记录数据
+//                    }
+//                }).show();
     }
 
 
@@ -1059,6 +1059,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         showCallVideoLayout();
         callNumTv.setText(roomNum);
 
+        onFacePause();
+//        hideFaceLayout();
+
         setPushProviderAndListeren();//设置不在线时发送离线通知
         try {//单参数
             EMClient.getInstance().callManager().makeVideoCall(userId, UserInfoInstance.getInstance().getDoor());
@@ -1469,7 +1472,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     long endTime = System.currentTimeMillis();
                     if (endTime - startShowTime >= 10000) {//十秒未操作关闭输入框
                         hideRoomInputLayout();
-                        faceOnResuse();
+//                        faceOnResuse();
                     }
                 } else if (type == 2) {
                     if (!hasCallSuccess) {
@@ -1499,7 +1502,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //显示密码输入框开门ui
     private void showRoomNumOpen() {
-        hideAndStopFace();//输入时禁止识别
+//        hideAndStopFace();//输入时禁止识别
 
         startShowTime = System.currentTimeMillis();
         startShowLayoutTime();
@@ -1508,7 +1511,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            showAnim(roomNumLayout);
 
             callVideoLayout.setVisibility(View.GONE);
-//            mType = 1;
             inputLayoutShow = true;
         }
 
@@ -1519,16 +1521,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         roomNumLayout.setVisibility(View.GONE);
         roomNumEt.setText("");
         inputLayoutShow = false;
-
-//        mType = 0;
     }
 
     //单独显示视频通话ui
     private void showCallVideoLayout() {
         roomNumLayout.setVisibility(View.GONE);
         callVideoLayout.setVisibility(View.VISIBLE);
-//        showAnim(callVideoLayout);
-//        mType = 0;
     }
 
     //单独掩藏视频通话ui
@@ -1536,8 +1534,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callVideoLayout.setVisibility(View.GONE);
         callStatusTv.setText("呼叫中，请稍候...");
         callNumTv.setText("");
-//        dismissAnim(callVideoLayout);
-//        mType = 0;
     }
 
     //单独掩藏密码开门ui
@@ -1885,6 +1881,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 callUserId = userId;
                 inputNum = roomNum;
                 callVideo(userId + "", roomNum);
+                ToastUtil.showCustomToast("拨打用户userId = " + userId);
             }
         } else {
             endCall();
@@ -2042,6 +2039,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int preWidth = 640;//根据相机流生成图片的宽
     private int preHeight = 480;//生成图片的高
 
+    private boolean faceTrackInit = false;//人脸识别是否初始化
+
     private void onFaceResume() {
 
         RxPermissions permissions = new RxPermissions(this);
@@ -2077,6 +2076,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             android.util.Log.d("Debug", "mConfig = " + mConfig.toString());
 
                             if (isDoubleEyes) openIRCamera();
+
+                            faceTrackInit = true;
                         } else {
                             // showLongToast(getApplicationContext(), "请同意软件的权限，才能继续使用");
                         }
@@ -2085,14 +2086,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void onFacePause() {
-        faceSet.stopTrack();
-        if (mCameraView != null) {
-            mCameraView.stop();
-        }
-        if (mIRCameraView != null) {
-            if (mIRCameraView.isCameraOpened()) {
-                mIRCameraView.stop();
+        if(faceTrackInit) {
+            faceSet.stopTrack();
+            if (mCameraView != null) {
+                mCameraView.stop();
             }
+            if (mIRCameraView != null) {
+                if (mIRCameraView.isCameraOpened()) {
+                    mIRCameraView.stop();
+                }
+            }
+            faceTrackInit = false;
         }
     }
 
@@ -2121,6 +2125,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     // 设置CameraPreviewFrame CallBack;
     protected void initFaceEvent() {
         if (mCameraView != null) {
+
+            //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
+//            mPreviewBuffer = new byte[mConfig.previewSizeWidth * mConfig.previewSizeHeight];
+//            mCameraView.addCallbackBuffer(mPreviewBuffer);
+//            mCameraView.setPreviewCallbackWithBuffer();
+
             mCameraView.addCallback(new CameraView.Callback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
@@ -2157,14 +2167,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             }
                         });
                         //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
-                        mCameraView.addCallbackBuffer(mPreviewBuffer);
+                        mCameraView.addCallbackBuffer(data);
                     }
                 }
             });
 
-            //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
-            mCameraView.addCallbackBuffer(mPreviewBuffer);
-            mCameraView.setPreviewCallbackWithBuffer();
+
         }
     }
 
