@@ -84,7 +84,7 @@ public class JPushReceive extends BroadcastReceiver {
         LogUtil.d(TAG, "extras : " + extras);
         ToastUtil.showCustomToast("收到通知了 ：" + extras);
 
-        whiteLog(context,extras.getBytes());
+//        whiteLog(context,extras.getBytes());
 
         Intent it = new Intent();
         it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);

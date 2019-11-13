@@ -1908,10 +1908,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         ToastUtil.showCustomToast("设备已解绑");
         UserInfoInstance.getInstance().reset();
         CameraUtil.clearAllFace(faceSet);
-        FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(this)));
 
-        goTo(SplashActivity.class);
-        finish();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(MainActivity.this)));
+                clearDB();
+
+                goTo(SplashActivity.class);
+                finish();
+            }
+        }).start();
+
+
     }
 
     //检查设备是否可用，被禁用时返回false
@@ -1933,6 +1942,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void disableDevice(){
         showEnableToast();
         SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,false,KeyContacts.SP_NAME_JPUSH);
+    }
+
+
+    private void clearDB(){
+        DbManager.getInstance().getDaoSession().getFaceImageDao().deleteAll();
+        DbManager.getInstance().getDaoSession().getOpenCodeDao().deleteAll();
+        DbManager.getInstance().getDaoSession().getICCardDao().deleteAll();
+        DbManager.getInstance().getDaoSession().getIDCardDao().deleteAll();
+        DbManager.getInstance().getDaoSession().getOpenRecordDao().deleteAll();
     }
 
 
