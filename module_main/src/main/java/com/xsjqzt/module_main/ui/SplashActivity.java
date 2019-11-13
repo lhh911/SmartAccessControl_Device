@@ -88,7 +88,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
         } else {
             next(4000);
         }
-//        loadKey();
+
     }
 
 

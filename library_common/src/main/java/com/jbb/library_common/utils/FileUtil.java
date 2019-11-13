@@ -202,7 +202,7 @@ public class FileUtil {
 
             return tempPath.getPath();
         } else if (FileUtil.isRootStorageCanUse()) {
-            return context.getCacheDir().getAbsolutePath();
+            return context.getFilesDir().getAbsolutePath();
         } else {
             //磁盘空间不足
             return "";
@@ -225,7 +225,7 @@ public class FileUtil {
 
             return tempPath.getPath();
         } else if (FileUtil.isRootStorageCanUse()) {
-            return context.getCacheDir().getAbsolutePath();
+            return context.getFilesDir().getAbsolutePath();
         } else {
             //磁盘空间不足
             return "";

@@ -733,6 +733,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     login();
                 } else if (code == 2004) {//设备未绑定或不存在
                     clearDeviceData();
+                }else if (code == 2005) {//设备禁用
+                    disableDevice();
                 }
             } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION) {
                 //监听网络变化
@@ -1845,20 +1847,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (bean != null && bean.getData() != null) {
             int status = bean.getData().getStatus();
             if (status == 1) {
-                showEnableToast();
-                SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,false,KeyContacts.SP_NAME_JPUSH);
 
-                return;
             }
+            SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,true,KeyContacts.SP_NAME_JPUSH);
 
             int volume = bean.getData().getVolume();
             int volume_night =  bean.getData().getVolume_night();
             SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME,volume,KeyContacts.SP_NAME_JPUSH);
             SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT,volume_night,KeyContacts.SP_NAME_JPUSH);
-
-            String garden_name = bean.getData().getGarden_name();
-            String region_name = bean.getData().getRegion_name();
-            String building_name = bean.getData().getBuilding_name();
 
 
             String name = bean.getData().getName();
@@ -1931,6 +1927,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 ToastUtil.showCustomToast("设备已被禁用，请联系管理员");
             }
         });
+    }
+
+    //禁用设备
+    private void disableDevice(){
+        showEnableToast();
+        SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,false,KeyContacts.SP_NAME_JPUSH);
     }
 
 
