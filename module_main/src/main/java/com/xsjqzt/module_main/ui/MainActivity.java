@@ -2070,7 +2070,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     @Override
                     public void accept(Boolean aBoolean) throws Exception {
                         if (aBoolean) {
-                            checkCameraEnable();
+//                            checkCameraEnable();
 
                             userMap = UserDataUtil.updateDataSource(true);
                             //预览适配
