@@ -51,6 +51,7 @@ import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.hyphenate.exceptions.EMServiceNotReadyException;
+import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.download.AppDownloadService;
@@ -202,6 +203,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     int time24 = 2400;//24点
     int lastVolume ;//设备音量开关  0 默认白天，1 晚上
     private byte[] mPreviewBuffer;
+    private boolean callSecond;//是否是呼叫的第二个人
+    private long okClickTime;//记录上次点击ok健的时间戳
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -555,6 +558,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     inputNum = roomNumEt.getText().toString().trim();
                     if (!TextUtils.isEmpty(inputNum))
                         checkInput(inputNum);
+                    else{//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+                        if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
+
+                        }
+                        okClickTime = System.currentTimeMillis();
+                    }
                 }
 
             } else {
@@ -1178,36 +1187,62 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             public void run() {
 //                                ToastUtil.showCustomToast("电话断了");
 
-                                endCall();
-                                faceOnResuse();
-                                showFaceLayout();
+//                                endCall();
+//                                faceOnResuse();
+//                                showFaceLayout();
 
-                                String s1 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_refused_to_accept);
-                                String s2 = getResources().getString(com.hyphenate.easeui.R.string.Connection_failure);
-                                String s3 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_is_not_online);
-                                String s4 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_on_the_phone_please);
-                                String s5 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_did_not_answer);
+//                                String s1 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_refused_to_accept);
+//                                String s2 = getResources().getString(com.hyphenate.easeui.R.string.Connection_failure);
+//                                String s3 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_is_not_online);
+//                                String s4 = getResources().getString(com.hyphenate.easeui.R.string.The_other_is_on_the_phone_please);
+//                                String s5 = getResources().getString(com.hyphenate.easeui.R.string.The_other_party_did_not_answer);
 
-                                String error = null;
+//                                String error = null;
+                                startMusic(6);//对方未接听
                                 if (fError == CallError.REJECTED) {
-                                    error = s1;
-                                    startMusic(6);//对方未接听
-                                } else if (fError == CallError.ERROR_TRANSPORT) {
-                                    error = s2;
-                                } else if (fError == CallError.ERROR_UNAVAILABLE) {
-                                    error = s3;
-                                } else if (fError == CallError.ERROR_BUSY) {
-                                    error = s4;
-                                    startMusic(6);//对方未接听
-                                } else if (fError == CallError.ERROR_NORESPONSE) {
-                                    error = s5;
-                                    startMusic(6);//对方未接听
-                                } else if (fError == CallError.ERROR_LOCAL_SDK_VERSION_OUTDATED || fError == CallError.ERROR_REMOTE_SDK_VERSION_OUTDATED) {
-                                    error = getResources().getString(com.hyphenate.easeui.R.string.call_version_inconsistent);
+//                                    error = s1;
+                                    endCall();
+
+                                    if(!callSecond) {
+                                        new Handler().postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                callSecond = true;
+
+                                                startMusic(7);//转接第二个人语音
+                                                hasCallingVideo = true;
+                                                presenter.getUseridByRoom(inputNum, callUserId);
+                                                startTwoCallVideoTime();
+
+                                                if (callRunnable != null && doorHandler != null) {
+                                                    doorHandler.removeCallbacks(callRunnable);
+                                                    callRunnable = null;
+                                                }
+                                            }
+                                        }, 1500);
+                                    }else{
+                                        faceOnResuse();
+                                    }
 
                                 } else {
-                                    error = "无法接通";
+//                                    error = "无法接通";
+                                    endCall();
+                                    faceOnResuse();
                                 }
+//                                else if (fError == CallError.ERROR_TRANSPORT) {
+//                                    error = s2;
+//                                } else if (fError == CallError.ERROR_UNAVAILABLE) {
+//                                    error = s3;
+//                                } else if (fError == CallError.ERROR_BUSY) {
+//                                    error = s4;
+//                                    startMusic(6);//对方未接听
+//                                } else if (fError == CallError.ERROR_NORESPONSE) {
+//                                    error = s5;
+//                                    startMusic(6);//对方未接听
+//                                } else if (fError == CallError.ERROR_LOCAL_SDK_VERSION_OUTDATED || fError == CallError.ERROR_REMOTE_SDK_VERSION_OUTDATED) {
+//                                    error = getResources().getString(com.hyphenate.easeui.R.string.call_version_inconsistent);
+//
+//                                }
 
 //                                Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
 
@@ -1487,6 +1522,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 hasCallingVideo = true;
                                 presenter.getUseridByRoom(inputNum, callUserId);
                                 startTwoCallVideoTime();
+
+                                callSecond = true;
                             }
                         }, 1500);
                     }
@@ -2403,6 +2440,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void faceOnResuse() {
         callUserId = 0;
+        callSecond = false;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
