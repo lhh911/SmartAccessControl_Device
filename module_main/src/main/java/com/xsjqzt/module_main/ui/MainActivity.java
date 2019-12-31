@@ -991,6 +991,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             return;
         }
 
+//        onFacePause();//按ok健时准备呼叫，禁止识别
         hideRoomInputLayout();
         if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
 
@@ -1070,7 +1071,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         showCallVideoLayout();
         callNumTv.setText(roomNum);
 
-        onFacePause();
+//        onFacePause();
 //        hideFaceLayout();
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
@@ -1509,7 +1510,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     long endTime = System.currentTimeMillis();
                     if (endTime - startShowTime >= 10000) {//十秒未操作关闭输入框
                         hideRoomInputLayout();
-//                        faceOnResuse();
+                        faceOnResuse();
                     }
                 } else if (type == 2) {
                     if (!hasCallSuccess) {
@@ -1541,7 +1542,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //显示密码输入框开门ui
     private void showRoomNumOpen() {
-//        hideAndStopFace();//输入时禁止识别
+        hideAndStopFace();//输入时禁止识别，拨号完成时请求就不用禁止了
 
         startShowTime = System.currentTimeMillis();
         startShowLayoutTime();
@@ -1797,7 +1798,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         String sn = (String) msg.obj;
 
                         openDoor();
-
+                        isFaceSuccess = true;//表示开门成功，此时获取一帧开门图片
                         uploadRecord(type, sn);
                         startMusic(2);
                         if (type != 4)
@@ -1876,6 +1877,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public void uploadCardSuccess(int type, int id, String sn) {
+
         getPicture(type, id, sn);
     }
 
@@ -2132,7 +2134,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
                             android.util.Log.d("Debug", "mConfig = " + mConfig.toString());
 
-                            if (isDoubleEyes) openIRCamera();
+                            if (isDoubleEyes)
+                                openIRCamera();
 
                             faceTrackInit = true;
                         } else {
@@ -2140,6 +2143,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         }
                     }
                 });
+    }
+
+    private void onFaceStart(){
+        if(faceSet != null)
+            faceSet.startTrack(mConfig.sdkAngle);
+        if (mCameraView != null) {
+            mCameraView.start();
+        }
+        faceTrackInit = true;
     }
 
     private void onFacePause() {
@@ -2184,9 +2196,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (mCameraView != null) {
 
             //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
-//            mPreviewBuffer = new byte[mConfig.previewSizeWidth * mConfig.previewSizeHeight];
-//            mCameraView.addCallbackBuffer(mPreviewBuffer);
-//            mCameraView.setPreviewCallbackWithBuffer();
+            mPreviewBuffer = new byte[mConfig.previewSizeWidth * mConfig.previewSizeHeight];
+            mCameraView.setPreviewCallbackWithBuffer();
+            mCameraView.addCallbackBuffer(mPreviewBuffer);
 
             mCameraView.addCallback(new CameraView.Callback() {
                 @Override
@@ -2258,7 +2270,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void hideAndStopFace(){
         onFacePause();
-        hideFaceLayout();
+//        hideFaceLayout();
     }
 
     /**
@@ -2271,8 +2283,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param isMulti
      * @return
      */
-    private byte[] mBytes;
-    private byte[] mBytesIr;
+//    private byte[] mBytes;
+//    private byte[] mBytesIr;
     private int mWidth;
     private int mHeight;
     private boolean openFaceTrack = false;//追踪
@@ -2286,14 +2298,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean isDoubleEyes = true;
 
     private byte[] bitmapBytes;//保存人脸识别成功后的当前图片
+    boolean isFaceSuccess ;
 
     protected List<YMFace> onCameraPreviewFrame(final byte[] bytes, final byte[] irBytes, final int iw, final int ih, final boolean isMulti) {
         if (bytes == null) return null;
         //得到识别是的图片
-        bitmapBytes = bytes;
+        if(isFaceSuccess) {
+            bitmapBytes = bytes;
+            isFaceSuccess = false;
+        }
 
-        mBytes = bytes;
-        mBytesIr = irBytes;
+//        mBytes = bytes;
+//        mBytesIr = irBytes;
         mWidth = iw;
         mHeight = ih;
         return faceSet.logic(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType());
@@ -2445,7 +2461,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             public void run() {
 //                if(cameraEnable)
-                onFaceResume();
+//                onFaceResume();
+                onFaceStart();
             }
         }, 500);
     }
