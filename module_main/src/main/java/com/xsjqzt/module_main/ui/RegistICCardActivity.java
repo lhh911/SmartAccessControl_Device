@@ -70,6 +70,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private int duration = 15 * 1000;//自动关闭时间
     private long startTime;
     private MyRunnable runnable;
+    private boolean isKeyEnterFirst;
 
     @Override
     public RegistICCardPresenter initPresenter() {
@@ -331,6 +332,19 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         }
         return super.onKeyDown(keyCode, event);
     }
+
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+            isKeyEnterFirst = false;
+            finish();
+            return true;
+        }
+        isKeyEnterFirst = true;
+        return super.dispatchKeyEvent(event);
+    }
+
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)

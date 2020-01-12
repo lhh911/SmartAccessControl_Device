@@ -205,6 +205,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private byte[] mPreviewBuffer;
     private boolean callSecond;//是否是呼叫的第二个人
     private long okClickTime;//记录上次点击ok健的时间戳
+    private boolean isKeyEnterFirst;
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -508,6 +509,35 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+            if (hasCallingVideo) {
+                endCall();
+                faceOnResuse();
+                LogUtil.w("keycode : " + "# 号挂断");
+            } else {
+                LogUtil.w("keycode : " + "# 号拨号");
+                inputNum = roomNumEt.getText().toString().trim();
+                if (!TextUtils.isEmpty(inputNum))
+                    checkInput(inputNum);
+                else{//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+                    if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
+                        ToastUtil.showCustomToast("双击enter键");
+                    }
+                    okClickTime = System.currentTimeMillis();
+                }
+            }
+
+            isKeyEnterFirst = false;
+            return true;
+        }
+        isKeyEnterFirst = true;
+        return super.dispatchKeyEvent(event);
+    }
+
+
     private boolean isShiftClick;
 
     @Override
@@ -516,13 +546,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             isShiftClick = true;
             return true;
         }
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            if (hasCallingVideo) {
-                endCall();
-                faceOnResuse();
+        if (keyCode == KeyEvent.KEYCODE_DEL) {
+            String oldNum = roomNumEt.getText().toString().trim();
+            if(!TextUtils.isEmpty(oldNum) && inputLayoutShow){//输入布局显示，并且输入不为空，清空输入
+                roomNumEt.setText("");
+            }else if(TextUtils.isEmpty(oldNum) && inputLayoutShow){//输入布局显示，并且输入为空，隐藏键盘
+                hideRoomInputLayout();
+                starEnterDown = false;
+            }else{// 显示输入布局，并标记为* 组合输入
+                roomNumEt.setText("");
+                showRoomNumOpen();
+                starEnterDown = true;
             }
+
             return true;
-        } else if (keyCode == KeyEvent.KEYCODE_0) {
+        } else if(keyCode == KeyEvent.KEYCODE_BACK){
+
+            return true;
+        }else if (keyCode == KeyEvent.KEYCODE_0) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
                 String oldNum = roomNumEt.getText().toString().trim();
@@ -560,7 +601,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         checkInput(inputNum);
                     else{//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
                         if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
-
+                            ToastUtil.showCustomToast("双击enter键");
                         }
                         okClickTime = System.currentTimeMillis();
                     }
@@ -1004,6 +1045,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 goTo(RegistICCardActivity.class, bundle);
             } else {
                 ToastUtil.showCustomToast("输入错误");
+                faceOnResuse();
             }
         } else {
             if (inputNum.length() == 5) {//密码开门
@@ -1023,6 +1065,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 } else {
                     setShowSucOrError(false, inputNum);
                 }
+                faceOnResuse();
             } else if (inputNum.length() == 4 || inputNum.length() == 6) {
 
                 hasCallingVideo = true;
@@ -1036,6 +1079,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 startCallSuccessTime();
             } else {
                 ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
+                faceOnResuse();
             }
 
         }
@@ -1070,7 +1114,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         showCallVideoLayout();
         callNumTv.setText(roomNum);
 
-        onFacePause();
+//        onFacePause();
 //        hideFaceLayout();
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
@@ -1509,7 +1553,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     long endTime = System.currentTimeMillis();
                     if (endTime - startShowTime >= 10000) {//十秒未操作关闭输入框
                         hideRoomInputLayout();
-//                        faceOnResuse();
+                        faceOnResuse();
                     }
                 } else if (type == 2) {
                     if (!hasCallSuccess) {
@@ -1541,7 +1585,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //显示密码输入框开门ui
     private void showRoomNumOpen() {
-//        hideAndStopFace();//输入时禁止识别
+        hideAndStopFace();//输入时禁止识别
 
         startShowTime = System.currentTimeMillis();
         startShowLayoutTime();
@@ -1914,7 +1958,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 callUserId = userId;
                 inputNum = roomNum;
                 callVideo(userId + "", roomNum);
-                ToastUtil.showCustomToast("拨打用户userId = " + userId);
+//                ToastUtil.showCustomToast("拨打用户userId = " + userId);
             }
         } else {
             endCall();
@@ -2144,7 +2188,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     private void onFacePause() {
         if(faceTrackInit) {
-            faceSet.stopTrack();
             if (mCameraView != null) {
                 mCameraView.stop();
             }
@@ -2153,6 +2196,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     mIRCameraView.stop();
                 }
             }
+            // faceSet.stopTrack();
             faceTrackInit = false;
         }
     }
@@ -2224,7 +2268,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             }
                         });
                         //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
-                        mCameraView.addCallbackBuffer(data);
+//                        mCameraView.addCallbackBuffer(data);
                     }
                 }
             });
@@ -2238,12 +2282,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //        mCameraView.bringToFront();
         faceParentRl.bringToFront();
         entranceDetailTv.bringToFront();
+        sfv_draw_view.setVisibility(View.VISIBLE);
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
 
     private void hideFaceLayout() {
         if(!isFaceViewShow)return;
         isFaceViewShow = false;
+        sfv_draw_view.setVisibility(View.INVISIBLE);
         homebgIv.bringToFront();
         banner.bringToFront();
         toolsBar.bringToFront();

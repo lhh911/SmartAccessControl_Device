@@ -41,6 +41,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
 //    private Button confirmBtn;
 
     private MyBroadcastReceiver mReceiver;
+    private boolean isKeyEnterFirst;
 
     @Override
     public void init() {
@@ -133,6 +134,18 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
         return super.onKeyDown(keyCode, event);
     }
 
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+            isKeyEnterFirst = false;
+            finish();
+            return true;
+        }
+        isKeyEnterFirst = true;
+        return super.dispatchKeyEvent(event);
+    }
+    
 
     public String getLocalIp() {
         String ipaddress = "";

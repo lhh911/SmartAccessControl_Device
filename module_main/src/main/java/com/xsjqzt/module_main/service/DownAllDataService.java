@@ -82,7 +82,7 @@ public class DownAllDataService extends IntentService {
                     .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
                 @Override
                 public void onSuccess(BaseBean bean) {
-                    ToastUtil.showCustomToast("设备接入成功");
+//                    ToastUtil.showCustomToast("设备接入成功");
                     SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_JPUSH);
                 }
             });

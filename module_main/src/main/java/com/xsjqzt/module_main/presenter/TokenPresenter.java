@@ -157,7 +157,7 @@ public class TokenPresenter extends BaseMvpPresenter<TokenView> {
                 .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
             @Override
             public void onSuccess(BaseBean bean) {
-                ToastUtil.showCustomToast("极光id推送服务器成功");
+//                ToastUtil.showCustomToast("极光id推送服务器成功");
                 SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_REGISTRATIONID,true ,KeyContacts.SP_NAME_JPUSH);
             }
         });

@@ -67,9 +67,9 @@ public class JPushReceive extends BroadcastReceiver {
             boolean connected = bundle.getBoolean(JPushInterface.EXTRA_CONNECTION_CHANGE, false);
             if(!connected){//断开了
                 JPushInterface.onResume(context.getApplicationContext());
-                ToastUtil.showCustomToast("极光服务挂B了" );
+//                ToastUtil.showCustomToast("极光服务挂B了" );
             }else{
-                ToastUtil.showCustomToast("极光服务已经连接上" );
+//                ToastUtil.showCustomToast("极光服务已经连接上" );
             }
         }
     }
@@ -82,7 +82,7 @@ public class JPushReceive extends BroadcastReceiver {
 
         String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
         LogUtil.d(TAG, "extras : " + extras);
-        ToastUtil.showCustomToast("收到通知了 ：" + extras);
+//        ToastUtil.showCustomToast("收到通知了 ：" + extras);
 
 //        whiteLog(context,extras.getBytes());
 

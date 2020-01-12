@@ -758,13 +758,13 @@ public class FaceSet {
                     }
                     LogUtil.w("user_id" + user_id);
                     EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
-                    toast("人脸已注册");
+//                    toast("人脸已注册");
                 }else{
-                    toast("人脸未注册");
+//                    toast("人脸未注册");
                     EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
             }else{
-                toast("未通过,getConfidence= " + ymFace.getConfidence() +  "getLiveness= " + ymFace.getLiveness());
+//                toast("未通过,getConfidence= " + ymFace.getConfidence() +  "getLiveness= " + ymFace.getLiveness());
             }
 
 
@@ -791,21 +791,21 @@ public class FaceSet {
     }
 
 
-    private void toast(String msg){
-        Observable.just(msg)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
-                    public void onSubscribe(Disposable d) {
-                    }
-                    public void onNext(String integer) {
-                        ToastUtil.showCustomToast("人脸识别： "+integer);
-                    }
-                    public void onError(Throwable e) {
-                    }
-                    public void onComplete() {
-                    }
-                });
-    }
+//    private void toast(String msg){
+//        Observable.just(msg)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Observer<String>() {
+//                    public void onSubscribe(Disposable d) {
+//                    }
+//                    public void onNext(String integer) {
+//                        ToastUtil.showCustomToast("人脸识别： "+integer);
+//                    }
+//                    public void onError(Throwable e) {
+//                    }
+//                    public void onComplete() {
+//                    }
+//                });
+//    }
 
 
 
