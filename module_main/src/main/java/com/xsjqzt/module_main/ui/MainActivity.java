@@ -194,14 +194,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int callUserId = 0;//不通时，自动转呼一次，视频呼叫时第几个业主  0 第一个，1 第二个
     private String inputNum;//输入号码
     private EMCallManager.EMCallPushProvider pushProvider;
-    private InutLayoutShowTimeRunnable callRunnable, twoCallVideoRunnable ;
+    private InutLayoutShowTimeRunnable callRunnable, twoCallVideoRunnable;
 
     private boolean isCheckedCamera;
 
     int time8 = 800;//早上八点
     int time19 = 1900;//19点
     int time24 = 2400;//24点
-    int lastVolume ;//设备音量开关  0 默认白天，1 晚上
+    int lastVolume;//设备音量开关  0 默认白天，1 晚上
     private byte[] mPreviewBuffer;
     private boolean callSecond;//是否是呼叫的第二个人
     private long okClickTime;//记录上次点击ok健的时间戳
@@ -278,14 +278,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         initFaceCamera();
         initFaceEvent();
+        onFaceResume();
 
-
-        if(deviceEnable()) {
+        if (deviceEnable()) {
             startService(new Intent(this, DownAllDataService.class));
             startService(new Intent(this, HeartBeatService.class));
         }
 
-        String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME,KeyContacts.SP_NAME_JPUSH);
+        String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME, KeyContacts.SP_NAME_JPUSH);
         entranceDetailTv.setText(display_name);
 
         //延迟3秒检查版本是否需要更新
@@ -299,7 +299,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     private void checkCameraEnable() {
-        if(!isCheckedCamera) {
+        if (!isCheckedCamera) {
             isCheckedCamera = true;
             boolean cameraEnable = DeviceUtil.checkCameraEnable();
             if (!cameraEnable) {
@@ -509,10 +509,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
             if (hasCallingVideo) {
                 endCall();
                 faceOnResuse();
@@ -522,7 +521,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 inputNum = roomNumEt.getText().toString().trim();
                 if (!TextUtils.isEmpty(inputNum))
                     checkInput(inputNum);
-                else{//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+                else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
                     if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
                         ToastUtil.showCustomToast("双击enter键");
                     }
@@ -548,22 +547,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
         if (keyCode == KeyEvent.KEYCODE_DEL) {
             String oldNum = roomNumEt.getText().toString().trim();
-            if(!TextUtils.isEmpty(oldNum) && inputLayoutShow){//输入布局显示，并且输入不为空，清空输入
+            if (!TextUtils.isEmpty(oldNum) && inputLayoutShow) {//输入布局显示，并且输入不为空，清空输入
                 roomNumEt.setText("");
-            }else if(TextUtils.isEmpty(oldNum) && inputLayoutShow){//输入布局显示，并且输入为空，隐藏键盘
+            } else if (TextUtils.isEmpty(oldNum) && inputLayoutShow) {//输入布局显示，并且输入为空，隐藏键盘
                 hideRoomInputLayout();
                 starEnterDown = false;
-            }else{// 显示输入布局，并标记为* 组合输入
+            } else {// 显示输入布局，并标记为* 组合输入
                 roomNumEt.setText("");
                 showRoomNumOpen();
                 starEnterDown = true;
             }
 
             return true;
-        } else if(keyCode == KeyEvent.KEYCODE_BACK){
+        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
 
             return true;
-        }else if (keyCode == KeyEvent.KEYCODE_0) {
+        } else if (keyCode == KeyEvent.KEYCODE_0) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
                 String oldNum = roomNumEt.getText().toString().trim();
@@ -599,7 +598,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     inputNum = roomNumEt.getText().toString().trim();
                     if (!TextUtils.isEmpty(inputNum))
                         checkInput(inputNum);
-                    else{//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+                    else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
                         if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
                             ToastUtil.showCustomToast("双击enter键");
                         }
@@ -756,8 +755,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-
-
     private void registReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(KeyContacts.ACTION_API_KEY_INVALID);
@@ -783,7 +780,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     login();
                 } else if (code == 2004) {//设备未绑定或不存在
                     clearDeviceData();
-                }else if (code == 2005) {//设备禁用
+                } else if (code == 2005) {//设备禁用
                     disableDevice();
                 }
             } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION) {
@@ -798,7 +795,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     loadDeviceInfo();
                 }
                 //如果监听程序没有运行，则启动监听app
-                if(!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")){
+                if (!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")) {
                     Intent startIntent = getPackageManager().getLaunchIntentForPackage("com.test.monitor_appinstall");
                     if (startIntent != null) {
                         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -839,14 +836,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     } else if (type == 102) {//设置音量
                         int volume = json.getInt("volume");
                         int volume_night = json.getInt("volume_night");
-                        SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME,volume,KeyContacts.SP_NAME_JPUSH);
-                        SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT,volume_night,KeyContacts.SP_NAME_JPUSH);
+                        SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME, volume, KeyContacts.SP_NAME_JPUSH);
+                        SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT, volume_night, KeyContacts.SP_NAME_JPUSH);
                         setVoice();
                     } else if (type == 104) {//开锁
                         openDoor();
                     } else if (type == 105) {//app有更新，检查更新
                         checkVersion();
-                    }else if(type == 107){
+                    } else if (type == 107) {
                         loadDeviceInfo();
                     }
                 } catch (Exception e) {
@@ -858,7 +855,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-    private void rebootDevice(){
+    private void rebootDevice() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -868,7 +865,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     public void run() {
                         DeviceUtil.rebootDevice();
                     }
-                },1000);
+                }, 1000);
             }
         });
 
@@ -914,19 +911,19 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 int isNight = 0;
                 if ((now > time19 && now < time24) || (now > 0 && now < time8)) {//夜间音量
                     isNight = 1;
-                }else{               //白天音量
+                } else {               //白天音量
                     isNight = 0;
                 }
                 lastVolume = isNight;
-                float volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+                float volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME, 100, KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT, 0, KeyContacts.SP_NAME_JPUSH);
 
                 //设置音量
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                int maxSyetem = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
-                int maxMusic = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+                int maxSyetem = (int) (volume / 100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
+                int maxMusic = (int) (volume / 100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
 
-                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);
+                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem, AudioManager.FLAG_SHOW_UI);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic, AudioManager.FLAG_SHOW_UI);
 
                 //通知服务器设置成功
                 presenter.setVoice((int) volume);
@@ -947,29 +944,28 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 int isNight = 0;
                 if ((now > time19 && now < time24) || (now > 0 && now < time8)) {//夜间音量
                     isNight = 1;
-                }else{               //白天音量
+                } else {               //白天音量
                     isNight = 0;
                 }
-                if(lastVolume == isNight){
+                if (lastVolume == isNight) {
                     return;
                 }
                 lastVolume = isNight;
 
-                float volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME,100,KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT,0,KeyContacts.SP_NAME_JPUSH);
+                float volume = lastVolume == 0 ? SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME, 100, KeyContacts.SP_NAME_JPUSH) : SharePreferensUtil.getInt(KeyContacts.SP_KEY_VOLUME_NIGHT, 0, KeyContacts.SP_NAME_JPUSH);
 
                 //设置音量
                 AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                int maxSyetem = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
-                int maxMusic = (int)(volume/100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+                int maxSyetem = (int) (volume / 100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM));
+                int maxMusic = (int) (volume / 100 * audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
 
-                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem , AudioManager.FLAG_SHOW_UI);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic , AudioManager.FLAG_SHOW_UI);
+                audioManager.setStreamVolume(AudioManager.STREAM_SYSTEM, maxSyetem, AudioManager.FLAG_SHOW_UI);
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusic, AudioManager.FLAG_SHOW_UI);
 
             }
         });
 
     }
-
 
 
     private void downICCardData() {
@@ -1022,12 +1018,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
     private void checkInput(String inputNum) {
-        if(!DeviceUtil.isNetWorkEnable()){
+        if (!DeviceUtil.isNetWorkEnable()) {
             ToastUtil.showCustomToast("设备未联网，暂不支持呼叫");
             return;
         }
 
-        if(!deviceEnable()){
+        if (!deviceEnable()) {
             showEnableToast();
             return;
         }
@@ -1247,7 +1243,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                                    error = s1;
                                     endCall();
 
-                                    if(!callSecond) {
+                                    if (!callSecond) {
                                         new Handler().postDelayed(new Runnable() {
                                             @Override
                                             public void run() {
@@ -1264,7 +1260,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                                 }
                                             }
                                         }, 1500);
-                                    }else{
+                                    } else {
                                         faceOnResuse();
                                     }
 
@@ -1333,7 +1329,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         endCall();
                         faceOnResuse();
                     }
-                },10 * 1000);
+                }, 10 * 1000);
             }
 
             @Override
@@ -1688,7 +1684,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             protected void onDataReceived(ComBean paramComBean) {
 
-                if(!deviceEnable()){
+                if (!deviceEnable()) {
                     showEnableToast();
                     return;
                 }
@@ -1804,8 +1800,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         open();
 
-        onFaceResume();
-
+//        onFaceResume();
+        startCamera();
 
     }
 
@@ -1930,12 +1926,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             if (status == 1) {
 
             }
-            SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,true,KeyContacts.SP_NAME_JPUSH);
+            SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE, true, KeyContacts.SP_NAME_JPUSH);
 
             int volume = bean.getData().getVolume();
-            int volume_night =  bean.getData().getVolume_night();
-            SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME,volume,KeyContacts.SP_NAME_JPUSH);
-            SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT,volume_night,KeyContacts.SP_NAME_JPUSH);
+            int volume_night = bean.getData().getVolume_night();
+            SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME, volume, KeyContacts.SP_NAME_JPUSH);
+            SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT, volume_night, KeyContacts.SP_NAME_JPUSH);
 
 
             String name = bean.getData().getName();
@@ -1944,7 +1940,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            entranceDetailTv.setText(garden_name + "/" + region_name + "/" + building_name + "/" + name);
             String display_name = bean.getData().getDisplay_name();
             entranceDetailTv.setText(display_name);
-            SharePreferensUtil.putString(KeyContacts.SP_KEY_DISPLAY_NAME,display_name,KeyContacts.SP_NAME_JPUSH);
+            SharePreferensUtil.putString(KeyContacts.SP_KEY_DISPLAY_NAME, display_name, KeyContacts.SP_NAME_JPUSH);
 
         }
     }
@@ -1985,7 +1981,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //清除设备信息，设备解绑了
-    private void clearDeviceData(){
+    private void clearDeviceData() {
         ToastUtil.showCustomToast("设备已解绑");
         UserInfoInstance.getInstance().reset();
         CameraUtil.clearAllFace(faceSet);
@@ -2005,12 +2001,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //检查设备是否可用，被禁用时返回false
-    private boolean deviceEnable(){
-        boolean enable = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,true,KeyContacts.SP_NAME_JPUSH);
+    private boolean deviceEnable() {
+        boolean enable = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE, true, KeyContacts.SP_NAME_JPUSH);
         return enable;
     }
 
-    private void showEnableToast(){
+    private void showEnableToast() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -2020,13 +2016,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //禁用设备
-    private void disableDevice(){
+    private void disableDevice() {
         showEnableToast();
-        SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE,false,KeyContacts.SP_NAME_JPUSH);
+        SharePreferensUtil.putBoolean(KeyContacts.SP_KEY_DEVICE_ENABLE, false, KeyContacts.SP_NAME_JPUSH);
     }
 
 
-    private void clearDB(){
+    private void clearDB() {
         DbManager.getInstance().getDaoSession().getFaceImageDao().deleteAll();
         DbManager.getInstance().getDaoSession().getOpenCodeDao().deleteAll();
         DbManager.getInstance().getDaoSession().getICCardDao().deleteAll();
@@ -2080,7 +2076,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void faceOpenSuccess(FaceSuccessEventBean bean) {
 
-        if(!deviceEnable()){
+        if (!deviceEnable()) {
             showEnableToast();
             return;
         }
@@ -2187,7 +2183,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void onFacePause() {
-        if(faceTrackInit) {
+        if (faceTrackInit) {
             if (mCameraView != null) {
                 mCameraView.stop();
             }
@@ -2200,6 +2196,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             faceTrackInit = false;
         }
     }
+
+    private void startCamera() {
+        //开启相机
+        if (mCameraView != null && !mCameraView.isCameraOpened())
+            mCameraView.start();
+        faceTrackInit = true;
+    }
+
 
     // 初始化人脸所需的UI;
     private void initFaceCamera() {
@@ -2287,7 +2291,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void hideFaceLayout() {
-        if(!isFaceViewShow)return;
+        if (!isFaceViewShow) return;
         isFaceViewShow = false;
         sfv_draw_view.setVisibility(View.INVISIBLE);
         homebgIv.bringToFront();
@@ -2302,7 +2306,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    private void hideAndStopFace(){
+    private void hideAndStopFace() {
         onFacePause();
         hideFaceLayout();
     }
@@ -2491,7 +2495,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             public void run() {
 //                if(cameraEnable)
-                onFaceResume();
+//                onFaceResume();
+                startCamera();
             }
         }, 500);
     }

@@ -384,24 +384,24 @@ public class FaceSet {
     /**
      * 获取属性
      *
-     * @param index
+     * @param
      * @return
      */
-    public User getUser(int index) {
-        User user = new User();
-        float[] faceFeature = faceTrack.getFaceFeature(index);
-        int gender = faceTrack.getGender(index);
-        int gender_confidence = faceTrack.getGenderConfidence(index);
-        if (gender_confidence >= 90)
-            user.setGender(gender == 0 ? "F" : "M");
-        else {
-            user.setGender("");
-        }
-        user.setScore(faceTrack.getHappyScore(index) + "");
-        user.setAge(faceTrack.getAge(index) + "");
-        user.setFaceFeature(floatToString(faceFeature));
-        return user;
-    }
+//    public User getUser(int index) {
+//        User user = new User();
+//        float[] faceFeature = faceTrack.getFaceFeature(index);
+//        int gender = faceTrack.getGender(index);
+//        int gender_confidence = faceTrack.getGenderConfidence(index);
+//        if (gender_confidence >= 90)
+//            user.setGender(gender == 0 ? "F" : "M");
+//        else {
+//            user.setGender("");
+//        }
+//        user.setScore(faceTrack.getHappyScore(index) + "");
+//        user.setAge(faceTrack.getAge(index) + "");
+//        user.setFaceFeature(floatToString(faceFeature));
+//        return user;
+//    }
 
     //float[]转换String
     public String floatToString(float[] var1) {
