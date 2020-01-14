@@ -285,6 +285,7 @@ public class FaceImageDownService extends IntentService {
                 } else if (faceResult.code == 102) {//已注册,
                     code = StringUtil.arrayToString(faceResult.rect);
                     status = 2;
+//                    toast("用图片注册，已注册过| userid="+dataBean.getUser_id());
                     break;
                 } else {//失败
                     status = 3;
@@ -328,6 +329,7 @@ public class FaceImageDownService extends IntentService {
                     break;
                 } else if (faceResult.code == 102) {//已注册,
 //                status = 4;
+//                    toast("用唯一标识注册,已注册过|userid="+dataBean.getUser_id());
                     break;
                 } else {//失败
 //                    toast("用唯一标识注册失败|userid="+dataBean.getUser_id());

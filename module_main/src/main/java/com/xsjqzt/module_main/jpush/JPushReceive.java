@@ -82,7 +82,7 @@ public class JPushReceive extends BroadcastReceiver {
 
         String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
         LogUtil.d(TAG, "extras : " + extras);
-//        ToastUtil.showCustomToast("收到通知了 ：" + extras);
+        ToastUtil.showCustomToast("收到通知了 ：" + extras);
 
 //        whiteLog(context,extras.getBytes());
 

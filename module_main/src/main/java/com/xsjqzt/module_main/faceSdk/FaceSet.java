@@ -764,7 +764,7 @@ public class FaceSet {
                     EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
             }else{
-//                toast("未通过,getConfidence= " + ymFace.getConfidence() +  "getLiveness= " + ymFace.getLiveness());
+//                toast("未通过,getConfidence= " + ymFace.getConfidence() +  " | getLiveness= " + ymFace.getLiveness());
             }
 
 

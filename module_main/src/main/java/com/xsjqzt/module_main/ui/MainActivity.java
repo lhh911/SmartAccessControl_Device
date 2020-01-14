@@ -278,7 +278,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         initFaceCamera();
         initFaceEvent();
-        onFaceResume();
+//        onFaceResume();
 
         if (deviceEnable()) {
             startService(new Intent(this, DownAllDataService.class));
@@ -1800,8 +1800,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         open();
 
-//        onFaceResume();
-        startCamera();
+        onFaceResume();
+//        startCamera();
 
     }
 
@@ -1837,6 +1837,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         String sn = (String) msg.obj;
 
                         openDoor();
+                        isFaceSuccess = true;//表示开门成功，此时获取一帧开门图片
 
                         uploadRecord(type, sn);
                         startMusic(2);
@@ -2284,9 +2285,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void showFaceLayout() {
         isFaceViewShow = true;
 //        mCameraView.bringToFront();
+        sfv_draw_view.setVisibility(View.VISIBLE);
         faceParentRl.bringToFront();
         entranceDetailTv.bringToFront();
-        sfv_draw_view.setVisibility(View.VISIBLE);
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
 
@@ -2296,7 +2297,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         sfv_draw_view.setVisibility(View.INVISIBLE);
         homebgIv.bringToFront();
         banner.bringToFront();
-        toolsBar.bringToFront();
+//        toolsBar.bringToFront();
         callVideoLayout.bringToFront();
         roomNumLayout.bringToFront();
         entranceDetailTv.bringToFront();
@@ -2321,31 +2322,35 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      * @param isMulti
      * @return
      */
-    private byte[] mBytes;
-    private byte[] mBytesIr;
-    private int mWidth;
-    private int mHeight;
+//    private byte[] mBytes;
+//    private byte[] mBytesIr;
+//    private int mWidth;
+//    private int mHeight;
     private boolean openFaceTrack = false;//追踪
     private boolean openFaceReco = true;//识别
-    private boolean openFaceLiveness = false; //红外活体
-    private boolean openFaceRgbLiveness = true;  //可见光活体
-    private boolean openFaceBinoculareLiveness = false; //双目活体（可见光+红外）
+//    private boolean openFaceLiveness = false; //红外活体
+//    private boolean openFaceRgbLiveness = true;  //可见光活体
+//    private boolean openFaceBinoculareLiveness = false; //双目活体（可见光+红外）
     private Map<Integer, User> userMap;
 
     private boolean isFaceViewShow = false;
     private boolean isDoubleEyes = true;
 
     private byte[] bitmapBytes;//保存人脸识别成功后的当前图片
+    boolean isFaceSuccess ;
 
     protected List<YMFace> onCameraPreviewFrame(final byte[] bytes, final byte[] irBytes, final int iw, final int ih, final boolean isMulti) {
         if (bytes == null) return null;
         //得到识别是的图片
-        bitmapBytes = bytes;
+        if(isFaceSuccess) {
+            bitmapBytes = bytes;
+            isFaceSuccess = false;
+        }
 
-        mBytes = bytes;
-        mBytesIr = irBytes;
-        mWidth = iw;
-        mHeight = ih;
+//        mBytes = bytes;
+//        mBytesIr = irBytes;
+//        mWidth = iw;
+//        mHeight = ih;
         return faceSet.logic(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType());
     }
 
