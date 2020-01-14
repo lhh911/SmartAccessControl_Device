@@ -519,9 +519,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             } else {
                 LogUtil.w("keycode : " + "# 号拨号");
                 inputNum = roomNumEt.getText().toString().trim();
-                if (!TextUtils.isEmpty(inputNum))
+                if (!TextUtils.isEmpty(inputNum)) {
                     checkInput(inputNum);
-                else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+                }else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
                     if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
                         ToastUtil.showCustomToast("双击enter键");
                     }
@@ -547,12 +547,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
         if (keyCode == KeyEvent.KEYCODE_DEL) {
             String oldNum = roomNumEt.getText().toString().trim();
-            if (!TextUtils.isEmpty(oldNum) && inputLayoutShow) {//输入布局显示，并且输入不为空，清空输入
+            if (!TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入不为空，清空输入
                 roomNumEt.setText("");
-            } else if (TextUtils.isEmpty(oldNum) && inputLayoutShow) {//输入布局显示，并且输入为空，隐藏键盘
+            } else if (TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入为空，隐藏键盘
                 hideRoomInputLayout();
                 starEnterDown = false;
-            } else {// 显示输入布局，并标记为* 组合输入
+            } else if(!hasCallingVideo) {// 显示输入布局，并标记为* 组合输入
                 roomNumEt.setText("");
                 showRoomNumOpen();
                 starEnterDown = true;
@@ -1136,9 +1136,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                        st2 = getResources().getString(R.string.can_not_connect_chat_server_connection);
 //                    }
 //                    Toast.makeText(MainActivity.this, st2, Toast.LENGTH_SHORT).show();
-//
-                    endCall();
-                    faceOnResuse();
+
+//                    endCall();
+//                    faceOnResuse();
                 }
             });
         }
@@ -1254,10 +1254,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                                 presenter.getUseridByRoom(inputNum, callUserId);
                                                 startTwoCallVideoTime();
 
-                                                if (callRunnable != null && doorHandler != null) {
-                                                    doorHandler.removeCallbacks(callRunnable);
-                                                    callRunnable = null;
-                                                }
+//                                                if (callRunnable != null && doorHandler != null) {
+//                                                    doorHandler.removeCallbacks(callRunnable);
+//                                                    callRunnable = null;
+//                                                }
                                             }
                                         }, 1500);
                                     } else {
@@ -1266,9 +1266,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                                 } else {
 //                                    error = "无法接通";
-                                    endCall();
-                                    faceOnResuse();
+//                                    endCall();
+//                                    faceOnResuse();
                                 }
+
 //                                else if (fError == CallError.ERROR_TRANSPORT) {
 //                                    error = s2;
 //                                } else if (fError == CallError.ERROR_UNAVAILABLE) {
@@ -1511,6 +1512,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //切换业主第二次拨号时间检查
     private void startTwoCallVideoTime() {
+        if (callRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(callRunnable);
+            callRunnable = null;
+        }
         twoCallVideoRunnable = new InutLayoutShowTimeRunnable(this, 3);
 
         doorHandler.postDelayed(twoCallVideoRunnable, callVideoTimeOut);
@@ -2203,6 +2208,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (mCameraView != null && !mCameraView.isCameraOpened())
             mCameraView.start();
         faceTrackInit = true;
+        hideCallVideoLayout();
+        hideRoomInputLayout();
     }
 
 
