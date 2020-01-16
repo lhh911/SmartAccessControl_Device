@@ -2213,6 +2213,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         //开启相机
         if (mCameraView != null && !mCameraView.isCameraOpened())
             mCameraView.start();
+        if (isDoubleEyes) openIRCamera();
+
         faceTrackInit = true;
         hideCallVideoLayout();
         hideRoomInputLayout();
