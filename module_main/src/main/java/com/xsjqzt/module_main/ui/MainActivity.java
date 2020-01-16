@@ -178,7 +178,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private long startShowTime;//记录底部布局显示的开始时间，10秒无操作自动掩藏
     //    private Timer inputLayoutShowTime;//10秒内检查操作定时器
 //    private TimerTask inputLayoutShowTask;
-    private InutLayoutShowTimeRunnable inutLayoutShowTimeRunnable;
+
 
     private boolean starEnterDown;// * 号被按了
 
@@ -194,7 +194,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int callUserId = 0;//不通时，自动转呼一次，视频呼叫时第几个业主  0 第一个，1 第二个
     private String inputNum;//输入号码
     private EMCallManager.EMCallPushProvider pushProvider;
-    private InutLayoutShowTimeRunnable callRunnable, twoCallVideoRunnable;
+    private InutLayoutShowTimeRunnable inutLayoutShowTimeRunnable;//按键10秒误操作检查
+    private InutLayoutShowTimeRunnable callRunnable, twoCallVideoRunnable;//第一个人拨号定时器，第二个人拨号计时器
 
     private boolean isCheckedCamera;
 
@@ -1071,7 +1072,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 presenter.getUseridByRoom(inputNum, callUserId);
                 startMusic(5);//呼叫中语音
 
-                //开始计时
+                //开始计时第一个人
                 startCallSuccessTime();
             } else {
                 ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
@@ -1216,6 +1217,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 openSpeakerOn();
                                 hasCallSuccess = true;
                                 EMClient.getInstance().callManager().switchCamera();
+
+                                removeCallCheck();
                             }
                         });
                         break;
@@ -1239,7 +1242,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 //                                String error = null;
                                 startMusic(6);//对方未接听
-                                if (fError == CallError.REJECTED) {
+                                if (fError == CallError.REJECTED || fError == CallError.ERROR_UNAVAILABLE
+                                    || fError == CallError.ERROR_BUSY || fError == CallError.ERROR_NORESPONSE) {
 //                                    error = s1;
                                     endCall();
 
@@ -1265,9 +1269,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                     }
 
                                 } else {
-//                                    error = "无法接通";
-//                                    endCall();
-//                                    faceOnResuse();
+//                                    String errorStr = "无法接通";
+//                                    ToastUtil.showCustomToast(errorStr);
+                                    endCall();
+                                    faceOnResuse();
                                 }
 
 //                                else if (fError == CallError.ERROR_TRANSPORT) {
@@ -1480,14 +1485,28 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    //拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二次
-    private int callVideoTimeOut = 30 * 1000;
+    //开启任务检查布局在十秒内是否有键盘操作，没有就掩藏底部输入布局
+    private void startShowLayoutTime() {
+        if (inutLayoutShowTimeRunnable != null && inutLayoutShowTimeRunnable != null) {
+            doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
+        }
+        if (inutLayoutShowTimeRunnable == null) {
+            inutLayoutShowTimeRunnable = new InutLayoutShowTimeRunnable(this, 1);
+        }
 
-    private void startCallSuccessTime() {
+        doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10000);
+    }
+
+    //拨打第一个人，拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二个人
+    private int callVideoTimeOut = 30 * 1000;
+    private void startCallSuccessTime() {//拨打第一个人计时器
+        if (inutLayoutShowTimeRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
+            inutLayoutShowTimeRunnable = null;
+        }
         if (callRunnable != null) {
             doorHandler.removeCallbacks(callRunnable);
         }
-
         if (callRunnable == null) {
             callRunnable = new InutLayoutShowTimeRunnable(this, 2);
         }
@@ -1495,20 +1514,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         doorHandler.postDelayed(callRunnable, callVideoTimeOut);
     }
 
-    private void removeCallCheck() {
-        if (callRunnable != null && doorHandler != null) {
-            doorHandler.removeCallbacks(callRunnable);
-            callRunnable = null;
-        }
-        if (twoCallVideoRunnable != null && doorHandler != null) {
-            doorHandler.removeCallbacks(twoCallVideoRunnable);
-            twoCallVideoRunnable = null;
-        }
-        if (inutLayoutShowTimeRunnable != null && doorHandler != null) {
-            doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
-            inutLayoutShowTimeRunnable = null;
-        }
-    }
 
     //切换业主第二次拨号时间检查
     private void startTwoCallVideoTime() {
@@ -1522,21 +1527,22 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-
-    //开启任务检查布局在十秒内是否有其他操作，没有就掩藏底部输入布局
-    private void startShowLayoutTime() {
-
-        if (inutLayoutShowTimeRunnable != null && inutLayoutShowTimeRunnable != null) {
+    private void removeCallCheck() {
+        if (inutLayoutShowTimeRunnable != null && doorHandler != null) {
             doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
+            inutLayoutShowTimeRunnable = null;
         }
-
-        if (inutLayoutShowTimeRunnable == null) {
-            inutLayoutShowTimeRunnable = new InutLayoutShowTimeRunnable(this, 1);
+        if (callRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(callRunnable);
+            callRunnable = null;
         }
-
-        doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10000);
+        if (twoCallVideoRunnable != null && doorHandler != null) {
+            doorHandler.removeCallbacks(twoCallVideoRunnable);
+            twoCallVideoRunnable = null;
+        }
 
     }
+
 
     public class InutLayoutShowTimeRunnable implements Runnable {
         WeakReference<Activity> weakReference = null;
