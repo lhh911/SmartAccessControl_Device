@@ -1498,7 +1498,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //拨打第一个人，拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二个人
-    private int callVideoTimeOut = 30 * 1000;
+    private int callVideoTimeOut = 90 * 1000;
     private void startCallSuccessTime() {//拨打第一个人计时器
         if (inutLayoutShowTimeRunnable != null && doorHandler != null) {
             doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
