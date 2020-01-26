@@ -1812,7 +1812,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         open();
 
         onFaceResume();
-//        startCamera();
 
     }
 
@@ -1854,15 +1853,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         startMusic(2);
                         if (type != 4)
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
-                        doorHandler.removeMessages(2);
-                        doorHandler.sendEmptyMessageDelayed(2, 5000);
+//                        doorHandler.removeMessages(2);
+//                        doorHandler.sendEmptyMessageDelayed(2, 5000);
                         break;
                     case 2:
                         // close door;
 
-                        Gpio.setPull('0', 4, 1);
-                        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-                        Gpio.writeGpio('O', 4, 0);
+//                        Gpio.setPull('0', 4, 1);
+//                        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+//                        Gpio.writeGpio('O', 4, 0);
 //                        isFacePause = false;
                         break;
                     case 3:
@@ -2213,7 +2212,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         //开启相机
         if (mCameraView != null && !mCameraView.isCameraOpened())
             mCameraView.start();
-        if (isDoubleEyes) openIRCamera();
+        if (isDoubleEyes)
+            openIRCamera();
 
         faceTrackInit = true;
         hideCallVideoLayout();
@@ -2514,8 +2514,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-//                if(cameraEnable)
-//                onFaceResume();
                 startCamera();
             }
         }, 500);

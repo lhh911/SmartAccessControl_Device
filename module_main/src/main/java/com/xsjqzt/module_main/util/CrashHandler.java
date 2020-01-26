@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.xsjqzt.module_main.ui.SplashActivity;
 
@@ -95,18 +96,19 @@ public class CrashHandler implements UncaughtExceptionHandler {
     public void uncaughtException(Thread thread, Throwable ex) {
         saveCatchInfo2File(ex);
 
-        new Thread() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(mContext, SplashActivity.class);
-                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
-                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
-                android.os.Process.killProcess(android.os.Process.myPid());
-            }
-        }.start();
+//        new Thread() {
+//            @Override
+//            public void run() {
+//                Intent intent = new Intent(mContext, SplashActivity.class);
+//                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+//                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
+//                android.os.Process.killProcess(android.os.Process.myPid());
+//
+//            }
+//        }.start();
 
-
+        DeviceUtil.rebootDevice();//重启app没有用，摄像头异常后必须重启设备才能恢复
     }
 
 
