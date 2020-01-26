@@ -2148,6 +2148,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int preHeight = 480;//生成图片的高
 
     private boolean faceTrackInit = false;//人脸识别是否初始化
+    private boolean stopFaceTranck = false;//是否是停止识别的，默认不停止
 
     private void onFaceResume() {
 
@@ -2257,7 +2258,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 public void onPreviewFrame(byte[] data, Camera camera) {
                     final byte[] mdata = data;
                     synchronized (lock) {
-
+                        if(stopFaceTranck)
+                            return;
 
                         //调用sdk获取人脸集合
                         ymFaces = onCameraPreviewFrame(mdata, irData,
@@ -2323,7 +2325,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     private void hideAndStopFace() {
-        onFacePause();
+//        onFacePause();
+        stopFaceTranck = true;
         hideFaceLayout();
     }
 
@@ -2514,7 +2517,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startCamera();
+//                startCamera();
+                stopFaceTranck = false;
             }
         }, 500);
     }
