@@ -294,6 +294,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             public void run() {
                 checkVersion();
+                closeDoor();
             }
         }, 3000);
     }
@@ -1853,15 +1854,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         startMusic(2);
                         if (type != 4)
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
-//                        doorHandler.removeMessages(2);
-//                        doorHandler.sendEmptyMessageDelayed(2, 5000);
+                        doorHandler.removeMessages(2);
+                        doorHandler.sendEmptyMessageDelayed(2, 2000);
                         break;
                     case 2:
                         // close door;
-
-//                        Gpio.setPull('0', 4, 1);
-//                        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-//                        Gpio.writeGpio('O', 4, 0);
+                        closeDoor();
 //                        isFacePause = false;
                         break;
                     case 3:
@@ -1882,6 +1880,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         Gpio.writeGpio('O', 4, 1);
     }
 
+
+    private void closeDoor(){
+        Gpio.setPull('0', 4, 1);
+        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+        Gpio.writeGpio('O', 4, 0);
+    }
 
     /**
      * 播放MP3资源
