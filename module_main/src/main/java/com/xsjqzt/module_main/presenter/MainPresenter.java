@@ -498,9 +498,9 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
         });
     }
 
-    public void uploadRemoteRecord(final int type, final int user_id) {
+    public void uploadRemoteRecord(final int type,int mType, final int user_id) {
         SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
-                .uploadRemoteRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
+                .uploadRemoteRecord(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),mType, user_id, 1), UploadCardResBean.class, new NetListeren<UploadCardResBean>() {
             @Override
             public void onSuccess(UploadCardResBean bean) {
                 if (mView != null)

@@ -76,7 +76,7 @@ public interface ApiService {
     //上传远程开门记录不含图片
     @FormUrlEncoded
     @POST("entrance/upload/remote_record")
-    Observable<ResponseBody> uploadRemoteRecord(@Header("Authorization") String token, @Field ("user_id")int user_id, @Field("status") int status);
+    Observable<ResponseBody> uploadRemoteRecord(@Header("Authorization") String token,@Field("type") int type , @Field ("user_id")int user_id, @Field("status") int status);
 
     //获取当前进出口信息
     @POST("entrance/data/entrance_detail")

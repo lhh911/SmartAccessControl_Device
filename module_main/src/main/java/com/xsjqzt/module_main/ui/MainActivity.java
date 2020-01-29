@@ -842,7 +842,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         SharePreferensUtil.putInt(KeyContacts.SP_KEY_VOLUME_NIGHT, volume_night, KeyContacts.SP_NAME_JPUSH);
                         setVoice();
                     } else if (type == 104) {//开锁
-                        openDoor();
+//                        openDoor();
+                        String user_Id = json.optString("user_id");
+                        Message msg = Message.obtain();
+                        msg.what = 1;
+                        msg.arg1 = 6;
+                        msg.obj = user_Id;
+                        doorHandler.sendMessage(msg);
                     } else if (type == 105) {//app有更新，检查更新
                         checkVersion();
                     } else if (type == 107) {
@@ -1923,8 +1929,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             presenter.uploadCodeRecord(type, sn);
         } else if (type == 4) {//人脸开门
             presenter.uploadFaceRecord(type, Integer.parseInt(sn));//sn对应user_id
-        } else if (type == 5) {//远程开门
-            presenter.uploadRemoteRecord(type, Integer.parseInt(sn));//sn对应远处开门的user_id
+        } else if (type == 5) {//视频远程开门
+            presenter.uploadRemoteRecord(type,0, Integer.parseInt(sn));//sn对应远处开门的user_id
+        }else if (type == 6) {//极光远程开门
+            presenter.uploadRemoteRecord(type,1, Integer.parseInt(sn));//sn对应远处开门的user_id
         }
 
     }
