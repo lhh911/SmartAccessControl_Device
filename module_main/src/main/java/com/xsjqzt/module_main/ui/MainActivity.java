@@ -104,6 +104,7 @@ import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.HeartBeatService;
 import com.xsjqzt.module_main.service.OpenRecordService;
+import com.xsjqzt.module_main.util.AndroidDownloadManager;
 import com.xsjqzt.module_main.util.CameraUtil;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
@@ -1856,7 +1857,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         openDoor();
                         isFaceSuccess = true;//表示开门成功，此时获取一帧开门图片
 
-                        uploadRecord(type, sn);
+                        if(!TextUtils.isEmpty(sn))
+                            uploadRecord(type, sn);
                         startMusic(2);
                         if (type != 4)
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
@@ -1995,10 +1997,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (bean.getData() != null) {
             if (bean.getData().isUpgrade()) {
                 String path = bean.getData().getPath();
-                Intent intent = new Intent(this, AppDownloadService.class);
-                intent.putExtra(KeyContacts.KEY_URL, path);
-                intent.putExtra(KeyContacts.KEY_TITLE, "下载中..");
-                startService(intent);
+//                Intent intent = new Intent(this, AppDownloadService.class);
+//                intent.putExtra(KeyContacts.KEY_URL, path);
+//                intent.putExtra(KeyContacts.KEY_TITLE, "下载中..");
+//                startService(intent);
+
+                new AndroidDownloadManager(this,path).download();
             }
         }
     }

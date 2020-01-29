@@ -66,7 +66,7 @@ public class AppDownloadService extends DownloadBaseIntentService {
 //                intent.setAction("android.intent.action.BOOT_COMPLETED");
 //                sendBroadcast(intent);
 
-                DeviceUtil.rebootDevice();
+//                DeviceUtil.rebootDevice();
             }
         }
     }
