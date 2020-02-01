@@ -321,10 +321,13 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
                 ArrayList<FaceImageResBean.DataBean> data = info.getData();
                 if(data == null || data.isEmpty())
                     return;
+
+                UserInfoInstance.getInstance().setFaceList(data);
+
                 Intent it = new Intent(context, FaceImageDownService.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("data", data);
-                it.putExtras(bundle);
+//                Bundle bundle = new Bundle();
+//                bundle.putParcelableArrayList("data", data);
+//                it.putExtras(bundle);
                 context.startService(it);
 
             }

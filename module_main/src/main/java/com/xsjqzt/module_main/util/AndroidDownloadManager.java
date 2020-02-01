@@ -24,6 +24,13 @@ public class AndroidDownloadManager {
 
     private String path;
 
+    private AndroidDownloadManagerListener listener;
+
+
+    public AndroidDownloadManager setListener(AndroidDownloadManagerListener listener) {
+        this.listener = listener;
+        return this;
+    }
 
     public AndroidDownloadManager(Context context, String url) {
         this(context, url, getFileNameByUrl(url));
@@ -60,7 +67,9 @@ public class AndroidDownloadManager {
         }
         //将下载请求加入下载队列，加入下载队列后会给该任务返回一个long型的id，通过该id可以取消任务，重启任务、获取下载的文件等等
         if (downloadManager != null) {
-
+            if(downloadId != 0) {
+                downloadManager.remove(downloadId);
+            }
             downloadId = downloadManager.enqueue(request);
         }
 
@@ -92,12 +101,15 @@ public class AndroidDownloadManager {
                     case DownloadManager.STATUS_SUCCESSFUL:
                         cursor.close();
                         context.unregisterReceiver(receiver);
-
+                        if(listener != null)
+                            listener.onSuccess();
                         installApk(path);
+
                         break;
                     //下载失败
                     case DownloadManager.STATUS_FAILED:
-
+                        if(listener != null)
+                            listener.onFailed();
                         cursor.close();
                         context.unregisterReceiver(receiver);
                         break;
@@ -139,6 +151,14 @@ public class AndroidDownloadManager {
             }
         });
         installer.install(appFile);
+    }
+
+
+    public interface AndroidDownloadManagerListener {
+
+        void onSuccess();
+
+        void onFailed();
     }
 
 }

@@ -74,10 +74,14 @@ public class FaceImageDownService extends IntentService {
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
-        Bundle bundle = intent.getExtras();
-        ArrayList<FaceImageResBean.DataBean> dataBeans = bundle.getParcelableArrayList("data");
-        if (!queue.containsAll(dataBeans)) {
-            queue.addAll(dataBeans);
+//        Bundle bundle = intent.getExtras();
+//        ArrayList<FaceImageResBean.DataBean> dataBeans = bundle.getParcelableArrayList("data");
+
+        ArrayList<FaceImageResBean.DataBean> dataBeans = UserInfoInstance.getInstance().getFaceList();
+        if(dataBeans !=null) {
+            if (!queue.containsAll(dataBeans)) {
+                queue.addAll(dataBeans);
+            }
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -87,6 +91,7 @@ public class FaceImageDownService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
         LogUtil.w("FaceImageDownService");
+        UserInfoInstance.getInstance().setFaceList(null);
     }
 
     @Override
@@ -285,6 +290,9 @@ public class FaceImageDownService extends IntentService {
                 } else if (faceResult.code == 102) {//已注册,
                     code = StringUtil.arrayToString(faceResult.rect);
                     status = 2;
+                    //插入本地数据
+                    dataBean.setCodeX(code);
+                    insert(dataBean, faceResult.personId);
 //                    toast("用图片注册，已注册过| userid="+dataBean.getUser_id());
                     break;
                 } else {//失败
@@ -330,6 +338,7 @@ public class FaceImageDownService extends IntentService {
                 } else if (faceResult.code == 102) {//已注册,
 //                status = 4;
 //                    toast("用唯一标识注册,已注册过|userid="+dataBean.getUser_id());
+                    insert(dataBean, faceResult.personId);
                     break;
                 } else {//失败
 //                    toast("用唯一标识注册失败|userid="+dataBean.getUser_id());

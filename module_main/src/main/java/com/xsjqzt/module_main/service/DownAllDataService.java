@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.alibaba.fastjson.JSON;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.retrofit.other.BaseBean;
@@ -153,10 +154,13 @@ public class DownAllDataService extends IntentService {
                 ArrayList<FaceImageResBean.DataBean> data = info.getData();
                 if(data == null || data.isEmpty())
                     return;
+
+                UserInfoInstance.getInstance().setFaceList(data);
+
                 Intent it = new Intent(DownAllDataService.this, FaceImageDownService.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("data", data);
-                it.putExtras(bundle);
+//                Bundle bundle = new Bundle();
+//                bundle.putParcelableArrayList("data", data);
+//                it.putExtras(bundle);
                 startService(it);
 
             }

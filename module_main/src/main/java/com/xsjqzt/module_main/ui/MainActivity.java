@@ -208,6 +208,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean callSecond;//是否是呼叫的第二个人
     private long okClickTime;//记录上次点击ok健的时间戳
     private boolean isKeyEnterFirst;
+    private int downLoadApkNum;//控制下载次数，只下载一次
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -294,7 +295,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         entranceDetailTv.postDelayed(new Runnable() {
             @Override
             public void run() {
-                checkVersion();
+//                checkVersion();
                 closeDoor();
             }
         }, 3000);
@@ -794,7 +795,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     startService(new Intent(MainActivity.this, DownAllDataService.class));
                     startService(new Intent(MainActivity.this, HeartBeatService.class));
 
-                    checkVersion();
+//                    checkVersion();
                     loadDeviceInfo();
                 }
                 //如果监听程序没有运行，则启动监听app
@@ -2002,10 +2003,29 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                intent.putExtra(KeyContacts.KEY_TITLE, "下载中..");
 //                startService(intent);
 
-                new AndroidDownloadManager(this,path).download();
+                if(downLoadApkNum < 1) {
+                    downLoadApk(path);
+                    downLoadApkNum++;
+                }
             }
         }
     }
+
+
+    private void downLoadApk(String path){
+        new AndroidDownloadManager(this,path).setListener(new AndroidDownloadManager.AndroidDownloadManagerListener() {
+            @Override
+            public void onSuccess() {
+                downLoadApkNum = 0;
+            }
+
+            @Override
+            public void onFailed() {
+                downLoadApkNum = 0;
+            }
+        }).download();
+    }
+
 
     //清除设备信息，设备解绑了
     private void clearDeviceData() {

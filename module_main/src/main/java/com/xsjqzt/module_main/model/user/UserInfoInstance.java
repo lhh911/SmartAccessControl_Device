@@ -5,7 +5,10 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.jbb.library_common.comfig.KeyContacts;
+import com.xsjqzt.module_main.model.FaceImageResBean;
 import com.xsjqzt.module_main.model.UserInfoResBean;
+
+import java.util.ArrayList;
 
 public class UserInfoInstance implements Parcelable {
 
@@ -20,6 +23,8 @@ public class UserInfoInstance implements Parcelable {
     private String sn1;
     private String sn2;
     private String door;
+
+    ArrayList<FaceImageResBean.DataBean> faceList;
 
     private UserInfoInstance(){}
 
@@ -166,5 +171,13 @@ public class UserInfoInstance implements Parcelable {
 
     public void setDoor(String door) {
         this.door = door;
+    }
+
+    public ArrayList<FaceImageResBean.DataBean> getFaceList() {
+        return faceList;
+    }
+
+    public void setFaceList(ArrayList<FaceImageResBean.DataBean> faceList) {
+        this.faceList = faceList;
     }
 }
