@@ -5,10 +5,15 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
+import com.jbb.library_common.utils.ToastUtil;
+import com.softwinner.Gpio;
 import com.xsjqzt.module_main.ui.SplashActivity;
 
 import java.io.File;
@@ -51,8 +56,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
     /**
      * 用于格式化日期,作为日志文件名的一部分
      */
-    private SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd-HH-mm-ss");
+
     private String charset = "UTF-8";
 
     /**
@@ -94,21 +98,31 @@ public class CrashHandler implements UncaughtExceptionHandler {
     @Override
     @SuppressLint("WrongConstant")
     public void uncaughtException(Thread thread, Throwable ex) {
+        closeDoor();
         saveCatchInfo2File(ex);
-
-//        new Thread() {
-//            @Override
-//            public void run() {
-//                Intent intent = new Intent(mContext, SplashActivity.class);
-//                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
-//                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
-//                android.os.Process.killProcess(android.os.Process.myPid());
 //
-//            }
-//        }.start();
+        new Thread() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(mContext, SplashActivity.class);
+                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
+                ActivityManager.getInstance().finishAllActivity();
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        }.start();
 
-        DeviceUtil.rebootDevice();//重启app没有用，摄像头异常后必须重启设备才能恢复
+
+//        DeviceUtil.rebootDevice();//重启app没有用，摄像头异常后必须重启设备才能恢复
+
+    }
+
+
+    private void closeDoor(){
+        Gpio.setPull('0', 4, 1);
+        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+        Gpio.writeGpio('O', 4, 0);
     }
 
 
@@ -137,7 +151,8 @@ public class CrashHandler implements UncaughtExceptionHandler {
         String result = writer.toString();
         sb.append(result);
         try {
-
+            SimpleDateFormat formatter = new SimpleDateFormat(
+                    "yyyy-MM-dd-HH-mm-ss");
             String time = formatter.format(new Date());
             String fileName = "crash-" + time + ".log";
 

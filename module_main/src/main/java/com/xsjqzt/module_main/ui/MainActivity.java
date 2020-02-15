@@ -291,14 +291,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME, KeyContacts.SP_NAME_JPUSH);
         entranceDetailTv.setText(display_name);
 
+
+
         //延迟3秒检查版本是否需要更新
         entranceDetailTv.postDelayed(new Runnable() {
             @Override
             public void run() {
 //                checkVersion();
                 closeDoor();
+
+//                nullException();
             }
         }, 3000);
+
+
     }
 
 
@@ -1819,7 +1825,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             banner.startAutoPlay();
 
         open();
-
+        stopFaceTranck = false;
         onFaceResume();
 
     }
@@ -1865,6 +1871,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
                         doorHandler.sendEmptyMessageDelayed(2, 2000);
+
                         break;
                     case 2:
                         // close door;
@@ -1880,6 +1887,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
             }
         }
+    }
+
+    //测试异常出现时捕捉是否成功
+    private void nullException(){
+        String str = null;
+        int  lenth = str.length();
+//        ToastUtil.showCustomToast(lenth  +"");
     }
 
 

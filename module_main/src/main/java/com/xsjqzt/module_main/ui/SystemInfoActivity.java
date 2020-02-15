@@ -15,7 +15,9 @@ import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.utils.CommUtil;
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.SharePreferensUtil;
+import com.jbb.library_common.utils.Utils;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.model.EntranceInfoResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
@@ -35,7 +37,7 @@ import cn.jpush.android.api.JPushInterface;
 
 public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemInfoPresenter> implements SystemInfoIView {
 
-    private TextView deviceNameTv, ipAddressTv, qrNumTv;
+    private TextView deviceNameTv,versionTv, ipAddressTv, qrNumTv;
     private ImageView voiceIv, qrCodeIv;
     private boolean isShiftClick;
 //    private Button confirmBtn;
@@ -46,6 +48,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
     @Override
     public void init() {
         deviceNameTv = findViewById(R.id.device_name_tv);
+        versionTv = findViewById(R.id.version_tv);
         ipAddressTv = findViewById(R.id.ip_address_tv);
         qrNumTv = findViewById(R.id.serial_number_tv);
         voiceIv = findViewById(R.id.voice_iv);
@@ -113,7 +116,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
             String display_name = bean.getData().getDisplay_name();
 
             deviceNameTv.setText(display_name);
-
+            versionTv.setText(Utils.getVerName(this));
             ipAddressTv.setText(getLocalIp());
         }
     }

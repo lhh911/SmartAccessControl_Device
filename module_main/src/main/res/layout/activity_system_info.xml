@@ -54,6 +54,28 @@
                 <TextView
                     style="@style/textview13"
                     android:layout_width="65dp"
+                    android:text="版本号"
+                    android:textColor="@color/common_white" />
+
+
+                <TextView
+                    android:id="@+id/version_tv"
+                    style="@style/textview10"
+                    android:textColor="@color/common_white" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="23dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textview13"
+                    android:layout_width="65dp"
                     android:text="@string/main_str_ipaddress"
                     android:textColor="@color/common_white" />
 
@@ -64,7 +86,6 @@
                     android:textColor="@color/common_white" />
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -87,6 +108,7 @@
                     android:src="@mipmap/icon_voice" />
 
             </LinearLayout>
+
 
 
         </LinearLayout>
