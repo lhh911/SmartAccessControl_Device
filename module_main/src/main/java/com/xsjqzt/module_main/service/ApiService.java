@@ -137,4 +137,10 @@ public interface ApiService {
     @FormUrlEncoded
     @POST("entrance/data/upgrade")
     Observable<ResponseBody> checkUpload(@Header("Authorization") String token , @Field("version") String versionName);
+
+
+    //上传已经注册成功的人脸数据userid
+    @FormUrlEncoded
+    @POST("entrance/upload/face_data")
+    Observable<ResponseBody> uploadRegistFaceUserId(@Header("Authorization") String token , @Field("user_ids") String user_ids);
 }

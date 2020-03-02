@@ -14,8 +14,9 @@ public class FaceImage {
     @NotNull
     @Unique
     private int user_id;//服务器表中id
-    @NotNull
-    @Unique
+
+//    @Unique
+//    @NotNull
     private int personId;//阅面数据库id
 
     @NotNull

@@ -3,9 +3,13 @@
 buildscript {
     
     repositories {
-        google()
-        jcenter()
-        mavenCentral() // add repository
+//        google()
+//        jcenter()
+//        mavenCentral() // add repository
+
+        maven { url 'https://mirrors.huaweicloud.com/repository/maven/' }//华为云仓库
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0'
@@ -21,11 +25,24 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
-        jcenter()
+//        google()
+//        jcenter()
         maven { url "https://raw.githubusercontent.com/HyphenateInc/Hyphenate-SDK-Android/master/repository" }//环信
-
         maven { url 'https://jitpack.io' }
+
+        maven { url 'https://mirrors.huaweicloud.com/repository/maven/' }//华为云仓库
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
+
+
+//        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+//        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
+//        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' }
+//        maven { url 'http://maven.aliyun.com/nexus/content/repositories/gradle-plugin' }
+//        mavenCentral()
+//        maven { url 'http://jitpack.io' }
+//        maven { url 'http://dl.google.com/dl/android/maven2/' }
+
     }
 }
 

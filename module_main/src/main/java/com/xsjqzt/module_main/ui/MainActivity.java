@@ -861,6 +861,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         checkVersion();
                     } else if (type == 107) {
                         loadDeviceInfo();
+                    }else if (type == 200) {//上传已注册人脸库userid
+                        uploadRegistFace();
                     }
                 } catch (Exception e) {
 
@@ -869,6 +871,14 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }).start();
 
 
+    }
+
+    private void uploadRegistFace() {
+        FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
+
+        List<FaceImage> list  = faceImageDao.queryRaw(null,"user_id");
+
+        presenter.uploadRegistFace(list);
     }
 
     private void rebootDevice() {

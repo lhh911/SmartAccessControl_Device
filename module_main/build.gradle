@@ -64,7 +64,7 @@ dependencies {
     // 此处以JCore 1.2.5 版本为例。
     api 'cn.jiguang.sdk:jpush:3.1.6'
 
-    api 'org.greenrobot:greendao:3.2.2'
+    implementation 'org.greenrobot:greendao:3.2.2'
     //greendao数据库lib
     annotationProcessor "com.alibaba:arouter-compiler:$rootProject.annotationProcessorVersion"
 //    implementation files('libs/Gpio908F.jar')

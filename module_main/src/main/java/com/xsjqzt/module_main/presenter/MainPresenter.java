@@ -17,6 +17,7 @@ import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.OpenCodeDao;
+import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
@@ -545,6 +546,31 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
             public void onError(Exception e) {
 //                super.onError(e);
             }
+        });
+    }
+
+
+    //上传已注册的人脸userid
+    public void uploadRegistFace(List<FaceImage> list) {
+        if(list == null)return;
+
+        StringBuffer sf = new StringBuffer();
+        for (FaceImage bean : list){
+            sf.append(bean.getUser_id()).append(",");
+        }
+        if(sf.length() > 1){
+            sf.delete(sf.length() - 1, sf.length());
+        }
+
+        SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+                .uploadRegistFaceUserId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), sf.toString()),
+                BaseBean.class, new NetListeren<BaseBean>() {
+            @Override
+            public void onSuccess(BaseBean bean) {
+                ToastUtil.showCustomToast("已注册人脸userId上传成功");
+
+            }
+
         });
     }
 }
