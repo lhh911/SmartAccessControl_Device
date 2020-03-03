@@ -551,12 +551,13 @@ public class MainPresenter extends BaseMvpPresenter<MainView> {
 
 
     //上传已注册的人脸userid
-    public void uploadRegistFace(List<FaceImage> list) {
-        if(list == null)return;
+    public void uploadRegistFace(List<String> list) {
+        if(list == null || list.size() == 0)
+            return;
 
         StringBuffer sf = new StringBuffer();
-        for (FaceImage bean : list){
-            sf.append(bean.getUser_id()).append(",");
+        for (String str : list){
+            sf.append(str).append(",");
         }
         if(sf.length() > 1){
             sf.delete(sf.length() - 1, sf.length());

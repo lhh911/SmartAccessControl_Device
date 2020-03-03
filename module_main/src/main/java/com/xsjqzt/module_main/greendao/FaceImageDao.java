@@ -48,7 +48,7 @@ public class FaceImageDao extends AbstractDao<FaceImage, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"FACE_IMAGE\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"USER_ID\" INTEGER NOT NULL UNIQUE ," + // 1: user_id
-                "\"PERSON_ID\" INTEGER NOT NULL UNIQUE ," + // 2: personId
+                "\"PERSON_ID\" INTEGER NOT NULL ," + // 2: personId
                 "\"CODE\" TEXT NOT NULL ," + // 3: code
                 "\"IMAGE\" TEXT," + // 4: image
                 "\"STATUS\" INTEGER NOT NULL ," + // 5: status

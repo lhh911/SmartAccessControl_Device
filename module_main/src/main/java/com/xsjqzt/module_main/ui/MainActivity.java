@@ -106,6 +106,7 @@ import com.xsjqzt.module_main.service.HeartBeatService;
 import com.xsjqzt.module_main.service.OpenRecordService;
 import com.xsjqzt.module_main.util.AndroidDownloadManager;
 import com.xsjqzt.module_main.util.CameraUtil;
+import com.xsjqzt.module_main.util.FaceDBUtils;
 import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.util.TrackDrawUtil;
@@ -874,11 +875,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void uploadRegistFace() {
-        FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
-
-        List<FaceImage> list  = faceImageDao.queryRaw(null,"user_id");
-
+//        FaceImageDao faceImageDao = DbManager.getInstance().getDaoSession().getFaceImageDao();
+//        List<FaceImage> list  = faceImageDao.loadAll();
+        List<String> list = FaceDBUtils.loadRegistFaceUserId();
         presenter.uploadRegistFace(list);
+
     }
 
     private void rebootDevice() {
