@@ -143,6 +143,7 @@ import tp.xmaihh.serialport.utils.ByteUtil;
 @Route(path = "/module_main/main")
 public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> implements MainView {
 
+    private RelativeLayout backgroundLayout;
     private ImageView homebgIv;
     private TextView entranceDetailTv;
     private Banner banner;
@@ -211,6 +212,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean isKeyEnterFirst;
     private int downLoadApkNum;//控制下载次数，只下载一次
 
+
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -236,6 +239,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     public void init() {
         EventBus.getDefault().register(this);
+        backgroundLayout = findViewById(R.id.background_layout);
+
         entranceDetailTv = findViewById(R.id.enterinfo_tv);
         homebgIv = findViewById(R.id.homebg_iv);
         //视频通话
@@ -271,23 +276,23 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         initView();
         registReceiver();
 //        setAlarm();
-        startMeasuing();
+//        startMeasuing();
         initMusic();
 //        test();
 //        emLoginUser();
 
-        loadDeviceInfo();
-        loadBanner();
+//        loadDeviceInfo();
+//        loadBanner();
 
 
         initFaceCamera();
         initFaceEvent();
 //        onFaceResume();
 
-        if (deviceEnable()) {
-            startService(new Intent(this, DownAllDataService.class));
-            startService(new Intent(this, HeartBeatService.class));
-        }
+//        if (deviceEnable()) {
+//            startService(new Intent(this, DownAllDataService.class));
+//            startService(new Intent(this, HeartBeatService.class));
+//        }
 
         String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME, KeyContacts.SP_NAME_JPUSH);
         entranceDetailTv.setText(display_name);
@@ -299,7 +304,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             public void run() {
 //                checkVersion();
-                closeDoor();
+//                closeDoor();
 
 //                nullException();
             }
@@ -391,7 +396,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public int getLayoutId() {
-        return R.layout.activity_main;
+        return R.layout.activity_main_test;
     }
 
     @Override
@@ -798,12 +803,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 //监听网络变化
                 if (Utils.getNetWorkState(MainActivity.this)) {
                     LogUtil.w("NetWorkState = " + true);
-                    login();
-                    startService(new Intent(MainActivity.this, DownAllDataService.class));
-                    startService(new Intent(MainActivity.this, HeartBeatService.class));
+//                    login();
+//                    startService(new Intent(MainActivity.this, DownAllDataService.class));
+//                    startService(new Intent(MainActivity.this, HeartBeatService.class));
 
 //                    checkVersion();
-                    loadDeviceInfo();
+//                    loadDeviceInfo();
                 }
                 //如果监听程序没有运行，则启动监听app
                 if (!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")) {
@@ -814,7 +819,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     }
                 }
             } else if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
-                handleNotity(intent.getExtras());
+//                handleNotity(intent.getExtras());
             }
         }
     }
@@ -1831,24 +1836,43 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     protected void onResume() {
         super.onResume();
-        SimpleVideoPlayerManager.instance().resumeNiceVideoPlayer();
-        if (banner != null)
-            banner.startAutoPlay();
+//        SimpleVideoPlayerManager.instance().resumeNiceVideoPlayer();
+//        if (banner != null)
+//            banner.startAutoPlay();
 
-        open();
+//        open();
         stopFaceTranck = false;
         onFaceResume();
 
+        testRegistFace();
+    }
+
+
+    //api直接注册陈总特征码，便于测试，停止所有的网络请求
+    private void testRegistFace() {
+        String faceFeatureStr = "-0.014640087,-0.017420754,0.034912806,-0.013107156,-0.10551082,-0.0050503546,0.033605654,-0.026570808,-0.021187725,-0.030599209,0.05624313,0.023766376,-0.045500726,0.0039452184,0.024693264,0.03570898,-0.004313597,0.021259023,-0.08478654,0.041852586,-0.11909331,-0.006535753,-0.0074151093,0.06653397,0.11308041,0.008448946,0.054472532,-0.06660527,0.01248923,-0.05550637,0.002150857,0.021663051,0.040771216,0.023849558,0.038311396,-0.06151926,0.012108969,-0.058988143,9.387718E-4,0.003980868,0.0036362554,-0.005014705,-3.3272925E-4,-0.029684203,0.044502538,-0.0434687,-0.017658416,0.07627818,-0.039939392,6.5357535E-4,0.019619143,0.07606428,0.027521463,0.03579216,0.02642821,0.030920055,-0.06635572,0.018514007,0.06091322,0.007652773,-0.092534386,0.06710436,0.041246545,0.008995573,-0.04809126,-0.011597991,-0.0021865065,-0.04153174,0.048186325,-0.0449541,-0.061150882,-0.015364962,0.03739639,-0.030468494,0.0043967795,0.008341998,-0.010148242,0.030836873,-0.091476776,-0.07585039,-0.09827396,-0.009981878,0.097477786,-0.009577849,0.034615725,0.008187517,-0.01796738,0.01849024,0.011586108,-0.014438073,0.023279164,-0.023207866,-0.042969607,0.06151926,0.003042096,0.033415522,-3.5649562E-5,-0.0023053384,-0.016707761,-0.024883395,0.043860845,-0.009173821,0.064513825,-0.017943613,-0.046546444,-0.019333946,0.040272124,0.024170404,0.014616321,-0.013748848,-0.042482395,-0.085452005,0.010278957,-0.03365319,-0.018941801,-0.07989067,0.030955704,0.008567778,0.016315617,0.034461245,0.014497489,0.033118445,0.077442735,0.05182258,0.0030064464,0.07276076,-0.055137992,0.030848755,0.025941,-0.046451382,-0.029838685,-0.12373963,0.0013190338,0.053177264,-0.024134753,0.0030777457,-0.017955497,0.096146874,-0.008365764,-0.011158314,-0.018775437,-0.0045512607,8.3182316E-4,-0.008365764,-0.033415522,-0.040188942,0.04920828,0.050360948,0.068352096,1.4259825E-4,-0.021045126,-0.008270699,-0.028484002,-0.0626957,0.07384213,-0.061008286,0.0051691867,-0.03127655,-0.060259644,0.053961556,-0.035162352,0.04432429,0.010861234,0.0626957,-0.028317636,-0.0937227,0.03049226,0.011776239,0.024087222,0.0074269925,0.05599358,0.037634056,-0.09770357,-0.013903329,0.023611894,-0.010243308,-0.06012893,0.008104334,-0.04744957,0.034009684,-0.046546444,-4.2779476E-4,-0.014640087,-0.023469295,0.06536941,-0.020831227,0.020854995,0.030432845,0.13256884,0.009863046,0.021068892,0.006143608,-0.05129972,-0.039559133,0.025192358,-0.034853388,-0.021259023,0.017004842,0.043706365,-0.06689046,-0.105023615,-0.086093694,0.043040905,-0.01304774,0.008627194,-0.002340988,0.031300317,0.012049552,0.00626244,-0.047592167,0.06697365,-0.05088381,-0.048435874,0.061816342,-0.0027687827,0.021389738,-0.010742402,0.04011764,-0.0011645524,0.044383705,0.062042125,0.01730192,-0.04791301,0.02796114,-0.0055019157,0.001711179,0.10063872,0.031561747,0.08772169,-0.029909983,-3.4461243E-4,-0.035198003,0.046902943,-0.03162116,0.04537001,-0.025917232,-0.029779268,-0.023124684,-0.037634056,0.037336975,0.04807938,0.029779268,0.025489438,9.863046E-4,0.031478565,0.080960155,0.039380886,-0.038858023,-0.023564361,-0.08035412,0.011360328,0.013332937,-0.032666884,0.014497489,-0.08226731,0.009577849,0.011170196,0.06548825,-0.0044086627,0.0073200436,-0.022922669,0.049065683,-0.011158314,0.055482604,-0.053593177,-9.1500545E-4,0.028281987,-0.014925283,0.022720655,0.00842518,-0.0057039303,0.036041707,0.06830456,0.0012358516,-0.022578057,0.0086866105,-0.047544632,0.006773417,0.004563144,0.0038382695,0.05491221,0.0056682806,-0.012108969,0.007094263,-0.08747214,0.00793797,-0.05998633,-0.012334749,-0.05253557,-0.018478356,-0.012596179,0.0067971833,-0.061032053,0.02206708,-0.013665666,0.030147647,-0.03963043,0.012275333,0.05402097,-0.06747274,0.051169004,0.07465018,0.07219037,0.041852586,0.016862243,0.015935354,-0.010076943,0.004242298,-0.07145361,0.06012893,-0.0011051365,0.037206262,0.003862036,-0.047924895,0.04786548,0.021270907,-0.063123494,-0.0019250764,-0.0049077566,-0.066462666,-0.013332937,-0.056385726,0.039927512,-0.0405692,-0.058287036,0.029292058,-0.091322295,-0.021532336,0.009066872,0.030527908,-0.02013012,0.0612103,-0.043932144,0.015258013,-0.030896287,0.024574433,-0.014129111,0.10040105,0.08768604,0.0037194376,-0.10831526,-0.08211283,0.008377647,-0.019999405,0.005062238,-0.017492052,0.034485012,0.0024241703,0.012572412,-0.0077597215,-0.026000414,0.008448946,-0.031858828,-0.041020762,-0.06496539,-0.0025667686,-0.038976856,0.015519443,-0.008579661,0.1115356,0.05095511,0.0556252,-0.0054425,0.006143608,0.077288255,-0.0016279967,0.015650159,-0.026024181,0.035388134,0.005371201,-0.0032797598,0.027224382,-0.0422685,-0.05669469,0.039369002,0.025168592,0.0022934552,-0.0012358516,-0.0041472325,0.015293662,0.026499508,-0.0051573035,0.0017230622,-0.044704553,0.011609875,0.007795371,-0.0024004038,0.014913401,0.0801521,0.038632244,0.024859628,0.041210894,-0.019440895,-0.027283799,0.05341493,0.009910579,-0.027984908,-0.043076556,0.015103532,0.070633665,0.04231603,-0.028079972,0.04618995,0.046926707,-0.08750779,0.07623065,0.053284213,0.071750686,0.010647336,0.1219215,-0.068970025,-0.024633847,0.017480168,0.009423368,0.04611865,0.024812097,0.045952287,0.04831704,-0.047283202,0.0049077566,-0.031062653,0.06365824,-0.043670714,-0.0069991974,-0.15004902,-0.039464068,0.009874929,-0.058180086,0.046534564,0.0072487444,-0.038121264,0.0151272975,0.1318202,0.010968182,0.0151272975,-0.025632035,-0.0046938593,0.025263658,0.014937167,0.032037076,0.022328509,0.0815662,0.0366834,-0.0327263,-0.018086212,-0.07959359,0.07791806,0.0042066486,0.059760552,-0.04786548,-0.007034847,-0.013630017,0.024621965,0.009126288,0.051050175,-0.048804253,-0.055803448,-0.0061792578,-2.6143013E-4,-0.06687858,-0.021912599,-0.0040165177,-0.025037877,-0.045001633,0.03321351,0.018098095,-0.08697305,0.007961736,-0.06416921,-0.03858471,0.03298773,0.04823386,0.08942099,0.02419417,-0.036219954,0.009304536,0.058477167,-0.009589733,0.01871602,-0.0057514627,0.0020557914,-0.013832031,-0.06166186,0.054924093,0.02039155,-0.009054989,0.00518107,0.042363565,-0.050681796,0.030159531,-0.01599477,0.041840702,0.041092064,-0.07714565,0.05599358,0.04503728,0.012370398,-0.06434746,0.10194587,0.08219601,0.034282997,-0.072772644,-0.024776446,-0.009328302,-0.015959121,-0.04992127,0.0026856004,-0.06829268,-0.08463206,0.025679568,0.018989334,0.006595169";
+        float[] faceFeature = StringUtil.stringToFolatArray(faceFeatureStr);
+        FaceResult faceResult = faceSet.registByfaceFeature(faceFeature);
+
+        String str = "";
+        if (faceResult.code == 0) {//成功
+            str = "人脸注册成功";
+        } else if (faceResult.code == 102) {//已注册,
+            str = "人脸已注册";
+        } else {//失败
+            str = "人脸注册失败";
+        }
+        ToastUtil.showCustomToast(str);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        SimpleVideoPlayerManager.instance().suspendNiceVideoPlayer();
-        if (banner != null)
-            banner.stopAutoPlay();
+//        SimpleVideoPlayerManager.instance().suspendNiceVideoPlayer();
+//        if (banner != null)
+//            banner.stopAutoPlay();
 
-        stopMeasuing();
+//        stopMeasuing();
 
         onFacePause();
         endCall();
@@ -1875,8 +1899,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         openDoor();
                         isFaceSuccess = true;//表示开门成功，此时获取一帧开门图片
 
-                        if(!TextUtils.isEmpty(sn))
-                            uploadRecord(type, sn);
+//                        if(!TextUtils.isEmpty(sn))
+//                            uploadRecord(type, sn);
                         startMusic(2);
                         if (type != 4)
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
@@ -2248,6 +2272,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             if (isDoubleEyes) openIRCamera();
 
                             faceTrackInit = true;
+
+//                            faceParentRl.setVisibility(View.INVISIBLE);
                         } else {
                             // showLongToast(getApplicationContext(), "请同意软件的权限，才能继续使用");
                         }
@@ -2303,6 +2329,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         sfv_draw_view.getHolder().setFormat(PixelFormat.TRANSLUCENT);
         //算法sdk
         faceSet = new FaceSet(this);
+
+
     }
 
     // 设置CameraPreviewFrame CallBack;
@@ -2330,7 +2358,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                             ratio = Size.inverse(ratio);
                         }
-                        // android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
+                         android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
 
                         //获取缩放比例
                         mConfig.screenZoon = mCameraView.getScale();
@@ -2341,9 +2369,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                 // 显示/隐藏 Camera界面；
                                 if (ymFaces != null && !isFaceViewShow) {
                                     showFaceLayout();
-
+                                    android.util.Log.d("wlDebug", "ymFacesShow = true");
                                 } else if (ymFaces == null && isFaceViewShow) {
                                     hideFaceLayout();
+                                    android.util.Log.d("wlDebug", "ymFacesShow = false");
                                 }
                                 // 绘画人脸框
                                 drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
@@ -2363,22 +2392,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void showFaceLayout() {
         isFaceViewShow = true;
 //        mCameraView.bringToFront();
-        sfv_draw_view.setVisibility(View.VISIBLE);
+//        faceParentRl.setVisibility(View.VISIBLE);
         faceParentRl.bringToFront();
-        entranceDetailTv.bringToFront();
+//        entranceDetailTv.bringToFront();
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
 
     private void hideFaceLayout() {
-        if (!isFaceViewShow) return;
+//        if (!isFaceViewShow) return;
         isFaceViewShow = false;
-        sfv_draw_view.setVisibility(View.INVISIBLE);
-        homebgIv.bringToFront();
-        banner.bringToFront();
+//        faceParentRl.setVisibility(View.INVISIBLE);
+        backgroundLayout.bringToFront();
+//        homebgIv.bringToFront();
+//        banner.bringToFront();
 //        toolsBar.bringToFront();
-        callVideoLayout.bringToFront();
-        roomNumLayout.bringToFront();
-        entranceDetailTv.bringToFront();
+//        videoPlayer.bringToFront();
+//        callVideoLayout.bringToFront();
+//        roomNumLayout.bringToFront();
+//        entranceDetailTv.bringToFront();
 
         mCameraView.setBackground(null);
         openStatusTv.setText("");

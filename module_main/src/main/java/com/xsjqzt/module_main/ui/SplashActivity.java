@@ -62,7 +62,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
             InterfaceConfig.BASEURL = url_root;
         }
 
-        initMac();
+//        initMac();
         initView();
 
     }
@@ -81,14 +81,14 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
     private void initView() {
         ActivityManager.getInstance().setAppStatus(KeyContacts.STATUS_NORMAL);
 
-        UserInfoSerializUtil.initUserInstance();
-        if (!UserInfoInstance.getInstance().hasLogin()) {
-            loadKey();
-//            bindDevice();
-        } else {
-            next(4000);
-        }
-
+//        UserInfoSerializUtil.initUserInstance();
+//        if (!UserInfoInstance.getInstance().hasLogin()) {
+//            loadKey();
+////            bindDevice();
+//        } else {
+//            next(4000);
+//        }
+        next(4000);
     }
 
 
