@@ -2349,6 +2349,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     synchronized (lock) {
                         if(stopFaceTranck)
                             return;
+                        android.util.Log.d("wlDebug", "loadFaceing");
 
                         //调用sdk获取人脸集合
                         ymFaces = onCameraPreviewFrame(mdata, irData,
@@ -2374,8 +2375,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                                     hideFaceLayout();
                                     android.util.Log.d("wlDebug", "ymFacesShow = false");
                                 }
-                                // 绘画人脸框
-                                drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
+
+                                if(sfv_draw_view.getVisibility() == View.VISIBLE) {
+                                    // 绘画人脸框
+                                    drawView(ymFaces, mConfig, sfv_draw_view, scale_bit, mCameraView.getFacing(), "");
+                                }
 
                             }
                         });
@@ -2392,7 +2396,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void showFaceLayout() {
         isFaceViewShow = true;
 //        mCameraView.bringToFront();
-//        faceParentRl.setVisibility(View.VISIBLE);
+//        sfv_draw_view.setVisibility(View.VISIBLE);
         faceParentRl.bringToFront();
 //        entranceDetailTv.bringToFront();
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
@@ -2401,7 +2405,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void hideFaceLayout() {
 //        if (!isFaceViewShow) return;
         isFaceViewShow = false;
-//        faceParentRl.setVisibility(View.INVISIBLE);
+//        sfv_draw_view.setVisibility(View.INVISIBLE);
         backgroundLayout.bringToFront();
 //        homebgIv.bringToFront();
 //        banner.bringToFront();
