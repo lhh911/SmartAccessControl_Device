@@ -65,7 +65,7 @@ public class FaceSet {
             return result;
         }
         faceTrack = new YMFaceTrack();
-        faceTrack.setDistanceType(YMFaceTrack.DISTANCE_TYPE_FAR);        //设置人脸检测距离，默认近距离，需要在initTrack之前调用
+        faceTrack.setDistanceType(YMFaceTrack.DISTANCE_TYPE_FARTHESTER);        //设置人脸检测距离，默认近距离，需要在initTrack之前调用
         //license激活版本初始化
 //        int result = faceTrack.initTrack(this, YMFaceTrack.FACE_0, YMFaceTrack.RESIZE_WIDTH_640,SenseConfig.appid, SenseConfig.appsecret);
         //普通有效期版本初始化

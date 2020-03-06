@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+
+    <RelativeLayout
+        android:id="@+id/face_parentlayout"
+        android:layout_width="match_parent"
+        android:layout_height="372dp"
+        android:layout_gravity="bottom"
+        android:layout_margin="20dp"
+        android:background="@drawable/half_transtant_corners5"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/date_tv"
+            style="@style/textview16"
+            android:layout_marginLeft="20dp"
+            android:text="2019-08-20"
+            android:textColor="@color/common_white" />
+
+        <TextView
+            android:id="@+id/open_staus_tv"
+            style="@style/textview18"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="40dp"
+            android:layout_toRightOf="@+id/sfv_draw_view"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/common_white" />
+
+        <!-- CameraView Start..-->
+        <com.readsense.cameraview.camera.CameraView
+            android:id="@+id/ir_camera"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:adjustViewBounds="true" />
+
+        <com.readsense.cameraview.camera.CameraView
+            android:id="@+id/camera"
+            android:layout_width="244dp"
+            android:layout_height="324dp"
+            android:layout_below="@+id/date_tv"
+            android:layout_marginTop="10dp"
+            android:adjustViewBounds="true"
+            android:background="@android:color/black"
+            android:padding="2dp" />
+
+        <SurfaceView
+            android:id="@+id/sfv_draw_view"
+            android:layout_width="240dp"
+            android:layout_height="320dp"
+            android:layout_below="@+id/date_tv"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="12dp"
+            android:adjustViewBounds="true" />
+        <!-- CameraView Start end-->
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/background_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+
+        <ImageView
+            android:id="@+id/homebg_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/splash_bg" />
+
+
+        <com.youth.banner.Banner
+            android:id="@+id/banner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:delay_time="5000" />
+
+
+        <com.xiao.nicevideoplayer.SimpleVideoPlayer
+            android:id="@+id/videoplayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+
+        <include layout="@layout/input_num_layout" />
+
+
+        <include layout="@layout/call_video_layout" />
+
+
+        <TextView
+            android:id="@+id/enterinfo_tv"
+            style="@style/textview13"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="30dp"
+            android:text=""
+            android:textColor="@color/common_white" />
+
+
+    </RelativeLayout>
+
+</FrameLayout>

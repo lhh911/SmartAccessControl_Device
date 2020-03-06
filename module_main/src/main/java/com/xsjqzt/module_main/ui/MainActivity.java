@@ -143,6 +143,7 @@ import tp.xmaihh.serialport.utils.ByteUtil;
 @Route(path = "/module_main/main")
 public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> implements MainView {
 
+    private RelativeLayout backgroundLayout;
     private ImageView homebgIv;
     private TextView entranceDetailTv;
     private Banner banner;
@@ -152,7 +153,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private LinearLayout callVideoLayout;
     private TextView callNumTv, callStatusTv, callTipTv;
 
-    private View toolsBar;
+//    private View toolsBar;
 
     //房号密码号输入layout
     private LinearLayout roomNumLayout;//房号输入布局
@@ -236,6 +237,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Override
     public void init() {
         EventBus.getDefault().register(this);
+
+        backgroundLayout = findViewById(R.id.background_layout);
         entranceDetailTv = findViewById(R.id.enterinfo_tv);
         homebgIv = findViewById(R.id.homebg_iv);
         //视频通话
@@ -243,7 +246,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
         callTipTv = findViewById(R.id.call_tip_tv);
-        toolsBar = findViewById(R.id.tools_bar);
+//        toolsBar = findViewById(R.id.tools_bar);
 
         //房号输入
         roomNumLayout = findViewById(R.id.input_num_layout);
@@ -391,7 +394,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public int getLayoutId() {
-        return R.layout.activity_main;
+        return R.layout.activity_main2;
     }
 
     @Override
@@ -2363,22 +2366,23 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void showFaceLayout() {
         isFaceViewShow = true;
 //        mCameraView.bringToFront();
-        sfv_draw_view.setVisibility(View.VISIBLE);
+//        sfv_draw_view.setVisibility(View.VISIBLE);
         faceParentRl.bringToFront();
-        entranceDetailTv.bringToFront();
+//        entranceDetailTv.bringToFront();
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
 
     private void hideFaceLayout() {
-        if (!isFaceViewShow) return;
+//        if (!isFaceViewShow) return;
         isFaceViewShow = false;
-        sfv_draw_view.setVisibility(View.INVISIBLE);
-        homebgIv.bringToFront();
-        banner.bringToFront();
+//        sfv_draw_view.setVisibility(View.INVISIBLE);
+        backgroundLayout.bringToFront();
+//        homebgIv.bringToFront();
+//        banner.bringToFront();
 //        toolsBar.bringToFront();
-        callVideoLayout.bringToFront();
-        roomNumLayout.bringToFront();
-        entranceDetailTv.bringToFront();
+//        callVideoLayout.bringToFront();
+//        roomNumLayout.bringToFront();
+//        entranceDetailTv.bringToFront();
 
         mCameraView.setBackground(null);
         openStatusTv.setText("");
