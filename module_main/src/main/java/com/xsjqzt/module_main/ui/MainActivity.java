@@ -304,7 +304,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                checkVersion();
                 closeDoor();
 
-//                nullException();
             }
         }, 3000);
 
@@ -1884,7 +1883,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         if (type != 4)
                             MyToast.showToast("开门成功", R.mipmap.icon_success, "#0ABA07");
                         doorHandler.removeMessages(2);
-                        doorHandler.sendEmptyMessageDelayed(2, 2000);
+                        doorHandler.sendEmptyMessageDelayed(2, 1000);//关锁指令
 
                         break;
                     case 2:
@@ -2434,7 +2433,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //        mBytesIr = irBytes;
 //        mWidth = iw;
 //        mHeight = ih;
-        return faceSet.logic(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType());
+        return faceSet.logic2(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType() ,false);
     }
 
     /**

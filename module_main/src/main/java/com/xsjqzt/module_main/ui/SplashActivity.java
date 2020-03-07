@@ -84,7 +84,6 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
         UserInfoSerializUtil.initUserInstance();
         if (!UserInfoInstance.getInstance().hasLogin()) {
             loadKey();
-//            bindDevice();
         } else {
             next(4000);
         }

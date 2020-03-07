@@ -1,17 +1,12 @@
 package com.xsjqzt.module_main.faceSdk;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v4.util.SimpleArrayMap;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.Config.DemoConfig;
-import com.xsjqzt.module_main.activity.base.ExApplication;
-import com.xsjqzt.module_main.dataSource.DataSource;
 import com.xsjqzt.module_main.dataSource.UserDataUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
@@ -19,7 +14,6 @@ import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.modle.User;
-import com.xsjqzt.module_main.util.DataConversionUtil;
 import com.xsjqzt.module_main.util.ThreadPoolManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -27,16 +21,11 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import mobile.ReadFace.YMFace;
 import mobile.ReadFace.YMFaceTrack;
 
-public class FaceSet {
+public class FaceSetManager {
 
     private YMFaceTrack faceTrack = null;
     private Context context;
@@ -46,20 +35,21 @@ public class FaceSet {
     private final String[] mMsg = {"初始化成功", "包名不匹配", "app_id不匹配", "未读取到激活信息", "激活失败或者网络不正常", "已过期，当前日期比截止日期要大", "已过期，当前日期比打包日期要小", "异常", "句柄初始化失败", "比对文件格式不正确", "校验失败", "激活已满", "密钥不匹配", "网络超时", "DNS解析出错", "服务器异常"};
     private int frame = 0;//累积到10帧，重置为0.
 
-    /**
-     * sdk 识别方向
-     */
-    private int orientation = 0;
-    /**
-     * 质量检测相关数据
-     */
-    private SimpleArrayMap<Integer, QualityInfo> qualityMap = new SimpleArrayMap<>();
-    /**
-     * 识别线程是否正在执行
-     */
-    private boolean isRecognitionThreadRunning = false;
+    private static FaceSetManager instance;
 
-    public FaceSet(Context c) {
+    public static FaceSetManager getInstance(Context context){
+        if(instance == null){
+            synchronized (FaceSetManager.class){
+                if(instance == null){
+                    instance = new FaceSetManager(context);
+                }
+            }
+        }
+        return instance;
+    }
+
+
+    private FaceSetManager(Context c) {
         context = c;
         trackingMap = new SimpleArrayMap<>();
         trackingFeatureMap = new SimpleArrayMap<>();
@@ -115,7 +105,6 @@ public class FaceSet {
 //        final String personName = faceTrack.getPersonName(1);
 //        DLog.d("personName: "+personName);
 
-        this.orientation = orientation;
         faceTrack.setOrientation(orientation);
         for (int i = 0; i < mCode.length; i++) {
             if (result.code == mCode[i]) {
@@ -332,7 +321,7 @@ public class FaceSet {
     }
 
 
-    public int getUserSize() {
+    public int getUserSize(){
         if (faceTrack == null) return 0;
         return faceTrack.getAlbumSize();
     }
@@ -579,368 +568,6 @@ public class FaceSet {
     }
 
 
-    /** ================================ logic2 ================================== */
-
-
-    /**
-     * 相比 {  logic(byte[], byte[], int, int, boolean, boolean, boolean, int, boolean)}，
-     * 本方法调整了逻辑，优化了识别准确率，识别速度，优化的点如下
-     * <p>
-     * 1. 使用了质量优选的功能，用户无需处理人脸质量/角度/瞳距的逻辑，质量较佳的帧被传入算法，
-     * 提升识别准确率，关键方法 faceQualityPick()
-     * 2. 执行识别和活体的子线程，线程互斥，同一时刻最多只有一个线程在执行识别和活体，
-     * 整体识别速度提升，通过 boolean 变量 {@link #isRecognitionThreadRunning} 实现互斥
-     */
-    public List<YMFace> logic2(final byte[] bytes, final byte[] irBytes, final int iw, final int ih,
-                               boolean isMulti, boolean isTrack, final boolean isRecog, final int livenessType, boolean isSaveImage) {
-
-        if (null == faceTrack || bytes == null) return null;
-        if (trackingMap.size() > 50) trackingMap.clear();
-        // 由于跟踪算法的特性，关闭算法后必须清空
-        // 跟踪算法的特性，关闭算法后，在人脸相同的位置换了其他人脸，再打开算法，依然会被跟踪为同一个tid
-        if ((!isRecog) && (livenessType == -1) && (trackingMap.size() != 0)) trackingMap.clear();
-
-        if (!isTrack && !isRecog && livenessType == -1) return null;
-
-        // 跟踪检测人脸
-        final List<YMFace> ymFaces = faceTrack.trackMulti(bytes, iw, ih);
-        if (ymFaces == null || ymFaces.size() == 0) return null;
-        // 是否多人脸
-        if (!isMulti) {
-            int maxIndex = getMaxFace(ymFaces);
-            YMFace face = ymFaces.get(maxIndex);
-            ymFaces.clear();
-            ymFaces.add(face);
-        }
-        if (isTrack) return ymFaces;
-
-
-        // 质量/活体/识别
-        // 执行识别和活体的子线程，线程互斥
-        if (!isRecognitionThreadRunning) {
-            isRecognitionThreadRunning = true;
-            // 创建新的ArrayList 给子线程调用，否则会出现问题，原因未明
-            final List<float[]> headPosesList = getAllHeadPose(ymFaces);
-//            ThreadPoolManager.getInstance().execute(() -> {
-            ThreadPoolManager.getInstance().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        // 创建新的ArrayList 给子线程调用，否则会出现问题，原因未明
-                        for (int i = 0; i < headPosesList.size(); i++) {
-                            ymFaces.get(i).setHeadPose(headPosesList.get(i));
-                        }
-
-                        qualityMap = faceQualityPick(bytes, irBytes, iw, ih, ymFaces);
-
-                        for (int i = 0; i < ymFaces.size(); i++) {
-
-                            YMFace ymFace = ymFaces.get(i);
-                            int trackId = ymFace.getTrackId();
-
-                            // 获取人脸质量检测结果
-                            QualityInfo qualityInfo = qualityMap.get(trackId);
-                            if (qualityInfo == null)
-                                continue;
-
-
-                            // 识别和活体
-                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
-                            if (qualityInfo.isRecognition) {
-
-                                // 可识别的帧数据
-                                byte[] qualityInfoBytes = qualityInfo.bytes;
-                                byte[] qualityInfoIrBytes = qualityInfo.irBytes;
-                                // 可识别的人脸坐标
-                                float[] qualityInfoRect = qualityInfo.rect;
-
-                                // 识别
-                                if (isRecog) {
-                                    YMFace face = trackingMap.get(trackId);
-                                    if (face == null || face.getPersonId() <= 0) {
-
-                                        //识别到的人脸对应的id
-                                        int personId = faceTrack.identifyPerson(
-                                                qualityInfoBytes, iw, ih, qualityInfoRect);
-                                        // 获取相似度
-                                        int confidence = faceTrack.getRecognitionConfidence();
-                                        ymFace.setIdentifiedPerson(personId, confidence);
-                                        str += " identifyPerson:" + personId + " " + confidence;
-
-
-                                        if (personId >= 0) {
-                                            android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
-                                            // 当liveeness == 1时活体识别通过;
-                                            int user_id = 0;
-                                            FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
-                                                    .where(FaceImageDao.Properties.PersonId.eq(personId)).unique();
-                                            if (unique != null) {
-                                                user_id = unique.getUser_id();
-                                            }
-                                            LogUtil.w("user_id" + user_id);
-                                            EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
-
-                                        }
-
-                                        // 识别通过则抓拍
-//                                    if (isSaveImage && personId > 0)
-//                                        saveRecognitionFrame(bytes, ymFace, iw, ih, true);
-                                    } else {
-                                        ymFace.setIdentifiedPerson(face.getPersonId(), face.getConfidence());
-                                    }
-                                } else {
-                                    ymFace.setIdentifiedPerson(-1, 0);
-                                }
-
-
-                                // 活体
-                                if (livenessType == -1) {
-                                    ymFace.setLiveness(-1);
-                                    str += "  liveness -1";
-                                } else {
-                                    switch (livenessType) {
-                                        case 0:
-                                            // rgb 活体
-                                            int[] resultDetect = faceTrack.livenessDetect(
-                                                    qualityInfoBytes, iw, ih, qualityInfoRect);
-                                            ymFace.setLiveness(resultDetect[0]);
-                                            break;
-                                        case 2:
-                                            // 双目活体
-                                            if (qualityInfoIrBytes == null)
-                                                break;
-                                            int result = faceTrack.livenessDetectFrame(
-                                                    qualityInfoIrBytes, iw, ih, qualityInfoRect);
-                                            ymFace.setLiveness(result);
-                                            break;
-                                        default:
-                                            Log.e("logic2", "liveness type not support");
-                                    }
-                                    str += "  liveness " + ymFace.getLiveness();
-
-                                    int result = ymFace.getLiveness();
-//                                if (isSaveImage && result == 1) {
-//
-//                                    saveLivenessBytes(
-//                                            qualityInfoBytes,
-//                                            qualityInfoIrBytes,
-//                                            qualityInfoRect,
-//                                            result,
-//                                            qualityInfo.headPose,
-//                                            qualityInfo.faceQuality
-//                                    );
-//                                }
-
-                                }
-
-                                // 提取了数据后，要重置 qualityInfo
-                                qualityInfo.reset();
-                            } else {
-                                YMFace face = trackingMap.get(trackId);
-                                if (face != null) {
-                                    ymFace.setIdentifiedPerson(face.getPersonId(), face.getConfidence());
-                                    ymFace.setLiveness(face.getLiveness());
-                                }
-                            }
-
-                            //Log.e("logic2", str);
-                            //将识别与活体结果保存到map中
-                            trackingMap.put(trackId, ymFace);
-                        }
-                    } catch (
-                            Exception e) {
-                        e.printStackTrace();
-                    } finally {
-                        isRecognitionThreadRunning = false;
-                    }
-
-                }
-            });
-        }
-
-        // 复制识别结果
-        for (int i = 0; i < ymFaces.size(); i++) {
-            final YMFace ymFace = ymFaces.get(i);
-            final int trackId = ymFace.getTrackId();
-            if (trackingMap.containsKey(trackId)) {
-                final YMFace face = trackingMap.get(trackId);
-                ymFace.setHeadPose(face.getHeadpose());//人脸角度
-                //ymFace.setFaceQuality(face.getFaceQuality());//人脸质量
-                ymFace.setLiveness(face.getLiveness()); //活体结果
-                ymFace.setHelmet(face.getHelmet());// 安全帽
-                ymFace.setIdentifiedPerson(face.getPersonId(), face.getConfidence()); //识别结果
-            }
-        }
-
-        return ymFaces;
-    }
-
-
-    /**
-     * 获取最大人脸的下标
-     */
-    public int getMaxFace(List<YMFace> ymFaces) {
-        if (ymFaces == null || ymFaces.size() < 1) return -1;
-        int maxIndex = 0;
-        for (int i = 1; i < ymFaces.size(); i++) {
-            if (ymFaces.get(maxIndex).getRect()[2] <= ymFaces.get(i).getRect()[2]) {
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
-    }
-
-
-    private List<float[]> getAllHeadPose(List<YMFace> ymFaces) {
-        List<float[]> headPoses = new ArrayList<>();
-        for (YMFace ymFace : ymFaces) {
-            headPoses.add(ymFace.getHeadpose());
-        }
-        return headPoses;
-    }
-
-
-    /**
-     * 人脸质量优选信息
-     */
-    class QualityInfo {
-        int trackId;
-        /**
-         * 累计最高人脸质量的那一帧的帧数据
-         */
-        byte[] bytes = null;
-        /**
-         * 累计最高人脸质量的那一帧的ir帧数据
-         */
-        public byte[] irBytes = null;
-        /**
-         * 累计最高的人脸质量
-         */
-        int faceQuality = -1;
-        /**
-         * 低质量的次数
-         */
-        int lowQualityTime = 0;
-        /**
-         * 是否可以进行识别和活体
-         */
-        boolean isRecognition = false;
-        /**
-         * 累计最高人脸质量的那一帧的人脸坐标
-         */
-        float[] rect;
-        /**
-         * 人脸三维姿态
-         */
-        float[] headPose;
-
-        /**
-         * 重置信息，提取信息用于识别之后要重置信息
-         */
-        void reset() {
-            bytes = null;
-            faceQuality = -1;
-            lowQualityTime = 0;
-            isRecognition = false;
-            rect = null;
-        }
-    }
-
-
-    /**
-     * 人脸角度/质量优选
-     */
-    private SimpleArrayMap<Integer, QualityInfo> faceQualityPick(byte[] bytes, byte[] irBytes, int iw, int ih, List<YMFace> faces) {
-        if (faces == null || faces.size() == 0) return null;
-        if (bytes == null) return null;
-        if (qualityMap.size() > 50) qualityMap.clear();
-
-        /** 人脸质量阈值 */
-        final int QUALITY_CONFIDENCE = 6;
-        /** 优选质量最大帧数 */
-        final int MAX_FRAME_INTERVAL = 3;
-        final int BORDER_LIMIT = 50;
-
-        for (int i = 0; i < faces.size(); i++) {
-
-            YMFace face = faces.get(i);
-            int tid = face.getTrackId();
-
-            // 角度检测
-            float[] headPose = face.getHeadpose();
-            if ((Math.abs(headPose[0]) > 30 || Math.abs(headPose[1]) > 30 || Math.abs(headPose[2]) > 30)) {
-                Log.e("faceQualityPick", "角度不佳");
-                continue;
-            }
-
-            // 边缘检测
-            float[] rect = face.getRect();
-            if (orientation == 90 || orientation == 270) {
-                int temp = iw;
-                iw = ih;
-                ih = temp;
-            }
-            if (rect[0] < BORDER_LIMIT || rect[0] + rect[2] > iw - BORDER_LIMIT ||
-                    rect[1] < BORDER_LIMIT || rect[1] + rect[3] > ih - BORDER_LIMIT) {
-                Log.e("faceQualityPick", "人脸位于边缘");
-                //Log.e("faceQualityPick", "人脸位于边缘(" + iw + ", " + ih + ")" +
-                //        "(" + rect[0] + ", " + rect[1] + ", " + rect[2] + ", " + rect[3] + ")");
-                continue;
-            }
-
-            // 添加新的 qualityInfo 进入 qualityMap，或者从 qualityMap 找出对应 tid 的 qualityInfo
-            QualityInfo qualityInfo;
-            if (qualityMap.containsKey(tid)) {
-                qualityInfo = qualityMap.get(tid);
-            } else {
-                qualityInfo = new QualityInfo();
-                qualityInfo.trackId = tid;
-                qualityMap.put(tid, qualityInfo);
-            }
-
-
-            String str = "";
-            // 获取人脸指令
-            float[] landmarks = face.getLandmarks();
-            int faceQuality = faceTrack.getFaceQuality(bytes, iw, ih, landmarks);
-            str += "tid===" + tid + "   quality" + faceQuality;
-            if (faceQuality > qualityInfo.faceQuality) {
-
-                qualityInfo.faceQuality = faceQuality;
-
-                qualityInfo.bytes = new byte[bytes.length];
-                System.arraycopy(bytes, 0, qualityInfo.bytes, 0, bytes.length);
-                if (irBytes != null) {
-                    qualityInfo.irBytes = new byte[irBytes.length];
-                    System.arraycopy(irBytes, 0, qualityInfo.irBytes, 0, irBytes.length);
-                }
-                float[] rect2 = face.getRect();
-                qualityInfo.rect = new float[]{rect2[0], rect2[1], rect2[2], rect2[3]};
-                qualityInfo.headPose = new float[]{headPose[0], headPose[1], headPose[2]};
-                str += "  put in list";
-            }
-
-            // 质量不通过，则累计次数
-            if (faceQuality < QUALITY_CONFIDENCE) {
-                qualityInfo.lowQualityTime++;
-                if (qualityInfo.lowQualityTime >= MAX_FRAME_INTERVAL)
-                    if (!qualityInfo.isRecognition) qualityInfo.isRecognition = true;
-            }
-            // 质量通过，则设置可识别
-            else {
-                qualityInfo.isRecognition = true;
-            }
-            str += "  " + qualityInfo.isRecognition;
-            //Log.e("faceQualityPick", str);
-        }
-
-        return qualityMap;
-    }
-
-
-    /** ================================ logic2 ================================== */
-
-
     /**
      * 单人脸追踪/识别/活体检测
      *
@@ -1115,8 +742,8 @@ public class FaceSet {
         //人脸识别
         if (isRecog) {
             int identifyPerson = -111;
-            android.util.Log.d("wlDebug", "ymFace.getLiveness().... getConfidence" + ymFace.getConfidence());
-            android.util.Log.d("wlDebug", "ymFace.getLiveness().... getLiveness" + ymFace.getLiveness());
+            Log.d("wlDebug", "ymFace.getLiveness().... getConfidence" + ymFace.getConfidence());
+            Log.d("wlDebug", "ymFace.getLiveness().... getLiveness" + ymFace.getLiveness());
 
             identifyPerson = faceTrack.identifyPerson(i);
             int confidence = faceTrack.getRecognitionConfidence();
@@ -1124,7 +751,7 @@ public class FaceSet {
             if (ymFace.getConfidence() >= 75 && ymFace.getLiveness() == 1) {
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
-                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
+                    Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
                     int user_id = 0;
                     FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
@@ -1135,11 +762,11 @@ public class FaceSet {
                     LogUtil.w("user_id" + user_id);
                     EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 //                    toast("人脸已注册");
-                } else {
+                }else{
 //                    toast("人脸未注册");
 //                    EventBus.getDefault().post(new FaceSuccessEventBean(0, "", false));
                 }
-            } else {
+            }else{
 //                toast("未通过,getConfidence= " + ymFace.getConfidence() +  " | getLiveness= " + ymFace.getLiveness());
             }
 
@@ -1151,7 +778,7 @@ public class FaceSet {
 //                float[] faceFeature = faceTrack.getFaceFeature(i);//特征值（貌似识别时不唯一）
                 ymFace.setIdentifiedPerson(identifyPerson, confidence);
                 if (identifyPerson >= 0) {
-                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
+                    Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                     // 当liveeness == 1时活体识别通过;
                     if (ymFace.getLiveness() == 1) {
 //
@@ -1182,6 +809,7 @@ public class FaceSet {
 //                    }
 //                });
 //    }
+
 
 
     /**

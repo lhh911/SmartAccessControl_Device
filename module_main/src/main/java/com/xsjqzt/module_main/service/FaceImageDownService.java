@@ -92,8 +92,8 @@ public class FaceImageDownService extends IntentService {
         super.onDestroy();
         LogUtil.w("FaceImageDownService");
         UserInfoInstance.getInstance().setFaceList(null);
-        if(faceSet != null)
-            faceSet.stopTrack();
+//        if(faceSet != null)
+//            faceSet.stopTrack();
     }
 
     @Override
