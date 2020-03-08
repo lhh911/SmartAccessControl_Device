@@ -645,7 +645,7 @@ public class FaceSet {
 
 
                             // 识别和活体
-                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
+//                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
                             if (qualityInfo.isRecognition) {
 
                                 // 可识别的帧数据
@@ -653,6 +653,35 @@ public class FaceSet {
                                 byte[] qualityInfoIrBytes = qualityInfo.irBytes;
                                 // 可识别的人脸坐标
                                 float[] qualityInfoRect = qualityInfo.rect;
+
+
+                                // 活体
+                                switch (livenessType) {
+                                    case 0:
+                                        // 双目活体
+                                        if (qualityInfoIrBytes == null)
+                                            break;
+                                        int result = faceTrack.livenessDetectFrame(
+                                                qualityInfoIrBytes, iw, ih, qualityInfoRect);
+                                        ymFace.setLiveness(result);
+                                        break;
+                                    case 1:
+                                        // 可见光 活体
+                                        int[] resultDetect = faceTrack.livenessDetect(
+                                                qualityInfoBytes, iw, ih, qualityInfoRect);
+                                        ymFace.setLiveness(resultDetect[0]);
+                                        break;
+                                    case 2: //红外活体
+                                        int DetectInfrared[] = faceTrack.livenessDetectInfrared(i);
+                                        ymFace.setLiveness(DetectInfrared[0]);
+                                        break;
+                                    default:
+                                        ymFace.setLiveness(-1);
+                                        Log.e("logic2", "liveness type not support");
+                                        break;
+                                }
+
+
 
                                 // 识别
                                 if (isRecog) {
@@ -665,10 +694,10 @@ public class FaceSet {
                                         // 获取相似度
                                         int confidence = faceTrack.getRecognitionConfidence();
                                         ymFace.setIdentifiedPerson(personId, confidence);
-                                        str += " identifyPerson:" + personId + " " + confidence;
+//                                        str += " identifyPerson:" + personId + " " + confidence;
 
-
-                                        if (personId >= 0) {
+                                        toast("personId= " + personId +  " |  getLiveness= " + ymFace.getLiveness());
+                                        if (personId >= 0 && ymFace.getLiveness() == 1) {
                                             android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                                             // 当liveeness == 1时活体识别通过;
                                             int user_id = 0;
@@ -692,46 +721,6 @@ public class FaceSet {
                                     ymFace.setIdentifiedPerson(-1, 0);
                                 }
 
-
-                                // 活体
-                                if (livenessType == -1) {
-                                    ymFace.setLiveness(-1);
-                                    str += "  liveness -1";
-                                } else {
-                                    switch (livenessType) {
-                                        case 0:
-                                            // rgb 活体
-                                            int[] resultDetect = faceTrack.livenessDetect(
-                                                    qualityInfoBytes, iw, ih, qualityInfoRect);
-                                            ymFace.setLiveness(resultDetect[0]);
-                                            break;
-                                        case 2:
-                                            // 双目活体
-                                            if (qualityInfoIrBytes == null)
-                                                break;
-                                            int result = faceTrack.livenessDetectFrame(
-                                                    qualityInfoIrBytes, iw, ih, qualityInfoRect);
-                                            ymFace.setLiveness(result);
-                                            break;
-                                        default:
-                                            Log.e("logic2", "liveness type not support");
-                                    }
-                                    str += "  liveness " + ymFace.getLiveness();
-
-                                    int result = ymFace.getLiveness();
-//                                if (isSaveImage && result == 1) {
-//
-//                                    saveLivenessBytes(
-//                                            qualityInfoBytes,
-//                                            qualityInfoIrBytes,
-//                                            qualityInfoRect,
-//                                            result,
-//                                            qualityInfo.headPose,
-//                                            qualityInfo.faceQuality
-//                                    );
-//                                }
-
-                                }
 
                                 // 提取了数据后，要重置 qualityInfo
                                 qualityInfo.reset();
@@ -1167,21 +1156,21 @@ public class FaceSet {
     }
 
 
-//    private void toast(String msg){
-//        Observable.just(msg)
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Observer<String>() {
-//                    public void onSubscribe(Disposable d) {
-//                    }
-//                    public void onNext(String integer) {
-//                        ToastUtil.showCustomToast("人脸识别： "+integer);
-//                    }
-//                    public void onError(Throwable e) {
-//                    }
-//                    public void onComplete() {
-//                    }
-//                });
-//    }
+    private void toast(String msg){
+        Observable.just(msg)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    public void onSubscribe(Disposable d) {
+                    }
+                    public void onNext(String integer) {
+                        ToastUtil.showCustomToast("人脸识别： "+integer);
+                    }
+                    public void onError(Throwable e) {
+                    }
+                    public void onComplete() {
+                    }
+                });
+    }
 
 
     /**
