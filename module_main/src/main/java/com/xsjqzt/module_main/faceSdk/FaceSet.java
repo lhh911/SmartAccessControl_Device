@@ -645,7 +645,7 @@ public class FaceSet {
 
 
                             // 识别和活体
-//                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
+                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
                             if (qualityInfo.isRecognition) {
 
                                 // 可识别的帧数据
@@ -653,6 +653,35 @@ public class FaceSet {
                                 byte[] qualityInfoIrBytes = qualityInfo.irBytes;
                                 // 可识别的人脸坐标
                                 float[] qualityInfoRect = qualityInfo.rect;
+
+
+
+
+
+                                // 识别
+                                if (isRecog) {
+                                    YMFace face = trackingMap.get(trackId);
+                                    if (face == null || face.getPersonId() <= 0) {
+
+                                        //识别到的人脸对应的id
+                                        int personId = faceTrack.identifyPerson(
+                                                qualityInfoBytes, iw, ih, qualityInfoRect);
+                                        // 获取相似度
+                                        int confidence = faceTrack.getRecognitionConfidence();
+                                        ymFace.setIdentifiedPerson(personId, confidence);
+                                        str += " identifyPerson:" + personId + " " + confidence;
+
+
+
+                                        // 识别通过则抓拍
+//                                    if (isSaveImage && personId > 0)
+//                                        saveRecognitionFrame(bytes, ymFace, iw, ih, true);
+                                    } else {
+                                        ymFace.setIdentifiedPerson(face.getPersonId(), face.getConfidence());
+                                    }
+                                } else {
+                                    ymFace.setIdentifiedPerson(-1, 0);
+                                }
 
 
                                 // 活体
@@ -680,47 +709,23 @@ public class FaceSet {
                                         Log.e("logic2", "liveness type not support");
                                         break;
                                 }
+                                str += "  liveness " + ymFace.getLiveness();
 
 
-
-                                // 识别
-                                if (isRecog) {
-                                    YMFace face = trackingMap.get(trackId);
-                                    if (face == null || face.getPersonId() <= 0) {
-
-                                        //识别到的人脸对应的id
-                                        int personId = faceTrack.identifyPerson(
-                                                qualityInfoBytes, iw, ih, qualityInfoRect);
-                                        // 获取相似度
-                                        int confidence = faceTrack.getRecognitionConfidence();
-                                        ymFace.setIdentifiedPerson(personId, confidence);
-//                                        str += " identifyPerson:" + personId + " " + confidence;
-
-                                        toast("personId= " + personId +  " |  getLiveness= " + ymFace.getLiveness());
-                                        if (personId >= 0 && ymFace.getLiveness() == 1) {
-                                            android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
-                                            // 当liveeness == 1时活体识别通过;
-                                            int user_id = 0;
-                                            FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
-                                                    .where(FaceImageDao.Properties.PersonId.eq(personId)).unique();
-                                            if (unique != null) {
-                                                user_id = unique.getUser_id();
-                                            }
-                                            LogUtil.w("user_id" + user_id);
-                                            EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
-
-                                        }
-
-                                        // 识别通过则抓拍
-//                                    if (isSaveImage && personId > 0)
-//                                        saveRecognitionFrame(bytes, ymFace, iw, ih, true);
-                                    } else {
-                                        ymFace.setIdentifiedPerson(face.getPersonId(), face.getConfidence());
+                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
+                                if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
+                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
+                                    // 当liveeness == 1时活体识别通过;
+                                    int user_id = 0;
+                                    FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+                                            .where(FaceImageDao.Properties.PersonId.eq(ymFace.getPersonId())).unique();
+                                    if (unique != null) {
+                                        user_id = unique.getUser_id();
                                     }
-                                } else {
-                                    ymFace.setIdentifiedPerson(-1, 0);
-                                }
+                                    LogUtil.w("user_id" + user_id);
+                                    EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 
+                                }
 
                                 // 提取了数据后，要重置 qualityInfo
                                 qualityInfo.reset();
@@ -732,7 +737,7 @@ public class FaceSet {
                                 }
                             }
 
-                            //Log.e("logic2", str);
+                            Log.e("logic2", str);
                             //将识别与活体结果保存到map中
                             trackingMap.put(trackId, ymFace);
                         }

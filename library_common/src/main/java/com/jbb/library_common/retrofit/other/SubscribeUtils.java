@@ -35,7 +35,7 @@ public class SubscribeUtils {
                 String result = response.string();
                 baseBean = JSON.parseObject(result, BaseBean.class);
                 if (baseBean == null) {
-                    return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
+                    return Observable.error(new Throwable(result));
                 }
 
                 if (baseBean.getCode() == 0) {
@@ -100,7 +100,7 @@ public class SubscribeUtils {
                 String result = response.string();
                 baseBean = JSON.parseObject(result, BaseBean.class);
                 if (baseBean == null) {
-                    return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
+                    return Observable.error(new Throwable(result));
                 }
 
                 T bean = JSON.parseObject(result, resultClass);
@@ -223,7 +223,7 @@ public class SubscribeUtils {
                 String result = response.string();
                 baseBean = JSON.parseObject(result, BaseBean.class);
                 if (baseBean == null) {
-                    return Observable.error(new Throwable(HttpRespStatus.MSG_UNKNOWN_ERROR));
+                    return Observable.error(new Throwable(result));
                 }
 
                 if (baseBean.getCode() == 0) {

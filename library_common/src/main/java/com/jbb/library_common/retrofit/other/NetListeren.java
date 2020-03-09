@@ -23,7 +23,7 @@ public abstract class NetListeren<T> {
                 NetException exception = (NetException) e;
                 ToastUtil.showCustomToast(exception.message());
             } else {//其他异常都要统计
-                ToastUtil.showCustomToast(HttpRespStatus.MSG_UNKNOWN_ERROR);
+                ToastUtil.showCustomToast(e.getMessage());
             }
         }
 

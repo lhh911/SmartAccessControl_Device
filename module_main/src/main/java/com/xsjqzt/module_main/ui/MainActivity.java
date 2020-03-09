@@ -2332,7 +2332,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                             ratio = Size.inverse(ratio);
                         }
-                        // android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
+                         android.util.Log.d("ymFaces===", "ymFaces = " + JSON.toJSONString(ymFaces));
+//                         android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
 
                         //获取缩放比例
                         mConfig.screenZoon = mCameraView.getScale();
