@@ -645,7 +645,7 @@ public class FaceSet {
 
 
                             // 识别和活体
-                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
+//                            String str = "tid===" + trackId + "   isRecognition  " + qualityInfo.isRecognition;
                             if (qualityInfo.isRecognition) {
 
                                 // 可识别的帧数据
@@ -669,7 +669,7 @@ public class FaceSet {
                                         // 获取相似度
                                         int confidence = faceTrack.getRecognitionConfidence();
                                         ymFace.setIdentifiedPerson(personId, confidence);
-                                        str += " identifyPerson:" + personId + " " + confidence;
+//                                        str += " identifyPerson:" + personId + " " + confidence;
 
 
 
@@ -709,12 +709,12 @@ public class FaceSet {
                                         Log.e("logic2", "liveness type not support");
                                         break;
                                 }
-                                str += "  liveness " + ymFace.getLiveness();
+//                                str += "  liveness " + ymFace.getLiveness();
 
 
-                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
+//                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
                                 if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
-                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
+//                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                                     // 当liveeness == 1时活体识别通过;
                                     int user_id = 0;
                                     FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
@@ -737,7 +737,7 @@ public class FaceSet {
                                 }
                             }
 
-                            Log.e("logic2", str);
+//                            Log.e("logic2", str);
                             //将识别与活体结果保存到map中
                             trackingMap.put(trackId, ymFace);
                         }
@@ -1161,21 +1161,21 @@ public class FaceSet {
     }
 
 
-    private void toast(String msg){
-        Observable.just(msg)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
-                    public void onSubscribe(Disposable d) {
-                    }
-                    public void onNext(String integer) {
-                        ToastUtil.showCustomToast("人脸识别： "+integer);
-                    }
-                    public void onError(Throwable e) {
-                    }
-                    public void onComplete() {
-                    }
-                });
-    }
+//    private void toast(String msg){
+//        Observable.just(msg)
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Observer<String>() {
+//                    public void onSubscribe(Disposable d) {
+//                    }
+//                    public void onNext(String integer) {
+//                        ToastUtil.showCustomToast("人脸识别： "+integer);
+//                    }
+//                    public void onError(Throwable e) {
+//                    }
+//                    public void onComplete() {
+//                    }
+//                });
+//    }
 
 
     /**
