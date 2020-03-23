@@ -174,6 +174,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private String sPort = "/dev/ttyS1";
     private int iBaudRate = 115200;
 
+    // 读卡器2
+    private SerialHelper serialHelper2;
+    private String sPort2 = "/dev/ttyS0";
+    private int iBaudRate2 = 9600;
+
     //    private int mType;// 0 默认什么都没显示， 1 密码开锁布局显示，2 视频电话显示
     private MyHandler doorHandler;
 
@@ -294,7 +299,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME, KeyContacts.SP_NAME_JPUSH);
         entranceDetailTv.setText(display_name);
-
 
 
         //延迟3秒检查版本是否需要更新
@@ -534,7 +538,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 inputNum = roomNumEt.getText().toString().trim();
                 if (!TextUtils.isEmpty(inputNum)) {
                     checkInput(inputNum);
-                }else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+                } else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
                     if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
                         ToastUtil.showCustomToast("双击enter键");
                     }
@@ -565,7 +569,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             } else if (TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入为空，隐藏键盘
                 hideRoomInputLayout();
                 starEnterDown = false;
-            } else if(!hasCallingVideo) {// 显示输入布局，并标记为* 组合输入
+            } else if (!hasCallingVideo) {// 显示输入布局，并标记为* 组合输入
                 roomNumEt.setText("");
                 showRoomNumOpen();
                 starEnterDown = true;
@@ -864,7 +868,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         checkVersion();
                     } else if (type == 107) {
                         loadDeviceInfo();
-                    }else if (type == 200) {//上传已注册人脸库userid
+                    } else if (type == 200) {//上传已注册人脸库userid
                         uploadRegistFace();
                     }
                 } catch (Exception e) {
@@ -1271,7 +1275,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                                String error = null;
                                 startMusic(6);//对方未接听
                                 if (fError == CallError.REJECTED || fError == CallError.ERROR_UNAVAILABLE
-                                    || fError == CallError.ERROR_BUSY || fError == CallError.ERROR_NORESPONSE) {
+                                        || fError == CallError.ERROR_BUSY || fError == CallError.ERROR_NORESPONSE) {
 //                                    error = s1;
                                     endCall();
 
@@ -1527,6 +1531,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //拨打第一个人，拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二个人
     private int callVideoTimeOut = 90 * 1000;
+
     private void startCallSuccessTime() {//拨打第一个人计时器
         if (inutLayoutShowTimeRunnable != null && doorHandler != null) {
             doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
@@ -1737,7 +1742,26 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 msg.obj = str;
 //                msg.obj = "ic20190501";
                 doorHandler.sendMessage(msg);
+            }
+        };
 
+        serialHelper2 = new SerialHelper(sPort2, iBaudRate2) {
+            @Override
+            protected void onDataReceived(ComBean paramComBean) {
+                /*
+                if (!deviceEnable()) {
+                    showEnableToast();
+                    return;
+                }*/
+                android.util.Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
+                String str = parseCard2(paramComBean.bRec);
+                android.util.Log.d("wlDebug", "onDataReceived2 str = " + str);
+                //对比数据库，开门
+                Message msg = Message.obtain();
+                msg.what = 4;
+                msg.obj = str;
+//                msg.obj = "ic20190501";
+                doorHandler.sendMessage(msg);
             }
         };
     }
@@ -1780,6 +1804,20 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         return cardID;
     }
 
+    public String parseCard2(byte[] bytes) {
+        String cardID = "";
+        // if (bytes[0] == 0x04) {
+        byte[] cardData = new byte[4];
+        cardData[0] = bytes[10];
+        cardData[1] = bytes[9];
+        cardData[2] = bytes[8];
+        cardData[3] = bytes[7];
+        String _str = ByteUtil.ByteArrToHex(cardData);
+        cardID = new BigInteger(_str, 16).toString();
+        // }
+        return cardID;
+    }
+
 
     private void parseData(String str) {
 //        ToastUtil.showCustomToast(str);
@@ -1813,19 +1851,53 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
+    private void parseData2(String str) {
+        // ToastUtil.showCustomToast(str);
+        // LogUtil.w("nfc数据 = " + str);
+        android.util.Log.d("wldebug", "parseData2 = " + str);
+//        str = str.substring(0, 20);
+        //ic卡
+        ICCard iccard = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder()
+                .where(ICCardDao.Properties.Sn.eq(str)).unique();
+        if (iccard != null) {
+            openDoor2();
+            doorHandler.removeMessages(5);
+            doorHandler.sendEmptyMessageDelayed(5, 1000);
+            return;
+        }
+        // startMusic(1);
+        // MyToast.showToast("卡号未绑定2", R.mipmap.icon_error, "#FF0000");
+//        ToastUtil.showCustomToast("未注册的卡或无法识别的卡，请用已注册的ic卡或身份证开门");
+
+    }
+
 
     public void stopMeasuing() {
         if (serialHelper != null && serialHelper.isOpen()) {
             serialHelper.close();
         }
+
+        if (serialHelper2 != null && serialHelper2.isOpen()) {
+            serialHelper2.close();
+        }
     }
 
     public void open() {
         try {
-            if (serialHelper != null)
+            /**/
+            if (serialHelper != null) {
                 serialHelper.open();
+            }
+
+            if (serialHelper2 != null) {
+                serialHelper2.open();
+                // ToastUtil.showCustomToast("读卡器2打开成功.");
+                closeDoor2();
+            } else {
+                android.util.Log.d("wlDebug", "serialHelper2.open fail.");
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            android.util.Log.d("wlDebug", "serialHelper2.open fail.", e);
         }
     }
 
@@ -1877,7 +1949,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         openDoor();
                         isFaceSuccess = true;//表示开门成功，此时获取一帧开门图片
 
-                        if(!TextUtils.isEmpty(sn))
+                        if (!TextUtils.isEmpty(sn))
                             uploadRecord(type, sn);
                         startMusic(2);
                         if (type != 4)
@@ -1893,8 +1965,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         break;
                     case 3:
                         String str = (String) msg.obj;
-
                         parseData(str);
+                        break;
+                    case 4:
+                        doorHandler.removeMessages(4);
+                        String str2 = (String) msg.obj;
+                        parseData2(str2);
+                        break;
+                    case 5:
+                        doorHandler.removeMessages(5);
+                        closeDoor2();
                         break;
 
                 }
@@ -1903,9 +1983,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     //测试异常出现时捕捉是否成功
-    private void nullException(){
+    private void nullException() {
         String str = null;
-        int  lenth = str.length();
+        int lenth = str.length();
 //        ToastUtil.showCustomToast(lenth  +"");
     }
 
@@ -1917,10 +1997,27 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    private void closeDoor(){
+    private void closeDoor() {
         Gpio.setPull('0', 4, 1);
         Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
         Gpio.writeGpio('O', 4, 0);
+    }
+
+    public void openDoor2() {
+        android.util.Log.d("wlDebug", "openDoor2..");
+        if (serialHelper2.isOpen()) {
+            android.util.Log.d("wlDebug", "do openDoor2..");
+            serialHelper2.sendHex("040FD4204000000000000000000040");
+        }
+    }
+
+
+    private void closeDoor2() {
+        android.util.Log.d("wlDebug", "closeDoor2..");
+        if (serialHelper2.isOpen()) {
+            android.util.Log.d("wlDebug", "do closeDoor2..");
+            serialHelper2.sendHex("040FD4202000000000000000000020");
+        }
     }
 
     /**
@@ -1960,9 +2057,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         } else if (type == 4) {//人脸开门
             presenter.uploadFaceRecord(type, Integer.parseInt(sn));//sn对应user_id
         } else if (type == 5) {//视频远程开门
-            presenter.uploadRemoteRecord(type,0, Integer.parseInt(sn));//sn对应远处开门的user_id
-        }else if (type == 6) {//极光远程开门
-            presenter.uploadRemoteRecord(type,1, Integer.parseInt(sn));//sn对应远处开门的user_id
+            presenter.uploadRemoteRecord(type, 0, Integer.parseInt(sn));//sn对应远处开门的user_id
+        } else if (type == 6) {//极光远程开门
+            presenter.uploadRemoteRecord(type, 1, Integer.parseInt(sn));//sn对应远处开门的user_id
         }
 
     }
@@ -2030,7 +2127,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //                intent.putExtra(KeyContacts.KEY_TITLE, "下载中..");
 //                startService(intent);
 
-                if(downLoadApkNum < 1) {
+                if (downLoadApkNum < 1) {
                     downLoadApk(path);
                     downLoadApkNum++;
                 }
@@ -2039,8 +2136,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    private void downLoadApk(String path){
-        new AndroidDownloadManager(this,path).setListener(new AndroidDownloadManager.AndroidDownloadManagerListener() {
+    private void downLoadApk(String path) {
+        new AndroidDownloadManager(this, path).setListener(new AndroidDownloadManager.AndroidDownloadManagerListener() {
             @Override
             public void onSuccess() {
                 downLoadApkNum = 0;
@@ -2321,7 +2418,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 public void onPreviewFrame(byte[] data, Camera camera) {
                     final byte[] mdata = data;
                     synchronized (lock) {
-                        if(stopFaceTranck)
+                        if (stopFaceTranck)
                             return;
 
                         //调用sdk获取人脸集合
@@ -2411,7 +2508,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //    private int mHeight;
     private boolean openFaceTrack = false;//追踪
     private boolean openFaceReco = true;//识别
-//    private boolean openFaceLiveness = false; //红外活体
+    //    private boolean openFaceLiveness = false; //红外活体
 //    private boolean openFaceRgbLiveness = true;  //可见光活体
 //    private boolean openFaceBinoculareLiveness = false; //双目活体（可见光+红外）
     private Map<Integer, User> userMap;
@@ -2420,12 +2517,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean isDoubleEyes = true;
 
     private byte[] bitmapBytes;//保存人脸识别成功后的当前图片
-    boolean isFaceSuccess ;
+    boolean isFaceSuccess;
 
     protected List<YMFace> onCameraPreviewFrame(final byte[] bytes, final byte[] irBytes, final int iw, final int ih, final boolean isMulti) {
         if (bytes == null) return null;
         //得到识别是的图片
-        if(isFaceSuccess) {
+        if (isFaceSuccess) {
             bitmapBytes = bytes;
             isFaceSuccess = false;
         }
@@ -2434,7 +2531,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //        mBytesIr = irBytes;
 //        mWidth = iw;
 //        mHeight = ih;
-        return faceSet.logic2(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType() ,false);
+        return faceSet.logic2(bytes, irBytes, iw, ih, isMulti, openFaceTrack, openFaceReco, getLivenessType(), false);
     }
 
     /**

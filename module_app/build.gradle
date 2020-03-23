@@ -13,8 +13,8 @@ android {
         applicationId "com.xsjqzt.app"
         minSdkVersion rootProject.extminSdkVersion
         targetSdkVersion rootProject.exttargetSdkVersion
-        versionCode 1
-        versionName "2.0.9"
+        versionCode 9
+        versionName "2.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         //解决方法数超过64k问题
         multiDexEnabled true

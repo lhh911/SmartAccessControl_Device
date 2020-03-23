@@ -1,5 +1,6 @@
 package tp.xmaihh.serialport;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.File;
@@ -100,7 +101,7 @@ public abstract class SerialHelper {
 //                    int available = SerialHelper.this.mInputStream.available();
 //
 //                    if (available > 0) {
-//                        byte[] buffer = new byte['?'];
+//                        byte[] buffer = new byte[available];
 //                        int size = SerialHelper.this.mInputStream.read(buffer);
 //                        if (size > 0) {
 //                            ComBean ComRecData = new ComBean(SerialHelper.this.sPort, buffer, size);
