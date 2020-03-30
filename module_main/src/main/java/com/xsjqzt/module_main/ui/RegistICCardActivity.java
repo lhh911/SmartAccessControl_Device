@@ -187,7 +187,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
             protected void onDataReceived(ComBean paramComBean) {
                 startTime = System.currentTimeMillis();
 
-                toast(paramComBean.bRec);
+//                toast(paramComBean.bRec);
 
                 LogUtil.w("nfc原始数据 ：" + new String(paramComBean.bRec));
                 String str = parseCard(paramComBean);

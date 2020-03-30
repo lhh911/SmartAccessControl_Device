@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
@@ -104,12 +105,29 @@ public class CrashHandler implements UncaughtExceptionHandler {
         new Thread() {
             @Override
             public void run() {
+//                Intent intent = new Intent(mContext, SplashActivity.class);
+//                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+//                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
+//                ActivityManager.getInstance().finishAllActivity();
+//                android.os.Process.killProcess(android.os.Process.myPid());
+
+
+
                 Intent intent = new Intent(mContext, SplashActivity.class);
-                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
+                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
                 AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
-                ActivityManager.getInstance().finishAllActivity();
-                android.os.Process.killProcess(android.os.Process.myPid());
+                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, restartIntent);
+
+                Looper.prepare();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        ActivityManager.getInstance().finishAllActivity();
+                        android.os.Process.killProcess(android.os.Process.myPid());
+                    }
+                },1500);
+                Looper.loop();
             }
         }.start();
 

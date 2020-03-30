@@ -115,7 +115,7 @@ public class FaceImageDownService extends IntentService {
             if (poll.isIs_delete()) {
                 FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder().where(FaceImageDao.Properties.User_id.eq(poll.getUser_id())).unique();
                 if (unique != null) {
-                    DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+//                    DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
                     boolean delete = faceSet.deleteUserByPersonId(unique.getPersonId());//删除阅面数据库数据
                     if (!delete) {
                         deleteList.add(unique);
@@ -148,7 +148,7 @@ public class FaceImageDownService extends IntentService {
     private void delectData() {
         for (FaceImage unique : deleteList) {
             if (unique != null) {
-                DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
+//                DbManager.getInstance().getDaoSession().getFaceImageDao().delete(unique);
                 boolean delete = faceSet.deleteUserByPersonId(unique.getPersonId());//删除阅面数据库数据
             }
         }
