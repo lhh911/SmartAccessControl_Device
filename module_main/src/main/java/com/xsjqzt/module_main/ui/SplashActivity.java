@@ -1,10 +1,6 @@
 package com.xsjqzt.module_main.ui;
 
-import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -17,36 +13,23 @@ import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.InterfaceConfig;
 import com.jbb.library_common.comfig.KeyContacts;
-import com.jbb.library_common.other.DefaultRationale;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.MD5Util;
 import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.ToastUtil;
-import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.log.LogUtil;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.xsjqzt.module_main.R;
-import com.xsjqzt.module_main.dataSource.UserDataUtil;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.model.user.UserInfoSerializUtil;
-import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.presenter.TokenPresenter;
-import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.view.TokenView;
-import com.yanzhenjie.permission.Action;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
-import com.yanzhenjie.permission.Setting;
 
-import java.util.Calendar;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.jpush.android.api.JPushInterface;
-import io.reactivex.functions.Consumer;
 
 public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> implements TokenView {
 
