@@ -388,14 +388,35 @@ public class DeviceUtil {
         try {
 //            Runtime.getRuntime().exec("su -c reboot");
             //如果您的系统使用串行端口，请执行以下命令，
-            Runtime.getRuntime().exec("reboot now");
+            Process reboot_now = Runtime.getRuntime().exec("reboot now");
+
+            //错误输出流阻塞了正常输出流，需要单独开线程处理，2020-3-28
+            StreamGobbler errorGobbler = new StreamGobbler(reboot_now.getErrorStream(), "Error");
+            StreamGobbler outputGobbler = new StreamGobbler(reboot_now.getInputStream(), "Output");
+            errorGobbler.start();
+            outputGobbler.start();
+            reboot_now.waitFor();
+
         } catch (IOException e) {
             try {
                 //如果使用普通端口，则使用下面的命令
-                Runtime.getRuntime().exec(new String []{ "/system/xbin/su", "-c", "reboot now" });
+                Process reboot_now = Runtime.getRuntime().exec(new String []{ "/system/xbin/su", "-c", "reboot now" });
+
+                //错误输出流阻塞了正常输出流，需要单独开线程处理，2020-3-28
+                StreamGobbler errorGobbler = new StreamGobbler(reboot_now.getErrorStream(), "Error");
+                StreamGobbler outputGobbler = new StreamGobbler(reboot_now.getInputStream(), "Output");
+                errorGobbler.start();
+                outputGobbler.start();
+                reboot_now.waitFor();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+            catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
             e.printStackTrace();
         }
     }

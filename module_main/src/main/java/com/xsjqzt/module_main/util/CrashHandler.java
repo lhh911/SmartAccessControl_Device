@@ -105,17 +105,21 @@ public class CrashHandler implements UncaughtExceptionHandler {
         new Thread() {
             @Override
             public void run() {
-                Looper.prepare();
-                Intent intent = new Intent(mContext, SplashActivity.class);
-                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, restartIntent);
 
+//                Intent intent = new Intent(mContext, SplashActivity.class);
+//                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, restartIntent);
+
+                Looper.prepare();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ActivityManager.getInstance().finishAllActivity();
-                        android.os.Process.killProcess(android.os.Process.myPid());
+//                        ActivityManager.getInstance().finishAllActivity();
+//                        android.os.Process.killProcess(android.os.Process.myPid());
+
+                        DeviceUtil.rebootDevice();//重启app没有用，摄像头异常后必须重启设备才能恢复
+
                     }
                 },1500);
                 Looper.loop();
@@ -123,7 +127,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
         }.start();
 
 
-//        DeviceUtil.rebootDevice();//重启app没有用，摄像头异常后必须重启设备才能恢复
+
 
     }
 

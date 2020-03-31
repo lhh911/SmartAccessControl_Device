@@ -29,7 +29,6 @@ import java.util.Map;
 
 import cn.jpush.android.api.JPushInterface;
 
-//import com.tencent.bugly.crashreport.CrashReport;
 
 public class ExApplication extends BaseApplication {
     private static Context context;
@@ -49,7 +48,6 @@ public class ExApplication extends BaseApplication {
         ARouter.init(this);
 
         JPushInterface.init(getApplicationContext());
-
 
         CrashHandler.getInstance().init(getApplicationContext());//异常捕捉，重启应用
 

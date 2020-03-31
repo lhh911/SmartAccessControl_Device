@@ -586,7 +586,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 setInputData(oldNum, "0");
                 isShiftClick = false;
             }
-
+//            nullException();
         } else if (keyCode == KeyEvent.KEYCODE_1) {
             if (!hasCallingVideo) {
                 showRoomNumOpen();
