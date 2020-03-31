@@ -1,9 +1,10 @@
 package com.xsjqzt.module_main.activity.base;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -11,13 +12,13 @@ import android.util.Log;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.BuildConfig;
-import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.comfig.AppConfig;
+import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.softwinner.Gpio;
 import com.tencent.bugly.crashreport.CrashReport;
-import com.xsjqzt.module_main.ui.SplashActivity;
+import com.xsjqzt.module_main.ui.MainActivity;
 import com.xsjqzt.module_main.util.CrashHandler;
 
 import java.io.File;
@@ -32,6 +33,7 @@ import cn.jpush.android.api.JPushInterface;
 
 public class ExApplication extends BaseApplication {
     private static Context context;
+    private int activityCount;
 
     @Override
     public void onCreate() {
@@ -54,7 +56,7 @@ public class ExApplication extends BaseApplication {
         CrashReport.initCrashReport(getApplicationContext(),AppConfig.BUGLY_APPID,false);
 
 //        initBuglyCrash();
-
+        initRegist();
     }
 
     /**
@@ -72,10 +74,7 @@ public class ExApplication extends BaseApplication {
             public Map<String, String> onCrashHandleStart(int crashType, String errorType,
                                                           String errorMessage, String errorStack) {
 
-                closeDoor();
-                saveCatchInfo2File(errorMessage + "\n" + errorStack);
-                reStartApp();
-
+                reStartApp(errorMessage + "\n" + errorStack);
 
                 LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
                 map.put("Key", "Value");
@@ -98,21 +97,25 @@ public class ExApplication extends BaseApplication {
     }
 
 
-    private void reStartApp(){
+    private void reStartApp(final String errorMsg){
         new Thread() {
             @Override
             public void run() {
-                Looper.prepare();
-                Intent intent = new Intent(mContext, SplashActivity.class);
-                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, restartIntent);
+                closeDoor();
+                saveCatchInfo2File(errorMsg);
 
+//                Intent intent = new Intent(mContext, SplashActivity.class);
+//                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, restartIntent);
+
+                Looper.prepare();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        ActivityManager.getInstance().finishAllActivity();
-                        android.os.Process.killProcess(android.os.Process.myPid());
+//                        ActivityManager.getInstance().finishAllActivity();
+//                        android.os.Process.killProcess(android.os.Process.myPid());
+                        DeviceUtil.rebootDevice();
                     }
                 },1500);
                 Looper.loop();
@@ -151,6 +154,58 @@ public class ExApplication extends BaseApplication {
     }
 
 
+    private void initRegist(){
+        registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                LogUtil.d("registerActivityLifecycle:", "onActivityStopped:" + activity.getClass());
+                activityCount++;
+                LogUtil.w("registerActivityLifecycle:", "onActivityStarted :" + activityCount);
+                if(activityCount == 1){//前台
+
+                }
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                LogUtil.d("registerActivityLifecycle:", "onActivityStopped:" + activity.getClass());
+
+                activityCount--;
+                LogUtil.d("registerActivityLifecycle:", "onActivityStopped :" + activityCount);
+                if(activityCount == 0){//后台
+//                    ToastUtil.showCustomToast("切换到后台");
+
+                    Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+
+                }
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
+    }
 
 //    //解决方法数超过64k问题
 //    @Override
