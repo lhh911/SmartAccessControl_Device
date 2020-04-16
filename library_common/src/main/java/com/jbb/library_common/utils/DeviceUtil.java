@@ -390,7 +390,7 @@ public class DeviceUtil {
             //如果您的系统使用串行端口，请执行以下命令，
             Process reboot_now = Runtime.getRuntime().exec("reboot now");
 
-            //错误输出流阻塞了正常输出流，需要单独开线程处理，2020-3-28
+            //错误输出流阻塞了正常输出流，需要单独开线程处理，2020-3-28  (子线程中调用重启代码需要开线程单独处理异常输出)
             StreamGobbler errorGobbler = new StreamGobbler(reboot_now.getErrorStream(), "Error");
             StreamGobbler outputGobbler = new StreamGobbler(reboot_now.getInputStream(), "Output");
             errorGobbler.start();

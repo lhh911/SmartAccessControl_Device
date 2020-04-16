@@ -1886,17 +1886,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         try {
             /**/
             if (serialHelper != null) {
-                serialHelper.open();
+                try{
+                    serialHelper.open();
+                }catch (Exception e){
+                    android.util.Log.d("wlDebug", "serialHelper1.open fail.");
+                }
             }
 
             if (serialHelper2 != null) {
-                serialHelper2.open();
-                // ToastUtil.showCustomToast("读卡器2打开成功.");
-                closeDoor2();
+                try {
+                    serialHelper2.open();
+                    closeDoor2();
+                } catch (Exception e) {
+                    android.util.Log.d("wlDebug", "serialHelper2.open fail.");
+                }
             } else {
                 android.util.Log.d("wlDebug", "serialHelper2.open fail.");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             android.util.Log.d("wlDebug", "serialHelper2.open fail.", e);
         }
     }

@@ -654,10 +654,6 @@ public class FaceSet {
                                 // 可识别的人脸坐标
                                 float[] qualityInfoRect = qualityInfo.rect;
 
-
-
-
-
                                 // 识别
                                 if (isRecog) {
                                     YMFace face = trackingMap.get(trackId);
@@ -671,8 +667,6 @@ public class FaceSet {
                                         ymFace.setIdentifiedPerson(personId, confidence);
 //                                        str += " identifyPerson:" + personId + " " + confidence;
 
-
-
                                         // 识别通过则抓拍
 //                                    if (isSaveImage && personId > 0)
 //                                        saveRecognitionFrame(bytes, ymFace, iw, ih, true);
@@ -682,7 +676,6 @@ public class FaceSet {
                                 } else {
                                     ymFace.setIdentifiedPerson(-1, 0);
                                 }
-
 
                                 // 活体
                                 switch (livenessType) {
@@ -711,7 +704,7 @@ public class FaceSet {
                                 }
 //                                str += "  liveness " + ymFace.getLiveness();
 
-
+                                android.util.Log.d("wlDebug", "personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
 //                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
                                 if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
 //                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
