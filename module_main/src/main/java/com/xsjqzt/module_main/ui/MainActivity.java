@@ -1677,9 +1677,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public void savaICOrIDCardRecord(final int type, final int sid, final String sn, final String imagePath) {
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
 
                 OpenRecord record = new OpenRecord();
                 record.setCreateTime(new Date().getTime());
@@ -1693,8 +1693,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                 Intent in = new Intent(MainActivity.this, OpenRecordService.class);
                 startService(in);
-            }
-        }).start();
+
+//            }
+//        }).start();
 
 
     }

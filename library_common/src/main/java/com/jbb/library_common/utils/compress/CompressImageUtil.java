@@ -18,7 +18,7 @@ import java.io.FileOutputStream;
 public class CompressImageUtil {
     private CompressConfig config;
     private Context context;
-    Handler mhHandler = new Handler();
+//    Handler mhHandler = new Handler();
 
     public CompressImageUtil(Context context, CompressConfig config) {
         this.context = context;
@@ -134,16 +134,23 @@ public class CompressImageUtil {
      * @param message
      */
     private void sendMsg(final boolean isSuccess, final String imagePath, final String message, final CompressListener listener) {
-        mhHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (isSuccess) {
-                    listener.onCompressSuccess(imagePath);
-                } else {
-                    listener.onCompressFailed(imagePath, message);
-                }
-            }
-        });
+        if (isSuccess) {
+            listener.onCompressSuccess(imagePath);
+        } else {
+            listener.onCompressFailed(imagePath, message);
+        }
+
+        //调用线程是子线程的话，handler会报错
+//        mhHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (isSuccess) {
+//                    listener.onCompressSuccess(imagePath);
+//                } else {
+//                    listener.onCompressFailed(imagePath, message);
+//                }
+//            }
+//        });
     }
 
     //新建压缩后的存储路径
