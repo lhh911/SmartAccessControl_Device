@@ -47,7 +47,6 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
 
         initMac();
         initView();
-
     }
 
     private void checkFirstInstall() {
