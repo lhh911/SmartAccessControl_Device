@@ -370,6 +370,11 @@ class Camera2 extends CameraViewImpl {
     }
 
     @Override
+    void setCallBackBuffer(byte[] callbackBuffer) {
+
+    }
+
+    @Override
     void addCallbackBuffer(byte[] callbackBuffer) {
 
     }

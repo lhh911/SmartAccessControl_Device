@@ -47,6 +47,8 @@ class Camera1 extends CameraViewImpl {
     private int LANDSCAPE_90 = 90;
     private int LANDSCAPE_270 = 270;
 
+    private byte[] callbackBuffer;
+
     Camera1(Callback callback, PreviewImpl preview) {
         super(callback, preview);
         preview.setCallback(new PreviewImpl.Callback() {
@@ -83,8 +85,13 @@ class Camera1 extends CameraViewImpl {
      */
     public void startPreview() {
         if (mCamera != null) {
+
+            if(callbackBuffer != null) {
+                mCamera.addCallbackBuffer(callbackBuffer);
+            }
+            mCamera.setPreviewCallbackWithBuffer(mCallback);
+//            mCamera.setPreviewCallback(mCallback);
             mCamera.startPreview();
-            mCamera.setPreviewCallback(mCallback);
         }
     }
 
@@ -335,11 +342,18 @@ class Camera1 extends CameraViewImpl {
      * @param callbackBuffer
      */
     public  void addCallbackBuffer(byte[] callbackBuffer) {
-        mCamera.addCallbackBuffer(callbackBuffer);
+        if(mCamera != null)
+            mCamera.addCallbackBuffer(callbackBuffer);
     }
 
     @Override
     void setPreviewCallbackWithBuffer(Camera.PreviewCallback cb) {
-        mCamera.setPreviewCallbackWithBuffer(cb);
+        if(mCamera != null)
+            mCamera.setPreviewCallbackWithBuffer(cb);
+    }
+
+    @Override
+    void setCallBackBuffer(byte[] callbackBuffer) {
+        this.callbackBuffer = callbackBuffer;
     }
 }

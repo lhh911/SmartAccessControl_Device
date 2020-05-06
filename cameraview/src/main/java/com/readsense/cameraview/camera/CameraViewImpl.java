@@ -73,8 +73,9 @@ abstract class CameraViewImpl {
 
     abstract boolean adjustCameraParameters(int facing, Size resolution);
 
-    abstract void addCallbackBuffer(byte[] callbackBuffer);
 
+    abstract void setCallBackBuffer(byte[] callbackBuffer);
+    abstract void addCallbackBuffer(byte[] callbackBuffer);
 
     abstract void setPreviewCallbackWithBuffer(Camera.PreviewCallback cb);
 

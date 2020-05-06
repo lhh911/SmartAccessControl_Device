@@ -79,7 +79,7 @@ public class DownAllDataService extends IntentService {
         String registrationId = JPushInterface.getRegistrationID(this);
         boolean uploadRegist = SharePreferensUtil.getBoolean(KeyContacts.SP_KEY_REGISTRATIONID,false ,KeyContacts.SP_NAME_JPUSH);
         if(!uploadRegist) {
-            SubscribeUtils.subscribe(RetrofitManager.getInstance().getService(ApiService.class)
+            SubscribeUtils.subscribe4(RetrofitManager.getInstance().getService(ApiService.class)
                     .registrationId(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(), registrationId), BaseBean.class, new NetListeren<BaseBean>() {
                 @Override
                 public void onSuccess(BaseBean bean) {

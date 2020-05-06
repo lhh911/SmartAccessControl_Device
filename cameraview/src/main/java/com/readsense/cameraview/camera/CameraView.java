@@ -329,6 +329,8 @@ public class CameraView extends FrameLayout {
         else return mImpl.getSupportedPreviewSize();
     }
 
+
+
     private class CallbackBridge implements CameraViewImpl.Callback {
         private CameraView.Callback mCallback = null;
 
@@ -391,7 +393,9 @@ public class CameraView extends FrameLayout {
 
 
 
-
+    public void setCallBackBuffer(byte[] callbackBuffer) {
+        mImpl.setCallBackBuffer(callbackBuffer);
+    }
 
     public  void addCallbackBuffer(byte[] callbackBuffer) {
         mImpl.addCallbackBuffer(callbackBuffer);

@@ -78,7 +78,7 @@ public class FaceImageDownService extends IntentService {
 //        ArrayList<FaceImageResBean.DataBean> dataBeans = bundle.getParcelableArrayList("data");
 
         ArrayList<FaceImageResBean.DataBean> dataBeans = UserInfoInstance.getInstance().getFaceList();
-        if(dataBeans !=null) {
+        if (dataBeans != null) {
             if (!queue.containsAll(dataBeans)) {
                 queue.addAll(dataBeans);
             }
@@ -134,7 +134,7 @@ public class FaceImageDownService extends IntentService {
                     }
                     subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                             .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                                    InterfaceConfig.BASEURL + poll.getImage()),  poll);
+                                    InterfaceConfig.BASEURL + poll.getImage()), poll);
                 }
             }
 
@@ -168,12 +168,12 @@ public class FaceImageDownService extends IntentService {
 
             subscribe(RetrofitManager.getInstance().getService(ApiService.class)
                     .downFaceImage(KeyContacts.Bearer + UserInfoInstance.getInstance().getToken(),
-                            InterfaceConfig.BASEURL + poll.getImage()),  poll);
+                            InterfaceConfig.BASEURL + poll.getImage()), poll);
         }
     }
 
 
-    public void subscribe(Observable<ResponseBody> observable,  final FaceImageResBean.DataBean dataBean) {
+    public void subscribe(Observable<ResponseBody> observable, final FaceImageResBean.DataBean dataBean) {
         if (!DeviceUtil.isNetWorkEnable()) {
             if (isReExecute)
                 reExecute();
@@ -200,7 +200,7 @@ public class FaceImageDownService extends IntentService {
 
                     @Override
                     public void onNext(InputStream inputStream) {
-                        writeFile(inputStream,  dataBean);
+                        writeFile(inputStream, dataBean);
                     }
 
                     @Override
@@ -222,7 +222,7 @@ public class FaceImageDownService extends IntentService {
     }
 
 
-    private void writeFile(InputStream inputString,  FaceImageResBean.DataBean dataBean) {
+    private void writeFile(InputStream inputString, FaceImageResBean.DataBean dataBean) {
         //存到本地文件，按日期建文件夹
         String facePath = FileUtil.getAppFacePicturePath(this);
         File file = new File(facePath, new Date().getTime() + ".jpg");
@@ -253,19 +253,19 @@ public class FaceImageDownService extends IntentService {
             } catch (Exception e) {
             }
         }
-        registYM(file.getPath(),  dataBean);
+        registYM(file.getPath(), dataBean);
     }
 
 
     //注册阅面，成功与否上传人脸识别状态
-    public void registYM(String facePath,  FaceImageResBean.DataBean dataBean) {
+    public void registYM(String facePath, FaceImageResBean.DataBean dataBean) {
         //注册阅面
         Bitmap bitmap = BitmapFactory.decodeFile(facePath);
 
         int status = 3;
         String code = "";//识别码
         FaceResult faceResult = null;
-        if(bitmap == null){
+        if (bitmap == null) {
             downImage();
             return;
         }
@@ -316,7 +316,7 @@ public class FaceImageDownService extends IntentService {
         //注册阅面
         String codeX = dataBean.getCodeX();
         float[] faceFeature = StringUtil.stringToFolatArray(codeX);
-        if(faceFeature == null){
+        if (faceFeature == null) {
             downImage();//继续下一个
             return;
         }

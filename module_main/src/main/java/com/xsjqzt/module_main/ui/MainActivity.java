@@ -51,10 +51,8 @@ import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.exceptions.EMNoActiveCallException;
 import com.hyphenate.exceptions.EMServiceNotReadyException;
-import com.jbb.library_common.basemvp.ActivityManager;
 import com.jbb.library_common.basemvp.BaseMvpActivity;
 import com.jbb.library_common.comfig.KeyContacts;
-import com.jbb.library_common.download.AppDownloadService;
 import com.jbb.library_common.utils.BitmapUtil;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.DateFormateUtil;
@@ -85,7 +83,6 @@ import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.ICCardDao;
 import com.xsjqzt.module_main.greendao.IDCardDao;
 import com.xsjqzt.module_main.greendao.OpenCodeDao;
-import com.xsjqzt.module_main.greendao.OpenRecordDao;
 import com.xsjqzt.module_main.greendao.entity.FaceImage;
 import com.xsjqzt.module_main.greendao.entity.ICCard;
 import com.xsjqzt.module_main.greendao.entity.IDCard;
@@ -123,11 +120,9 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -305,9 +300,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         entranceDetailTv.postDelayed(new Runnable() {
             @Override
             public void run() {
-//                checkVersion();
-                closeDoor();
 
+                closeDoor();
             }
         }, 3000);
 
@@ -2212,11 +2206,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public Bitmap getCameraBitmap() {
         //bitmapBytes格式成YuvImage格式，YuvImage格式是横的，宽高反的
-        YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, preWidth,
-                preHeight, null);
+        YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, mConfig.previewSizeWidth,
+                mConfig.previewSizeHeight , null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        yuvimage.compressToJpeg(new Rect(0, 0, preWidth,
-                preHeight), 100, baos);
+        yuvimage.compressToJpeg(new Rect(0, 0, mConfig.previewSizeWidth,
+                mConfig.previewSizeHeight), 100, baos);
         Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
 
         return bitmap;
@@ -2312,8 +2306,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     public DemoConfig mConfig;
     // For Face end..
-    private int preWidth = 640;//根据相机流生成图片的宽
-    private int preHeight = 480;//生成图片的高
+//    private int preWidth = 640;//根据相机流生成图片的宽
+//    private int preHeight = 480;//生成图片的高
 
     private boolean faceTrackInit = false;//人脸识别是否初始化
     private boolean stopFaceTranck = false;//是否是停止识别的，默认不停止
@@ -2421,6 +2415,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            mCameraView.addCallbackBuffer(mPreviewBuffer);
 //            mCameraView.setPreviewCallbackWithBuffer();
 
+            mCameraView.setCallBackBuffer(new byte[mConfig.previewSizeWidth * mConfig.previewSizeHeight * 3/2]);
+
             mCameraView.addCallback(new CameraView.Callback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
@@ -2458,8 +2454,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
                             }
                         });
-                        //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
-//                        mCameraView.addCallbackBuffer(data);
+                        //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组
+                        mCameraView.addCallbackBuffer(data);
                     }
                 }
             });
