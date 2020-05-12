@@ -9,6 +9,7 @@ import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.SharePreferensUtil;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.RegistrationIdPresenter;
+import com.xsjqzt.module_main.util.ThreadPoolManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +20,10 @@ import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.JPushMessage;
 import cn.jpush.android.api.NotificationMessage;
 import cn.jpush.android.service.JPushMessageReceiver;
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class PushMessageReceiver extends JPushMessageReceiver {
     private static final String TAG = "PushMessageReceiver";
@@ -68,19 +73,55 @@ public class PushMessageReceiver extends JPushMessageReceiver {
     }
 
     @Override
-    public void onNotifyMessageArrived(Context context, NotificationMessage message) {
+    public void onNotifyMessageArrived(final Context context, final NotificationMessage message) {
         Log.e(TAG,"[onNotifyMessageArrived] "+message);
 
-        Bundle bundle = new Bundle();
-        bundle.putString(JPushInterface.EXTRA_EXTRA,message.notificationExtras);
-        Intent it = new Intent();
-        it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
-        it.putExtras(bundle);
-        context.sendBroadcast(it);
+//        Observable.just(1)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .subscribe(new Consumer<Integer>() {
+//                    @Override
+//                    public void accept(Integer integer) throws Exception {
+//                        Bundle bundle = new Bundle();
+//                        bundle.putString(JPushInterface.EXTRA_EXTRA,message.notificationExtras);
+//                        Intent it = new Intent();
+//                        it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
+//                        it.putExtras(bundle);
+//                        context.sendBroadcast(it);
+//
+//                        int notificationId = message.notificationId;
+//                        JPushInterface.clearNotificationById(context, notificationId);
+//                    }
+//                });
 
-        int notificationId = message.notificationId;
-        JPushInterface.clearNotificationById(context, notificationId);
+        ThreadPoolManager.getInstance().execute(new MyRunnable(message,context));
+
     }
+
+
+    public class MyRunnable implements Runnable{
+        NotificationMessage message;
+        Context context;
+
+        public MyRunnable(NotificationMessage message,Context context) {
+            this.message = message;
+            this.context = context;
+        }
+
+        @Override
+        public void run() {
+            Bundle bundle = new Bundle();
+            bundle.putString(JPushInterface.EXTRA_EXTRA,message.notificationExtras);
+            Intent it = new Intent();
+            it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
+            it.putExtras(bundle);
+            context.sendBroadcast(it);
+
+            int notificationId = message.notificationId;
+            JPushInterface.clearNotificationById(context, notificationId);
+        }
+    }
+
 
     @Override
     public void onNotifyMessageDismiss(Context context, NotificationMessage message) {
