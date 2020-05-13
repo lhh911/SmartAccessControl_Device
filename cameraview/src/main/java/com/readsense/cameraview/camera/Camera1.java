@@ -101,7 +101,8 @@ class Camera1 extends CameraViewImpl {
     @Override
     void stop() {
         if (mCamera != null) {
-            mCamera.setPreviewCallback(null);
+//            mCamera.setPreviewCallback(null);
+            mCamera.setPreviewCallbackWithBuffer(null);
             mCamera.stopPreview();
         }
         mShowingPreview = false;
