@@ -2455,7 +2455,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             }
                         });
                         //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组
-                        mCameraView.addCallbackBuffer(data);
+                        camera.addCallbackBuffer(data);
                     }
                 }
             });

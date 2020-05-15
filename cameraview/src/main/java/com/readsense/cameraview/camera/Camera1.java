@@ -86,10 +86,10 @@ class Camera1 extends CameraViewImpl {
     public void startPreview() {
         if (mCamera != null) {
 
+            mCamera.setPreviewCallbackWithBuffer(mCallback);
             if(callbackBuffer != null) {
                 mCamera.addCallbackBuffer(callbackBuffer);
             }
-            mCamera.setPreviewCallbackWithBuffer(mCallback);
 //            mCamera.setPreviewCallback(mCallback);
             mCamera.startPreview();
         }
@@ -342,6 +342,7 @@ class Camera1 extends CameraViewImpl {
      *  onPerviewFrame执行完后data数组会回收，会导致频繁GC
      * @param callbackBuffer
      */
+    @Override
     public  void addCallbackBuffer(byte[] callbackBuffer) {
         if(mCamera != null)
             mCamera.addCallbackBuffer(callbackBuffer);
