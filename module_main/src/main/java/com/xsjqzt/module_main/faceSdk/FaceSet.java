@@ -604,6 +604,8 @@ public class FaceSet {
 
         // 跟踪检测人脸
         final List<YMFace> ymFaces = faceTrack.trackMulti(bytes, iw, ih);
+
+//        Log.e("logic2", "ymFaces = "+ ymFaces.size());
         if (ymFaces == null || ymFaces.size() == 0) return null;
         // 是否多人脸
         if (!isMulti) {
@@ -680,7 +682,7 @@ public class FaceSet {
                                 // 活体
                                 switch (livenessType) {
                                     case 0:
-                                        // 双目活体
+                                        // 可见光 活体
                                         if (qualityInfoIrBytes == null)
                                             break;
                                         int result = faceTrack.livenessDetectFrame(
@@ -688,12 +690,12 @@ public class FaceSet {
                                         ymFace.setLiveness(result);
                                         break;
                                     case 1:
-                                        // 可见光 活体
+                                        //
                                         int[] resultDetect = faceTrack.livenessDetect(
                                                 qualityInfoBytes, iw, ih, qualityInfoRect);
                                         ymFace.setLiveness(resultDetect[0]);
                                         break;
-                                    case 2: //红外活体
+                                    case 2: //双目活体
                                         int DetectInfrared[] = faceTrack.livenessDetectInfrared(i);
                                         ymFace.setLiveness(DetectInfrared[0]);
                                         break;
@@ -705,7 +707,7 @@ public class FaceSet {
 //                                str += "  liveness " + ymFace.getLiveness();
 
                                 android.util.Log.d("wlDebug", "personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
-//                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
+                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
                                 if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
 //                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                                     // 当liveeness == 1时活体识别通过;
@@ -1154,21 +1156,21 @@ public class FaceSet {
     }
 
 
-//    private void toast(String msg){
-//        Observable.just(msg)
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Observer<String>() {
-//                    public void onSubscribe(Disposable d) {
-//                    }
-//                    public void onNext(String integer) {
-//                        ToastUtil.showCustomToast("人脸识别： "+integer);
-//                    }
-//                    public void onError(Throwable e) {
-//                    }
-//                    public void onComplete() {
-//                    }
-//                });
-//    }
+    private void toast(String msg){
+        Observable.just(msg)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    public void onSubscribe(Disposable d) {
+                    }
+                    public void onNext(String integer) {
+                        ToastUtil.showCustomToast("人脸识别： "+integer);
+                    }
+                    public void onError(Throwable e) {
+                    }
+                    public void onComplete() {
+                    }
+                });
+    }
 
 
     /**

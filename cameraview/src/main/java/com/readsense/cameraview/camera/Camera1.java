@@ -48,6 +48,7 @@ class Camera1 extends CameraViewImpl {
     private int LANDSCAPE_270 = 270;
 
     private byte[] callbackBuffer;
+    private int previewBufferSize;
 
     Camera1(Callback callback, PreviewImpl preview) {
         super(callback, preview);
@@ -86,10 +87,11 @@ class Camera1 extends CameraViewImpl {
     public void startPreview() {
         if (mCamera != null) {
 
-            mCamera.setPreviewCallbackWithBuffer(mCallback);
-            if(callbackBuffer != null) {
-                mCamera.addCallbackBuffer(callbackBuffer);
+            if(previewBufferSize > 0) {
+                mCamera.addCallbackBuffer(new byte[previewBufferSize]);
+                mCamera.addCallbackBuffer(new byte[previewBufferSize]);
             }
+            mCamera.setPreviewCallbackWithBuffer(mCallback);
 //            mCamera.setPreviewCallback(mCallback);
             mCamera.startPreview();
         }
@@ -340,22 +342,17 @@ class Camera1 extends CameraViewImpl {
      *
      * addCallbackBuffer 和 我们需要setPreviewCallbackWithBuffer 配合使用，可以把数组传入回到中，onPerviewFrame预览回调中的 data数组不用频繁 GC  而导致内存暴增，o
      *  onPerviewFrame执行完后data数组会回收，会导致频繁GC
-     * @param callbackBuffer
+     *
+     *  添加一个预分配的缓冲区到预览回调缓冲区队列中。应用程序可一添加一个或多个缓冲器到这个队列中。当预览帧数据到达时并且缓冲区队列仍然有至少一个可用的缓冲区时，这个 缓冲区将会被消耗掉然后从队列中移除，然后这个缓冲区会调用预览回调接口。如果预览帧数据到达时没有剩余的缓冲区，这帧数据将会被丢弃。当缓冲区中的数据处理完成后，应用程序应该将这个缓冲区添加回缓冲区队列中。
+     * 对于非YV12的格式，缓冲区的Size是预览图像的宽、高和每个像素的字节数的乘积。宽高可以使用getPreviewSize()方法获取。每个像素的字节数可以使用ImageFormat.getBitsPerPixel(mCameraParameters.getPreviewFormat()) / 8获取。
+     * 对于YU12的格式，缓冲区的Size可以使用setPreviewFormat(int)里面的公式计算，具体详见官方文档。
+     * 这个方法只有在使用setPreviewCallbackWithBuffer(PreviewCallback)时才有必要使用。当使用setPreviewCallback(PreviewCallback)
+     * 或者setOneShotPreviewCallback(PreviewCallback)时，缓冲区会自动分配。当提供的缓冲区如果太小了，
+     * 不能支持预览帧数据时，预览回调接口将会return null，然后从缓冲区队列中移除此缓冲区。
+     *
      */
     @Override
-    public  void addCallbackBuffer(byte[] callbackBuffer) {
-        if(mCamera != null)
-            mCamera.addCallbackBuffer(callbackBuffer);
-    }
-
-    @Override
-    void setPreviewCallbackWithBuffer(Camera.PreviewCallback cb) {
-        if(mCamera != null)
-            mCamera.setPreviewCallbackWithBuffer(cb);
-    }
-
-    @Override
-    void setCallBackBuffer(byte[] callbackBuffer) {
-        this.callbackBuffer = callbackBuffer;
+    void setCallBackBuffer(int previewBufferSize) {
+        this.previewBufferSize = previewBufferSize;
     }
 }

@@ -2415,7 +2415,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            mCameraView.addCallbackBuffer(mPreviewBuffer);
 //            mCameraView.setPreviewCallbackWithBuffer();
 
-            mCameraView.setCallBackBuffer(new byte[mConfig.previewSizeWidth * mConfig.previewSizeHeight * 3/2]);
+            mCameraView.setCallBackBuffer(mConfig.previewSizeWidth * mConfig.previewSizeHeight *2);
 
             mCameraView.addCallback(new CameraView.Callback() {
                 @Override

@@ -393,16 +393,10 @@ public class CameraView extends FrameLayout {
 
 
 
-    public void setCallBackBuffer(byte[] callbackBuffer) {
-        mImpl.setCallBackBuffer(callbackBuffer);
+    public void setCallBackBuffer(int previewBufferSize) {
+        mImpl.setCallBackBuffer(previewBufferSize);
     }
 
-    public  void addCallbackBuffer(byte[] callbackBuffer) {
-        mImpl.addCallbackBuffer(callbackBuffer);
-    }
 
-    public void setPreviewCallbackWithBuffer() {
-        mImpl.setPreviewCallbackWithBuffer(mCallbacks);
-    }
 
 }
