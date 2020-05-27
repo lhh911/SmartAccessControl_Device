@@ -289,7 +289,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         if (deviceEnable()) {
             startService(new Intent(this, DownAllDataService.class));
-            startService(new Intent(this, HeartBeatService.class));
+
         }
 
         String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME, KeyContacts.SP_NAME_JPUSH);
@@ -300,7 +300,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         entranceDetailTv.postDelayed(new Runnable() {
             @Override
             public void run() {
-
+                if (deviceEnable())
+                    startService(new Intent(MainActivity.this, HeartBeatService.class));
                 closeDoor();
             }
         }, 3000);
@@ -1675,18 +1676,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            @Override
 //            public void run() {
 
-                OpenRecord record = new OpenRecord();
-                record.setCreateTime(new Date().getTime());
-                record.setImage(imagePath);
-                record.setSn(sn);
-                record.setStatus(1);
-                record.setUploadStatus(false);
-                record.setSid(sid);
-                record.setType(type);
-                DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
+        OpenRecord record = new OpenRecord();
+        record.setCreateTime(new Date().getTime());
+        record.setImage(imagePath);
+        record.setSn(sn);
+        record.setStatus(1);
+        record.setUploadStatus(false);
+        record.setSid(sid);
+        record.setType(type);
+        DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
 
-                Intent in = new Intent(MainActivity.this, OpenRecordService.class);
-                startService(in);
+        Intent in = new Intent(MainActivity.this, OpenRecordService.class);
+        startService(in);
 
 //            }
 //        }).start();
@@ -1881,9 +1882,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         try {
             /**/
             if (serialHelper != null) {
-                try{
+                try {
                     serialHelper.open();
-                }catch (Exception e){
+                } catch (Exception e) {
                     android.util.Log.d("wlDebug", "serialHelper1.open fail.");
                 }
             }
@@ -2207,7 +2208,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public Bitmap getCameraBitmap() {
         //bitmapBytes格式成YuvImage格式，YuvImage格式是横的，宽高反的
         YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, mConfig.previewSizeWidth,
-                mConfig.previewSizeHeight , null);
+                mConfig.previewSizeHeight, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         yuvimage.compressToJpeg(new Rect(0, 0, mConfig.previewSizeWidth,
                 mConfig.previewSizeHeight), 100, baos);
@@ -2415,7 +2416,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            mCameraView.addCallbackBuffer(mPreviewBuffer);
 //            mCameraView.setPreviewCallbackWithBuffer();
 
-            mCameraView.setCallBackBuffer(mConfig.previewSizeWidth * mConfig.previewSizeHeight *2);
+            mCameraView.setCallBackBuffer(mConfig.previewSizeWidth * mConfig.previewSizeHeight * 2);
 
             mCameraView.addCallback(new CameraView.Callback() {
                 @Override
@@ -2649,6 +2650,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public void openIRCamera() {
         if (mIRCameraView == null) {
             mIRCameraView = findViewById(R.id.ir_camera);
+            mIRCameraView.setCallBackBuffer(mConfig.previewSizeWidth * mConfig.previewSizeHeight * 2);
             mIRCameraView.addCallback(new CameraView.Callback() {
                 @Override
                 public void onPreviewFrame(byte[] data, Camera camera) {
