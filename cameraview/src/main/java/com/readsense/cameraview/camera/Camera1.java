@@ -86,11 +86,11 @@ class Camera1 extends CameraViewImpl {
     public void startPreview() {
         if (mCamera != null) {
 
-            if(callbackBuffer != null) {
-                mCamera.addCallbackBuffer(callbackBuffer);
-            }
-            mCamera.setPreviewCallbackWithBuffer(mCallback);
-//            mCamera.setPreviewCallback(mCallback);
+//            if(callbackBuffer != null) {
+//                mCamera.addCallbackBuffer(callbackBuffer);
+//            }
+//            mCamera.setPreviewCallbackWithBuffer(mCallback);
+            mCamera.setPreviewCallback(mCallback);
             mCamera.startPreview();
         }
     }
