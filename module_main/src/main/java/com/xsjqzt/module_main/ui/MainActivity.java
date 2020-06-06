@@ -289,7 +289,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         if (deviceEnable()) {
             startService(new Intent(this, DownAllDataService.class));
-            startService(new Intent(this, HeartBeatService.class));
+
         }
 
         String display_name = SharePreferensUtil.getString(KeyContacts.SP_KEY_DISPLAY_NAME, KeyContacts.SP_NAME_JPUSH);
@@ -300,7 +300,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         entranceDetailTv.postDelayed(new Runnable() {
             @Override
             public void run() {
-
+                if (deviceEnable())
+                    startService(new Intent(MainActivity.this, HeartBeatService.class));
                 closeDoor();
             }
         }, 3000);
@@ -2346,7 +2347,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
                             android.util.Log.d("Debug", "mConfig = " + mConfig.toString());
 
-                            if (isDoubleEyes) openIRCamera();
+//                            if (isDoubleEyes) openIRCamera();
 
                             faceTrackInit = true;
                         } else {
@@ -2371,17 +2372,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
-    private void startCamera() {
-        //开启相机
-        if (mCameraView != null && !mCameraView.isCameraOpened())
-            mCameraView.start();
-        if (isDoubleEyes)
-            openIRCamera();
-
-        faceTrackInit = true;
-        hideCallVideoLayout();
-        hideRoomInputLayout();
-    }
+//    private void startCamera() {
+//        //开启相机
+//        if (mCameraView != null && !mCameraView.isCameraOpened())
+//            mCameraView.start();
+//        if (isDoubleEyes)
+//            openIRCamera();
+//
+//        faceTrackInit = true;
+//        hideCallVideoLayout();
+//        hideRoomInputLayout();
+//    }
 
 
     // 初始化人脸所需的UI;
