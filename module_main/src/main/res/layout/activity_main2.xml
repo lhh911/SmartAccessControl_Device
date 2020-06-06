@@ -34,11 +34,11 @@
             android:textColor="@color/common_white" />
 
         <!-- CameraView Start..-->
-        <com.readsense.cameraview.camera.CameraView
+      <!--  <com.readsense.cameraview.camera.CameraView
             android:id="@+id/ir_camera"
             android:layout_width="1dp"
             android:layout_height="1dp"
-            android:adjustViewBounds="true" />
+            android:adjustViewBounds="true" />-->
 
         <com.readsense.cameraview.camera.CameraView
             android:id="@+id/camera"
