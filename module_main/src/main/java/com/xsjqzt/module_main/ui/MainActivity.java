@@ -2341,7 +2341,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mConfig.sdkAngle = mConfig.sdkAngle == -1 ? getSdkOrientation(mConfig.cameraFacing) : mConfig.sdkAngle;
                             //初始化算法sdk
                             FaceResult result = faceSet.startTrack(mConfig.sdkAngle);
-//                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
+                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
                             mConfig.specialCameraLeftRightReverse = true;
                             //保存配置
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
@@ -2443,10 +2443,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+//                                if(ymFaces!= null) {
+//                                    ToastUtil.showCustomToast("ymFaces.size =  " + ymFaces.size() + "|  stopFaceTranck = " + stopFaceTranck);
+//                                }else{
+//                                    ToastUtil.showCustomToast("ymFaces.size =  " + ymFaces + "|  stopFaceTranck = " + stopFaceTranck);
+//                                }
+
                                 // 显示/隐藏 Camera界面；
                                 if (ymFaces != null && !isFaceViewShow) {
                                     showFaceLayout();
-
                                 } else if (ymFaces == null && isFaceViewShow) {
                                     hideFaceLayout();
                                 }
