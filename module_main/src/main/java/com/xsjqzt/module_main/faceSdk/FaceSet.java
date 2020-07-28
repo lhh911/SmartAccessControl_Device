@@ -678,36 +678,36 @@ public class FaceSet {
                                 }
 
                                 // 活体
-//                                switch (livenessType) {
-//                                    case 0:
-//                                        // 双目活体
-//                                        if (qualityInfoIrBytes == null)
-//                                            break;
-//                                        int result = faceTrack.livenessDetectFrame(
-//                                                qualityInfoIrBytes, iw, ih, qualityInfoRect);
-//                                        ymFace.setLiveness(result);
-//                                        break;
-//                                    case 1:
-//                                        // 可见光 活体
-//                                        int[] resultDetect = faceTrack.livenessDetect(
-//                                                qualityInfoBytes, iw, ih, qualityInfoRect);
-//                                        ymFace.setLiveness(resultDetect[0]);
-//                                        break;
-//                                    case 2: //红外活体
-//                                        int DetectInfrared[] = faceTrack.livenessDetectInfrared(i);
-//                                        ymFace.setLiveness(DetectInfrared[0]);
-//                                        break;
-//                                    default:
-//                                        ymFace.setLiveness(-1);
-//                                        Log.e("logic2", "liveness type not support");
-//                                        break;
-//                                }
+                                switch (livenessType) {
+                                    case 0:
+                                        // 双目活体
+                                        if (qualityInfoIrBytes == null)
+                                            break;
+                                        int result = faceTrack.livenessDetectFrame(
+                                                qualityInfoIrBytes, iw, ih, qualityInfoRect);
+                                        ymFace.setLiveness(result);
+                                        break;
+                                    case 1:
+                                        // 可见光 活体
+                                        int[] resultDetect = faceTrack.livenessDetect(
+                                                qualityInfoBytes, iw, ih, qualityInfoRect);
+                                        ymFace.setLiveness(resultDetect[0]);
+                                        break;
+                                    case 2: //红外活体
+                                        int DetectInfrared[] = faceTrack.livenessDetectInfrared(i);
+                                        ymFace.setLiveness(DetectInfrared[0]);
+                                        break;
+                                    default:
+                                        ymFace.setLiveness(-1);
+                                        Log.e("logic2", "liveness type not support");
+                                        break;
+                                }
 
 
                                 android.util.Log.d("wlDebug", "personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
 //                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
-//                                if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
-                                if (ymFace.getPersonId() >= 0 ) {
+                                if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
+//                                if (ymFace.getPersonId() >= 0 ) {
 //                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
                                     // 当liveeness == 1时活体识别通过;
                                     int user_id = 0;

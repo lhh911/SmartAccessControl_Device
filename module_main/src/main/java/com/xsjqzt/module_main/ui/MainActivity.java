@@ -2347,7 +2347,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
                             android.util.Log.d("Debug", "mConfig = " + mConfig.toString());
 
-//                            if (isDoubleEyes) openIRCamera();
+                            if (isDoubleEyes) openIRCamera();
 
                             faceTrackInit = true;
                         } else {
