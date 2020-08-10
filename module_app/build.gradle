@@ -50,7 +50,7 @@ android {
             def project = "qzt_device"
             def separator = "_"
             def versionName = variant.versionName
-            def apkName = project + separator + versionName + ".apk"
+            def apkName = project + separator + versionName + separator + releaseTime() + ".apk"
 
             output.outputFileName = apkName
 //            }
@@ -85,6 +85,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+
+//获取日期
+def releaseTime() {
+    return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
+}
+
 
 dependencies {
     implementation project(':library_common')

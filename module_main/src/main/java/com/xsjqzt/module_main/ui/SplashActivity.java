@@ -1,6 +1,8 @@
 package com.xsjqzt.module_main.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -45,8 +47,17 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
             InterfaceConfig.BASEURL = url_root;
         }
 
+        openWifi();
         initMac();
         initView();
+    }
+
+    private void openWifi(){
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        int status = wifiManager.getWifiState();
+        if (status != WifiManager.WIFI_STATE_ENABLED ) {
+            wifiManager.setWifiEnabled(true);
+        }
     }
 
     private void checkFirstInstall() {

@@ -2341,7 +2341,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mConfig.sdkAngle = mConfig.sdkAngle == -1 ? getSdkOrientation(mConfig.cameraFacing) : mConfig.sdkAngle;
                             //初始化算法sdk
                             FaceResult result = faceSet.startTrack(mConfig.sdkAngle);
-//                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
+                            showShortToast(getApplicationContext(), "code:" + result.code + "  " + result.msg);
                             mConfig.specialCameraLeftRightReverse = true;
                             //保存配置
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
@@ -2436,6 +2436,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                         }
 //                         android.util.Log.d("ymFaces===", "ymFaces = " + JSON.toJSONString(ymFaces));
 //                         android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
+
+//                        showShortToast(getApplicationContext(), "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
 
                         //获取缩放比例
                         mConfig.screenZoon = mCameraView.getScale();
