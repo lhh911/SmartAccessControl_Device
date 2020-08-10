@@ -1,6 +1,7 @@
 package com.xsjqzt.module_main.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -22,6 +23,7 @@ import android.hardware.Camera;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -161,7 +163,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int showType = 1;// 1 图片广告，2 视频广告
     private MyBroadcastReceiver mReceiver;
 
-    private PendingIntent pi;
+    private PendingIntent pi,pi2;
     private AlarmManager am;
 
     //串口
@@ -273,19 +275,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
         initView();
         registReceiver();
-//        setAlarm();
+
         startMeasuing();
         initMusic();
-//        test();
-//        emLoginUser();
 
         loadDeviceInfo();
         loadBanner();
 
+        setOpenIRAlarm();
+        setCloseIRAlarm();
 
         initFaceCamera();
-        initFaceEvent();
-//        onFaceResume();
+//        initFaceEvent();
 
         if (deviceEnable()) {
             startService(new Intent(this, DownAllDataService.class));
@@ -465,60 +466,60 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    public void btn1Click(View view) {
-        if (inputLayoutShow) {
-            String inputNum = roomNumEt.getText().toString().trim();
-            if (TextUtils.isEmpty(inputNum))
-                return;
-
-            checkInput(inputNum);
-        } else {
-            showRoomNumOpen();
-        }
-
+//    public void btn1Click(View view) {
+//        if (inputLayoutShow) {
+//            String inputNum = roomNumEt.getText().toString().trim();
+//            if (TextUtils.isEmpty(inputNum))
+//                return;
+//
+//            checkInput(inputNum);
+//        } else {
+//            showRoomNumOpen();
+//        }
+//
+////        new AlertDialog.Builder(this)
+////                .setCancelable(true)
+////                .setMessage("确定清空人脸库？")
+////                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+////                    @Override
+////                    public void onClick(DialogInterface dialog, int which) {
+////                        dialog.dismiss();
+////                        CameraUtil.clearAllFace(faceSet);//删除阅面人脸
+//////                        DbManager.getInstance().getDaoSession().getFaceImageDao().getDatabase().execSQL("delete from FACE_IMAGE");//删除数据库中人脸记录数据
+////                    }
+////                }).show();
+//    }
+//
+//
+//    public void btn5Click(View view) {
+//        int faceSize = CameraUtil.getFaceSize(faceSet);
+//
 //        new AlertDialog.Builder(this)
 //                .setCancelable(true)
-//                .setMessage("确定清空人脸库？")
+//                .setMessage("人脸数量 ： " + faceSize)
 //                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
 //                    @Override
 //                    public void onClick(DialogInterface dialog, int which) {
 //                        dialog.dismiss();
-//                        CameraUtil.clearAllFace(faceSet);//删除阅面人脸
-////                        DbManager.getInstance().getDaoSession().getFaceImageDao().getDatabase().execSQL("delete from FACE_IMAGE");//删除数据库中人脸记录数据
 //                    }
 //                }).show();
-    }
-
-
-    public void btn5Click(View view) {
-        int faceSize = CameraUtil.getFaceSize(faceSet);
-
-        new AlertDialog.Builder(this)
-                .setCancelable(true)
-                .setMessage("人脸数量 ： " + faceSize)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).show();
-    }
-
-
-    public void btn2Click(View view) {
-        Bundle bundle = new Bundle();
-        bundle.putInt("mType", 1);
-        goTo(RegistICCardActivity.class, bundle);
-    }
-
-    public void btn3Click(View view) {
-        goTo(SystemInfoActivity.class);
-    }
-
-    public void btn4Click(View view) {
-        goTo(FaceDemoActivity.class);
-
-    }
+//    }
+//
+//
+//    public void btn2Click(View view) {
+//        Bundle bundle = new Bundle();
+//        bundle.putInt("mType", 1);
+//        goTo(RegistICCardActivity.class, bundle);
+//    }
+//
+//    public void btn3Click(View view) {
+//        goTo(SystemInfoActivity.class);
+//    }
+//
+//    public void btn4Click(View view) {
+//        goTo(FaceDemoActivity.class);
+//
+//    }
 
 
     @Override
@@ -730,13 +731,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     }
 
-//    private List<String> getImages() {
-//        List<String> images = new ArrayList<>();
-//        images.add("http://i1.mopimg.cn/img/dzh/2015-05/1288/20150502115717123.jpg");
-//        images.add("http://i1.mopimg.cn/img/dzh/2015-05/855/2015050211571275.jpg");
-//        images.add("http://i1.mopimg.cn/img/dzh/2015-05/389/20150502115712989.jpg");
-//        return images;
-//    }
 
 
     @Override
@@ -751,8 +745,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             unregisterReceiver(mReceiver);
 
 
-        if (am != null)
-            am.cancel(pi);
+        if (am != null) {
+//            am.cancel(pi);
+//            am.cancel(pi2);
+        }
 
         removeTask();
         endCall();
@@ -773,6 +769,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 //        filter.addAction(Manifest.permission.CHANGE_NETWORK_STATE);
         filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
+        filter.addAction(KeyContacts.ACTION_ALARM_OPEN_IR);
+        filter.addAction(KeyContacts.ACTION_ALARM_CLOSE_IR);
         mReceiver = new MyBroadcastReceiver();
         registerReceiver(mReceiver, filter);
 
@@ -816,6 +814,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
             } else if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
                 handleNotity(intent.getExtras());
+            }else if(intent.getAction() == KeyContacts.ACTION_ALARM_OPEN_IR){
+                LogUtil.w("AlarmReceiver 打开红外");
+                openIRCamera();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    setOpenIRAlarm();
+                }
+            }else if(intent.getAction() == KeyContacts.ACTION_ALARM_CLOSE_IR){
+                LogUtil.w("AlarmReceiver 关闭红外");
+                closeIRCamera();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    setCloseIRAlarm();
+                }
             }
         }
     }
@@ -1697,21 +1707,40 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //设置定时闹钟任务，2：30：00 执行，上传开门记录
-    private void setAlarm() {
-        Intent intent = new Intent(this, AlarmReceiver.class);
-//        Intent intent = new Intent();
-        intent.setAction(KeyContacts.ACTION_TIMER_UPLOAD_OPENRECORD);
-        pi = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
+    private void setOpenIRAlarm() {
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Calendar ca = Calendar.getInstance();
-        ca.set(Calendar.HOUR_OF_DAY, 02);
-        ca.set(Calendar.MINUTE, 30);
-        ca.set(Calendar.SECOND, 00);
-
+        ca.setTimeInMillis(System.currentTimeMillis());
+//        ca.set(Calendar.HOUR_OF_DAY, 02);
+//        ca.set(Calendar.MINUTE, 30);
+//        ca.set(Calendar.SECOND, 00);
         long interval = 24 * 60 * 60 * 1000;
-        am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
 
+        Intent intent = new Intent(KeyContacts.ACTION_ALARM_OPEN_IR);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 1000, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + 1000 * 10 , pi);
+        }else
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
+    }
+
+    private void setCloseIRAlarm() {
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Calendar ca = Calendar.getInstance();
+        ca.setTimeInMillis(System.currentTimeMillis());
+//        ca.set(Calendar.HOUR_OF_DAY, 02);
+//        ca.set(Calendar.MINUTE, 30);
+//        ca.set(Calendar.SECOND, 00);
+        long interval = 24 * 60 * 60 * 1000;
+
+        Intent intent = new Intent(KeyContacts.ACTION_ALARM_CLOSE_IR);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 1000, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + 1000 * 15 , pi);
+        }else
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
     }
 
 
@@ -2313,6 +2342,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean faceTrackInit = false;//人脸识别是否初始化
     private boolean stopFaceTranck = false;//是否是停止识别的，默认不停止
 
+    @SuppressLint("CheckResult")
     private void onFaceResume() {
 
         RxPermissions permissions = new RxPermissions(this);
@@ -2336,6 +2366,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mCameraView.setDisplayOrientation(mConfig.cameraAngle);
                             //横竖屏调整
                             mCameraView.adjustVertical(mConfig.screenrRotate90);
+                            initAddCallback();
                             //开启相机
                             mCameraView.start();
                             mConfig.sdkAngle = mConfig.sdkAngle == -1 ? getSdkOrientation(mConfig.cameraFacing) : mConfig.sdkAngle;
@@ -2362,11 +2393,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             if (mCameraView != null) {
                 mCameraView.stop();
             }
-            if (mIRCameraView != null) {
-                if (mIRCameraView.isCameraOpened()) {
-                    mIRCameraView.stop();
-                }
-            }
+
+            closeIRCamera();
             // faceSet.stopTrack();
             faceTrackInit = false;
         }
@@ -2408,7 +2436,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     // 设置CameraPreviewFrame CallBack;
-    protected void initFaceEvent() {
+    protected void initAddCallback() {
         if (mCameraView != null) {
 
             //将byte数组设置给 onPreviewFrame 回调中，不用频繁创建销毁数组，在startPreview前调用
@@ -2674,8 +2702,11 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
      */
     public void closeIRCamera() {
         if (mIRCameraView == null) return;
-        if (mIRCameraView.isCameraOpened())
+        if (mIRCameraView.isCameraOpened()) {
             mIRCameraView.stop();
+            mIRCameraView = null;
+        }
+        irData = null;
         // mIRCameraView.setVisibility(View.GONE);
     }
 

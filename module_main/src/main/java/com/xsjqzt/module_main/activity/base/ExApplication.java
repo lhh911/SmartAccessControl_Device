@@ -53,9 +53,9 @@ public class ExApplication extends BaseApplication {
 
         CrashHandler.getInstance().init(getApplicationContext());//异常捕捉，重启应用
 
-        CrashReport.initCrashReport(getApplicationContext(),AppConfig.BUGLY_APPID,false);
+//        CrashReport.initCrashReport(getApplicationContext(),AppConfig.BUGLY_APPID,false);
 
-//        initBuglyCrash();
+        initBuglyCrash();
         initRegist();
     }
 
@@ -103,11 +103,6 @@ public class ExApplication extends BaseApplication {
             public void run() {
                 closeDoor();
                 saveCatchInfo2File(errorMsg);
-
-//                Intent intent = new Intent(mContext, SplashActivity.class);
-//                PendingIntent restartIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//                AlarmManager mgr = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-//                mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 2000, restartIntent);
 
                 Looper.prepare();
                 new Handler().postDelayed(new Runnable() {

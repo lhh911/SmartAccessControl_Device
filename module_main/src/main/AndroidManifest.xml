@@ -186,13 +186,13 @@
             </intent-filter>
         </receiver>
         -->
-        <receiver android:name=".receive.AlarmReceiver" />
-
-        <service android:name=".service.OpenRecordService">
-            <intent-filter>
+        <receiver android:name=".receive.AlarmReceiver" >
+          <!--  <intent-filter>
                 <action android:name="com.xsjqzt.app.timer_upload_openrecord" />
-            </intent-filter>
-        </service>
+            </intent-filter>-->
+        </receiver>
+
+        <service android:name=".service.OpenRecordService"/>
         <service android:name=".service.DownAllDataService" />
         <service android:name=".service.FaceImageDownService" />
         <service
