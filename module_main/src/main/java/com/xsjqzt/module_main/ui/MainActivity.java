@@ -214,6 +214,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private boolean isKeyEnterFirst;
     private int downLoadApkNum;//控制下载次数，只下载一次
 
+    long interval = 24 * 60 * 60 * 1000;//定时关闭打开IR摄像头的时间间隔
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -282,8 +284,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         loadDeviceInfo();
         loadBanner();
 
-        setOpenIRAlarm();
-        setCloseIRAlarm();
+        setOpenIRAlarm(0);
+        setCloseIRAlarm(0);
 
         initFaceCamera();
 //        initFaceEvent();
@@ -818,13 +820,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 LogUtil.w("AlarmReceiver 打开红外");
                 openIRCamera();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    setOpenIRAlarm();
+                    setOpenIRAlarm(interval);
                 }
             }else if(intent.getAction() == KeyContacts.ACTION_ALARM_CLOSE_IR){
                 LogUtil.w("AlarmReceiver 关闭红外");
                 closeIRCamera();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    setCloseIRAlarm();
+                    setCloseIRAlarm(interval);
                 }
             }
         }
@@ -1706,41 +1708,42 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-    //设置定时闹钟任务，2：30：00 执行，上传开门记录
-    private void setOpenIRAlarm() {
+    //设置定时闹钟任务，打开ir摄像头
+    private void setOpenIRAlarm(long interval) {
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Calendar ca = Calendar.getInstance();
         ca.setTimeInMillis(System.currentTimeMillis());
-//        ca.set(Calendar.HOUR_OF_DAY, 02);
-//        ca.set(Calendar.MINUTE, 30);
-//        ca.set(Calendar.SECOND, 00);
-        long interval = 24 * 60 * 60 * 1000;
+        ca.set(Calendar.HOUR_OF_DAY, 11);
+        ca.set(Calendar.MINUTE, 5);
+        ca.set(Calendar.SECOND, 0);
+//        long interval = 24 * 60 * 60 * 1000;
 
         Intent intent = new Intent(KeyContacts.ACTION_ALARM_OPEN_IR);
         PendingIntent pi = PendingIntent.getBroadcast(this, 1000, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + 1000 * 10 , pi);
+            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
         }else
-            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), this.interval, pi);
     }
 
-    private void setCloseIRAlarm() {
+    //关闭ir摄像头
+    private void setCloseIRAlarm(long interval) {
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Calendar ca = Calendar.getInstance();
         ca.setTimeInMillis(System.currentTimeMillis());
-//        ca.set(Calendar.HOUR_OF_DAY, 02);
-//        ca.set(Calendar.MINUTE, 30);
-//        ca.set(Calendar.SECOND, 00);
-        long interval = 24 * 60 * 60 * 1000;
+        ca.set(Calendar.HOUR_OF_DAY, 11);
+        ca.set(Calendar.MINUTE, 00);
+        ca.set(Calendar.SECOND, 00);
+//        long interval = 24 * 60 * 60 * 1000;
 
         Intent intent = new Intent(KeyContacts.ACTION_ALARM_CLOSE_IR);
         PendingIntent pi = PendingIntent.getBroadcast(this, 1000, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + 1000 * 15 , pi);
+            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
         }else
-            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), interval, pi);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), this.interval, pi);
     }
 
 
