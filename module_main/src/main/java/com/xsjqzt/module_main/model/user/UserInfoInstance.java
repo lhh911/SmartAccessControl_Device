@@ -23,6 +23,7 @@ public class UserInfoInstance implements Parcelable {
     private String sn1;
     private String sn2;
     private String door;
+    private boolean irClose;
 
     ArrayList<FaceImageResBean.DataBean> faceList;
 
@@ -179,5 +180,13 @@ public class UserInfoInstance implements Parcelable {
 
     public void setFaceList(ArrayList<FaceImageResBean.DataBean> faceList) {
         this.faceList = faceList;
+    }
+
+    public boolean isIrClose() {
+        return irClose;
+    }
+
+    public void setIrClose(boolean irClose) {
+        this.irClose = irClose;
     }
 }

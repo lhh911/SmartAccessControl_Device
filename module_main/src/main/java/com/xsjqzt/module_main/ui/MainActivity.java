@@ -1713,8 +1713,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Calendar ca = Calendar.getInstance();
         ca.setTimeInMillis(System.currentTimeMillis());
-        ca.set(Calendar.HOUR_OF_DAY, 11);
-        ca.set(Calendar.MINUTE, 5);
+        ca.set(Calendar.HOUR_OF_DAY, 13);
+        ca.set(Calendar.MINUTE, 30);
         ca.set(Calendar.SECOND, 0);
 //        long interval = 24 * 60 * 60 * 1000;
 
@@ -1725,6 +1725,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
         }else
             am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), this.interval, pi);
+
+        UserInfoInstance.getInstance().setIrClose(false);
     }
 
     //关闭ir摄像头
@@ -1732,9 +1734,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Calendar ca = Calendar.getInstance();
         ca.setTimeInMillis(System.currentTimeMillis());
-        ca.set(Calendar.HOUR_OF_DAY, 11);
-        ca.set(Calendar.MINUTE, 00);
-        ca.set(Calendar.SECOND, 00);
+        ca.set(Calendar.HOUR_OF_DAY, 13);
+        ca.set(Calendar.MINUTE, 0);
+        ca.set(Calendar.SECOND, 0);
 //        long interval = 24 * 60 * 60 * 1000;
 
         Intent intent = new Intent(KeyContacts.ACTION_ALARM_CLOSE_IR);
@@ -1744,6 +1746,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
         }else
             am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), this.interval, pi);
+
+        UserInfoInstance.getInstance().setIrClose(true);
     }
 
 

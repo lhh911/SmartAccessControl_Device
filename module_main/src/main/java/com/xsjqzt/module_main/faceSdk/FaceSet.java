@@ -16,6 +16,7 @@ import com.xsjqzt.module_main.dataSource.UserDataUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.greendao.FaceImageDao;
 import com.xsjqzt.module_main.greendao.entity.FaceImage;
+import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.modle.User;
@@ -706,19 +707,29 @@ public class FaceSet {
 
                                 android.util.Log.d("wlDebug", "personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
 //                                toast("personId= " + ymFace.getPersonId() +  " |  getLiveness= " + ymFace.getLiveness());
-                                if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
-//                                if (ymFace.getPersonId() >= 0 ) {
-//                                    android.util.Log.d("wlDebug", "ymFace.getLiveness() = " + ymFace.getLiveness());
-                                    // 当liveeness == 1时活体识别通过;
-                                    int user_id = 0;
-                                    FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
-                                            .where(FaceImageDao.Properties.PersonId.eq(ymFace.getPersonId())).unique();
-                                    if (unique != null) {
-                                        user_id = unique.getUser_id();
-                                    }
-                                    LogUtil.w("user_id" + user_id);
-                                    EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
 
+                                if(!UserInfoInstance.getInstance().isIrClose()) {
+                                    if (ymFace.getPersonId() >= 0 && ymFace.getLiveness() == 1) {
+                                        int user_id = 0;
+                                        FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+                                                .where(FaceImageDao.Properties.PersonId.eq(ymFace.getPersonId())).unique();
+                                        if (unique != null) {
+                                            user_id = unique.getUser_id();
+                                        }
+                                        LogUtil.w("user_id" + user_id);
+                                        EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
+                                    }
+                                }else{
+                                    if (ymFace.getPersonId() >= 0 ) {
+                                        int user_id = 0;
+                                        FaceImage unique = DbManager.getInstance().getDaoSession().getFaceImageDao().queryBuilder()
+                                                .where(FaceImageDao.Properties.PersonId.eq(ymFace.getPersonId())).unique();
+                                        if (unique != null) {
+                                            user_id = unique.getUser_id();
+                                        }
+                                        LogUtil.w("user_id" + user_id);
+                                        EventBus.getDefault().post(new FaceSuccessEventBean(user_id, "", true));
+                                    }
                                 }
 
                                 // 提取了数据后，要重置 qualityInfo
