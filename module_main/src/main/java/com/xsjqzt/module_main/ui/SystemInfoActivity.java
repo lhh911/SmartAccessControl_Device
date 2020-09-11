@@ -20,12 +20,16 @@ import com.jbb.library_common.utils.SharePreferensUtil;
 import com.jbb.library_common.utils.Utils;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.model.EntranceInfoResBean;
+import com.xsjqzt.module_main.model.JPushExtraBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.SystemInfoPresenter;
 import com.xsjqzt.module_main.view.SystemInfoIView;
 import com.yzq.zxinglibrary.encode.CodeCreator;
 
 import org.apache.http.conn.util.InetAddressUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.net.InetAddress;
@@ -37,16 +41,18 @@ import cn.jpush.android.api.JPushInterface;
 
 public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemInfoPresenter> implements SystemInfoIView {
 
-    private TextView deviceNameTv,versionTv, ipAddressTv, qrNumTv;
+    private TextView deviceNameTv, versionTv, ipAddressTv, qrNumTv;
     private ImageView voiceIv, qrCodeIv;
     private boolean isShiftClick;
 //    private Button confirmBtn;
 
-    private MyBroadcastReceiver mReceiver;
+//    private MyBroadcastReceiver mReceiver;
     private boolean isKeyEnterFirst;
 
     @Override
     public void init() {
+        EventBus.getDefault().register(this);
+
         deviceNameTv = findViewById(R.id.device_name_tv);
         versionTv = findViewById(R.id.version_tv);
         ipAddressTv = findViewById(R.id.ip_address_tv);
@@ -60,10 +66,10 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
         if (UserInfoInstance.getInstance().hasLogin())
             presenter.loadDevice();
 
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
-        mReceiver = new MyBroadcastReceiver();
-        registerReceiver(mReceiver, filter);
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
+//        mReceiver = new MyBroadcastReceiver();
+//        registerReceiver(mReceiver, filter);
     }
 
 
@@ -125,11 +131,11 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {// * 号
-            isShiftClick  = true;
+            isShiftClick = true;
             return true;
         }
         if (keyCode == KeyEvent.KEYCODE_3) {
-            if(isShiftClick){// # 号
+            if (isShiftClick) {// # 号
                 finish();
                 return true;
             }
@@ -140,7 +146,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
             isKeyEnterFirst = false;
             finish();
             return true;
@@ -148,7 +154,7 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
         isKeyEnterFirst = true;
         return super.dispatchKeyEvent(event);
     }
-    
+
 
     public String getLocalIp() {
         String ipaddress = "";
@@ -179,36 +185,64 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mReceiver != null)
-            unregisterReceiver(mReceiver);
+//        if (mReceiver != null)
+//            unregisterReceiver(mReceiver);
+        if(EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
     }
 
-    public class MyBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-           if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
-               if(intent.getExtras() == null)return;
-               try {
-                   String extras = intent.getExtras().getString(JPushInterface.EXTRA_EXTRA);
-                   JSONObject json = new JSONObject(extras);
-                   int type = json.optInt("type");
+//    public class MyBroadcastReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
+//                if (intent.getExtras() == null) return;
+//                try {
+//                    String extras = intent.getExtras().getString(JPushInterface.EXTRA_EXTRA);
+//                    JSONObject json = new JSONObject(extras);
+//                    int type = json.optInt("type");
+//
+//                    if (type == 106) {//设备绑定成功
+//                        String url_root = json.optString("url_root", "");
+//                        SharePreferensUtil.putString(KeyContacts.URL_ROOT, url_root, KeyContacts.SP_NAME_JPUSH);
+//                        if (!TextUtils.isEmpty(url_root) && !InterfaceConfig.BASEURL.equals(url_root)) {
+//                            InterfaceConfig.BASEURL = url_root;
+//
+//                            RetrofitManager.getInstance().switchUrl(url_root);
+//                        }
+//                        finish();
+//
+//                    }
+//                } catch (Exception e) {
+//
+//                }
+//            }
+//        }
+//    }
 
-                   if (type == 106) {//设备绑定成功
-                       String url_root = json.optString("url_root", "");
-                       SharePreferensUtil.putString(KeyContacts.URL_ROOT,url_root,KeyContacts.SP_NAME_JPUSH);
-                       if(!TextUtils.isEmpty(url_root)  && !InterfaceConfig.BASEURL.equals(url_root)) {
-                           InterfaceConfig.BASEURL = url_root;
 
-                           RetrofitManager.getInstance().switchUrl(url_root);
-                       }
-                       finish();
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void jpushNotify(JPushExtraBean bean) {
+        try {
+            String extras = bean.getBundle().getString(JPushInterface.EXTRA_EXTRA);
+            JSONObject json = new JSONObject(extras);
+            int type = json.optInt("type");
 
-                   }
-               } catch (Exception e) {
+            if (type == 106) {//设备绑定成功
+                String url_root = json.optString("url_root", "");
+                SharePreferensUtil.putString(KeyContacts.URL_ROOT, url_root, KeyContacts.SP_NAME_JPUSH);
+                if (!TextUtils.isEmpty(url_root) && !InterfaceConfig.BASEURL.equals(url_root)) {
+                    InterfaceConfig.BASEURL = url_root;
 
-               }
+                    RetrofitManager.getInstance().switchUrl(url_root);
+                }
+                finish();
+
             }
+        } catch (Exception e) {
+
         }
     }
+
+
 
 }

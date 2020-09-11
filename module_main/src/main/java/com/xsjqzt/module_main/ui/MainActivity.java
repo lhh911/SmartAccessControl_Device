@@ -91,6 +91,7 @@ import com.xsjqzt.module_main.greendao.entity.IDCard;
 import com.xsjqzt.module_main.greendao.entity.OpenCode;
 import com.xsjqzt.module_main.greendao.entity.OpenRecord;
 import com.xsjqzt.module_main.model.EntranceDetailsResBean;
+import com.xsjqzt.module_main.model.JPushExtraBean;
 import com.xsjqzt.module_main.model.VersionResBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
@@ -284,8 +285,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         loadDeviceInfo();
         loadBanner();
 
-        setOpenIRAlarm(0);
-        setCloseIRAlarm(0);
+        setOpenIRAlarm(interval);
+        setCloseIRAlarm(interval);
 
         initFaceCamera();
 //        initFaceEvent();
@@ -770,7 +771,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         filter.addAction(KeyContacts.ACTION_API_KEY_INVALID);
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 //        filter.addAction(Manifest.permission.CHANGE_NETWORK_STATE);
-        filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
+//        filter.addAction(KeyContacts.ACTION_RECEICE_NOTITY);
         filter.addAction(KeyContacts.ACTION_ALARM_OPEN_IR);
         filter.addAction(KeyContacts.ACTION_ALARM_CLOSE_IR);
         mReceiver = new MyBroadcastReceiver();
@@ -832,9 +833,16 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
     }
 
+
+
+
+
+
     private void handleNotity(final Bundle bundle) {
         if (bundle == null) return;
 
+        Log.e("JPush","[onNotifyMessageArrived] "+ "MainActivity收到通知了");
+//        ToastUtil.showCustomToast("通知传递下来，准备下载 ：" + bundle.getString(JPushInterface.EXTRA_EXTRA));
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -2322,6 +2330,12 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void downVideoSuccess(DownVideoSuccessEventBus bean) {
         initView();
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    public void jpushNotify(JPushExtraBean bean) {
+        handleNotity(bean.getBundle());
     }
 
 

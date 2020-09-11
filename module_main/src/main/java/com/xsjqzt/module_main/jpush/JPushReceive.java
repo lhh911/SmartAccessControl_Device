@@ -13,6 +13,7 @@ import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.RegistrationIdPresenter;
+import com.xsjqzt.module_main.util.ThreadPoolManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,9 +24,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import cn.jpush.android.api.JPushInterface;
+import cn.jpush.android.api.NotificationMessage;
 
 public class JPushReceive extends BroadcastReceiver {
-    private static final String TAG = "MyReceiver";
+    private static final String TAG = "JPush";
 
     private NotificationManager nm;
 
@@ -37,29 +39,26 @@ public class JPushReceive extends BroadcastReceiver {
 
         Bundle bundle = intent.getExtras();
 //        Logger.d(TAG, "onReceive - " + intent.getAction() + ", extras: " + AndroidUtil.printBundle(bundle));
+        ToastUtil.showCustomToast("收到通知了 ：" + bundle.getString(JPushInterface.EXTRA_EXTRA));
+        LogUtil.d(TAG, "收到通知了 : " + bundle.getString(JPushInterface.EXTRA_EXTRA));
 
         if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
             String registrationId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
             Log.d(TAG, "JPush 用户注册成功 , registrationId = " + registrationId);
 
-
             if(UserInfoInstance.getInstance().hasLogin()) {
                 RegistrationIdPresenter presenter = new RegistrationIdPresenter();
                 presenter.registrationId(registrationId);
             }
-
-
         } else if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
 //            LogUtil.d(TAG, "接受到推送下来的自定义消息");
 
         } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
 //            LogUtil.d(TAG, "接受到推送下来的通知");
-
             receivingNotification(context,bundle);
 
         } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
 //            LogUtil.d(TAG, "用户点击打开了通知");
-
             openNotification(context,bundle);
 
         } else if (JPushInterface.ACTION_CONNECTION_CHANGE.equals(intent.getAction())) {
@@ -81,19 +80,46 @@ public class JPushReceive extends BroadcastReceiver {
 //        LogUtil.d(TAG, "message : " + message);
 
         String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json
-        LogUtil.d(TAG, "extras : " + extras);
-//        ToastUtil.showCustomToast("收到通知了 ：" + extras);
-
-//        whiteLog(context,extras.getBytes());
-
-        Intent it = new Intent();
-        it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
-        it.putExtras(bundle);
-        context.sendBroadcast(it);
-
         int notificationId = bundle.getInt(JPushInterface.EXTRA_NOTIFICATION_ID);
-        JPushInterface.clearNotificationById(context, notificationId);
+        LogUtil.d(TAG, "收到通知了 : " + extras);
+
+//        Intent it = new Intent();
+//        it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
+//        it.putExtras(bundle);
+//        context.sendBroadcast(it);
+//
+//        JPushInterface.clearNotificationById(context, notificationId);
+
+//        ThreadPoolManager.getInstance().execute(new MyRunnable(notificationId,extras,context));
     }
+
+
+
+    public class MyRunnable implements Runnable{
+        int notificationId;
+        String message;
+        Context context;
+
+        public MyRunnable(int notificationId ,String message,Context context) {
+            this.notificationId = notificationId;
+            this.message = message;
+            this.context = context;
+        }
+
+        @Override
+        public void run() {
+            Bundle bundle = new Bundle();
+            bundle.putString(JPushInterface.EXTRA_EXTRA,message);
+            Intent it = new Intent();
+            it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
+            it.putExtras(bundle);
+            context.sendBroadcast(it);
+
+            JPushInterface.clearNotificationById(context, notificationId);
+        }
+    }
+
+
 
     private void openNotification(Context context, Bundle bundle){
         String extras = bundle.getString(JPushInterface.EXTRA_EXTRA);//自定义的参数json

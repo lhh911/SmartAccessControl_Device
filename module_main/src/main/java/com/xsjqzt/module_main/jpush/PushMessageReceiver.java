@@ -3,14 +3,18 @@ package com.xsjqzt.module_main.jpush;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.SharePreferensUtil;
+import com.jbb.library_common.utils.ToastUtil;
+import com.xsjqzt.module_main.model.JPushExtraBean;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
 import com.xsjqzt.module_main.presenter.RegistrationIdPresenter;
 import com.xsjqzt.module_main.util.ThreadPoolManager;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +30,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class PushMessageReceiver extends JPushMessageReceiver {
-    private static final String TAG = "PushMessageReceiver";
+    private static final String TAG = "JPush";
     @Override
     public void onMessage(Context context, CustomMessage customMessage) {
         Log.e(TAG,"[onMessage] "+customMessage);
@@ -75,26 +79,27 @@ public class PushMessageReceiver extends JPushMessageReceiver {
     @Override
     public void onNotifyMessageArrived(final Context context, final NotificationMessage message) {
         Log.e(TAG,"[onNotifyMessageArrived] "+message);
-
+//        ToastUtil.showCustomToast("收到通知了 ：" + message.notificationExtras);
 //        Observable.just(1)
 //                .subscribeOn(Schedulers.io())
 //                .observeOn(Schedulers.io())
 //                .subscribe(new Consumer<Integer>() {
 //                    @Override
 //                    public void accept(Integer integer) throws Exception {
-//                        Bundle bundle = new Bundle();
-//                        bundle.putString(JPushInterface.EXTRA_EXTRA,message.notificationExtras);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(JPushInterface.EXTRA_EXTRA,message.notificationExtras);
 //                        Intent it = new Intent();
 //                        it.setAction(KeyContacts.ACTION_RECEICE_NOTITY);
 //                        it.putExtras(bundle);
 //                        context.sendBroadcast(it);
-//
-//                        int notificationId = message.notificationId;
-//                        JPushInterface.clearNotificationById(context, notificationId);
+
+                         EventBus.getDefault().post(new JPushExtraBean(bundle));
+                        int notificationId = message.notificationId;
+                        JPushInterface.clearNotificationById(context, notificationId);
 //                    }
 //                });
 
-        ThreadPoolManager.getInstance().execute(new MyRunnable(message,context));
+//        ThreadPoolManager.getInstance().execute(new MyRunnable(message,context));
 
     }
 
@@ -206,5 +211,5 @@ public class PushMessageReceiver extends JPushMessageReceiver {
         super.onNotificationSettingsCheck(context, isOn, source);
         Log.e(TAG,"[onNotificationSettingsCheck] isOn:"+isOn+",source:"+source);
     }
-    
+
 }

@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.xsjqzt.module_main">
 
+    <!-- Required -->
+    <permission
+        android:name="${applicationId}.permission.JPUSH_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <!-- Required  一些系统要求的权限，如访问网络等-->
+    <uses-permission android:name="${applicationId}.permission.JPUSH_MESSAGE" />
+
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!-- 这个权限用于进行网络定位 -->
@@ -33,7 +41,8 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- app开机广播 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.REBOOT"/>
+    <uses-permission android:name="android.permission.REBOOT" />
+
     <application>
         <uses-library
             android:name="org.apache.http.legacy"
@@ -45,8 +54,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SplashActivity"
-            android:screenOrientation="portrait"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -87,51 +96,49 @@
             android:screenOrientation="portrait" />
 
 
-
-
         <!-- jpush start 2.0前  极光接收别名tag设置时的回调消息 -->
-      <!--  <receiver
-            android:name=".jpush.CusJPushMessageReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
+<!--         <receiver
+              android:name=".jpush.CusJPushMessageReceiver"
+              android:enabled="true"
+              android:exported="false">
+              <intent-filter>
+                  <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
 
-                <category android:name="com.xsjqzt.app" />
-            </intent-filter>
-        </receiver>
+                  <category android:name="${applicationId}" />
+              </intent-filter>
+          </receiver>-->
 
-        &lt;!&ndash; 接受极光通知，自定义消息 &ndash;&gt;
-        <receiver
-            android:name=".jpush.JPushReceive"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="cn.jpush.android.intent.REGISTRATION" />
-                <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />
-                <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />
-                <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />
-                <action android:name="cn.jpush.android.intent.NOTIFICATION_CLICK_ACTION" />
-                <action android:name="cn.jpush.android.intent.CONNECTION" />
+        <!--  &lt;!&ndash; 接受极光通知，自定义消息 &ndash;&gt;-->
+      <!--    <receiver
+              android:name=".jpush.JPushReceive"
+              android:enabled="true">
+              <intent-filter>
+                  <action android:name="cn.jpush.android.intent.REGISTRATION" />
+                  <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />
+                  <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />
+                  <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />
+                  <action android:name="cn.jpush.android.intent.NOTIFICATION_CLICK_ACTION" />
+                  <action android:name="cn.jpush.android.intent.CONNECTION" />
 
-                <category android:name="com.xsjqzt.app" />
-            </intent-filter>
-        </receiver>
--->
+                  <category android:name="${applicationId}" />
+              </intent-filter>
+          </receiver>-->
+
         <!-- User defined.  For test only  用户自定义接收消息器,3.0.7开始支持,目前新tag/alias接口设置结果会在该广播接收器对应的方法中回调-->
         <!--since 3.3.0 接收JPush相关事件-->
-        <receiver android:name=".jpush.PushMessageReceiver">
+        <receiver
+            android:name=".jpush.PushMessageReceiver">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
                 <category android:name="${applicationId}"></category>
             </intent-filter>
         </receiver>
 
-
         <!-- JCore 是 2.0.0 及以上的版本 since 3.3.0 Required SDK 核心功能-->
         <!-- 可配置android:process参数将PushService放在其他进程中 -->
         <!--User defined.  For test only 继承自cn.jpush.android.service.JCommonService-->
-        <service android:name=".jpush.PushService"
+        <service
+            android:name=".jpush.PushService"
             android:process=":pushcore">
             <intent-filter>
                 <action android:name="cn.jiguang.user.service.action" />
@@ -186,19 +193,19 @@
             </intent-filter>
         </receiver>
         -->
-        <receiver android:name=".receive.AlarmReceiver" >
-          <!--  <intent-filter>
-                <action android:name="com.xsjqzt.app.timer_upload_openrecord" />
-            </intent-filter>-->
+        <receiver android:name=".receive.AlarmReceiver">
+            <!--  <intent-filter>
+                  <action android:name="com.xsjqzt.app.timer_upload_openrecord" />
+              </intent-filter>-->
         </receiver>
 
-        <service android:name=".service.OpenRecordService"/>
+        <service android:name=".service.OpenRecordService" />
         <service android:name=".service.DownAllDataService" />
         <service android:name=".service.FaceImageDownService" />
         <service
             android:name=".service.HeartBeatService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <activity android:name=".activity.FaceExamplesActivity" />
         <activity android:name=".activity.MainActivity"></activity>
