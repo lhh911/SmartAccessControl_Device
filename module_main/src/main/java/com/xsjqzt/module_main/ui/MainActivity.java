@@ -285,8 +285,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         loadDeviceInfo();
         loadBanner();
 
-        setOpenIRAlarm(interval);
         setCloseIRAlarm(interval);
+        setOpenIRAlarm(interval);
 
         initFaceCamera();
 //        initFaceEvent();
