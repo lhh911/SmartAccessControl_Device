@@ -1732,7 +1732,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
         }else
-            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), this.interval, pi);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis()+interval, interval, pi);
 
         UserInfoInstance.getInstance().setIrClose(false);
     }
@@ -1753,7 +1753,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
         }else
-            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis(), this.interval, pi);
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis()+interval, interval, pi);
 
         UserInfoInstance.getInstance().setIrClose(true);
     }
