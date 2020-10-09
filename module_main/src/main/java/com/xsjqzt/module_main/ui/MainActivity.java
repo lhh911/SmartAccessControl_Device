@@ -216,6 +216,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private int downLoadApkNum;//控制下载次数，只下载一次
 
     long interval = 24 * 60 * 60 * 1000;//定时关闭打开IR摄像头的时间间隔
+//    long interval = 10 * 1000;//定时关闭打开IR摄像头的时间间隔
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -1734,6 +1735,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }else
             am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis()+interval, interval, pi);
 
+//        LogUtil.w("AlarmReceiver setOpenIRAlarm打开红外");
+//        LogUtil.w("AlarmReceiver " + new SimpleDateFormat("MM-dd HH:mm:ss").format(ca.getTimeInMillis()));
         UserInfoInstance.getInstance().setIrClose(false);
     }
 
@@ -1755,6 +1758,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }else
             am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis()+interval, interval, pi);
 
+//        LogUtil.w("AlarmReceiver setCloseIRAlarm关闭红外");
+//        LogUtil.w("AlarmReceiver " + new SimpleDateFormat("MM-dd HH:mm:ss").format(ca.getTimeInMillis()));
         UserInfoInstance.getInstance().setIrClose(true);
     }
 
