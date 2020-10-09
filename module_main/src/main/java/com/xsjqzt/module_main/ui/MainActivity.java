@@ -362,38 +362,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //        ToastUtil.showCustomToast("登录状态：" + EMClient.getInstance().isLoggedInBefore());
 //    }
 
-//    private void test() {
-//        List<OpenRecord> records = DbManager.getInstance().getDaoSession().getOpenRecordDao()
-//                .queryBuilder()
-//                .where(OpenRecordDao.Properties.UploadStatus.eq(false))
-//                .list();
-//
-//        List<FaceImage> faceImages = DbManager.getInstance().getDaoSession().getFaceImageDao().loadAll();
-//        List<ICCard> icCards = DbManager.getInstance().getDaoSession().getICCardDao().loadAll();
-//        List<IDCard> idCards = DbManager.getInstance().getDaoSession().getIDCardDao().loadAll();
-//        List<OpenCode> openCodes = DbManager.getInstance().getDaoSession().getOpenCodeDao().loadAll();
-//
-//        String str = "";
-//        for (FaceImage face : faceImages) {
-//            str += face.getCode() + "\n";
-//        }
-//
-//        StringBuffer sf = new StringBuffer();
-//        sf.append("开门图片记录：" + records.size())
-//                .append("\n")
-//                .append("人脸注册：" + str)
-//                .append("\n")
-//                .append("IC卡数：" + icCards.size())
-//                .append("\n")
-//                .append("身份证数：" + idCards.size())
-//                .append("\n")
-//                .append("临时密码数：" + openCodes.size())
-//                .append("\n")
-//                .append("registrationId：" + JPushInterface.getRegistrationID(this));
-//
-//        new AlertDialog.Builder(this).setMessage(sf.toString()).show();
-//
-//    }
 
     @Override
     public int getLayoutId() {

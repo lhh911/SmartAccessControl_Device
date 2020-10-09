@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ImgTextView">
+<!--    <declare-styleable name="ImgTextView">
         <attr name="cimageSize" format="dimension" />
         <attr name="csrc" format="reference" />
         <attr name="ctextSize" format="integer" />
@@ -12,5 +12,21 @@
             <enum name="horizontal" value="0"/>
         </attr>
 
+    </declare-styleable>-->
+
+    <declare-styleable name="ImgTextView">
+        <attr name="cimageSizeWidth" format="dimension" />
+        <attr name="cimageSizeHeight" format="dimension" />
+        <attr name="csrc" format="reference" />
+        <attr name="ctextSize" format="integer" />
+        <attr name="ctext" format="string" />
+        <attr name="ctextColor" format="color" />
+        <attr name="cmarginTop" format="dimension" />
+        <attr name="direction" format="enum" >
+            <enum name="vertical" value="1"/>
+            <enum name="horizontal" value="0"/>
+        </attr>
+
     </declare-styleable>
+
 </resources>

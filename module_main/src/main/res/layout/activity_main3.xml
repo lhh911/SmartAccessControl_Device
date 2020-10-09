@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+
+    <RelativeLayout
+        android:id="@+id/face_parentlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="20dp"
+        android:padding="10dp">
+
+
+
+        <!-- CameraView Start..-->
+        <com.readsense.cameraview.camera.CameraView
+            android:id="@+id/ir_camera"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:adjustViewBounds="true" />
+
+        <com.readsense.cameraview.camera.CameraView
+            android:id="@+id/camera"
+            android:layout_width="240dp"
+            android:layout_height="320dp"
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:adjustViewBounds="true"
+            android:background="@android:color/black" />
+
+        <SurfaceView
+            android:id="@+id/sfv_draw_view"
+            android:layout_width="240dp"
+            android:layout_height="320dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:adjustViewBounds="true" />
+        <!-- CameraView Start end-->
+
+
+
+        <TextView
+            android:id="@+id/open_staus_tv"
+            style="@style/textview18"
+            android:layout_below="@+id/sfv_draw_view"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:text="10000"
+            android:textColor="@color/common_white" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/background_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black">
+
+
+
+        <ImageView
+            android:id="@+id/homebg_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/splash_bg" />
+
+
+        <com.youth.banner.Banner
+            android:id="@+id/banner"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:delay_time="5000" />
+
+
+        <com.xiao.nicevideoplayer.SimpleVideoPlayer
+            android:id="@+id/videoplayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+
+        <TextView
+            android:id="@+id/time_tv"
+            style="@style/textview16"
+            android:layout_marginLeft="40dp"
+            android:includeFontPadding="false"
+            android:text="09:20"
+            android:textSize="55dp"
+            android:textColor="@color/common_white"
+            android:layout_marginTop="80dp" />
+
+        <View
+            android:layout_width="1.5dp"
+            android:layout_height="38dp"
+            android:layout_marginTop="13dp"
+            android:background="@color/common_white"
+            android:layout_toRightOf="@+id/time_tv"
+            android:layout_alignTop="@+id/time_tv"
+            android:layout_marginLeft="10dp"/>
+
+
+        <TextView
+            android:id="@+id/date_tv"
+            style="@style/textview15"
+            android:lineSpacingExtra="5dp"
+            android:layout_marginTop="13dp"
+            android:layout_toRightOf="@+id/time_tv"
+            android:layout_alignTop="@+id/time_tv"
+            android:layout_marginLeft="20dp"
+            android:text="2020-10-20\n星期五"
+            android:textColor="@color/common_white"/>
+
+        <TextView
+            android:id="@+id/enterinfo_tv"
+            style="@style/textview13"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:text="123"
+            android:textColor="@color/common_white" />
+
+
+        <LinearLayout
+            android:id="@+id/bottom_it_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+
+            <com.xsjqzt.module_main.widget.ImgTextView
+                android:id="@+id/mygroup_it"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cimageSizeHeight="@dimen/home_bottomimage_size"
+                app:cimageSizeWidth="@dimen/home_bottomimage_size"
+                app:cmarginTop="12dp"
+                app:csrc="@mipmap/ic_launcher"
+                app:ctext="密码开门"
+                app:ctextColor="@color/common_white"
+                app:ctextSize="14"
+                app:direction="vertical" />
+
+
+            <com.xsjqzt.module_main.widget.ImgTextView
+                android:id="@+id/withdraw_it"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cimageSizeHeight="@dimen/home_bottomimage_size"
+                app:cimageSizeWidth="@dimen/home_bottomimage_size"
+                app:cmarginTop="12dp"
+                app:csrc="@mipmap/ic_launcher"
+                app:ctext="呼叫物业"
+                app:ctextColor="@color/common_white"
+                app:ctextSize="14"
+                app:direction="vertical" />
+
+            <com.xsjqzt.module_main.widget.ImgTextView
+                android:id="@+id/online_select_it"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cimageSizeHeight="@dimen/home_bottomimage_size"
+                app:cimageSizeWidth="@dimen/home_bottomimage_size"
+                app:cmarginTop="12dp"
+                app:csrc="@mipmap/ic_launcher"
+                app:ctext="卡片注册"
+                app:ctextColor="@color/common_white"
+                app:ctextSize="14"
+                app:direction="vertical" />
+
+            <com.xsjqzt.module_main.widget.ImgTextView
+                android:id="@+id/scan_jifu_it"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:cimageSizeHeight="@dimen/home_bottomimage_size"
+                app:cimageSizeWidth="@dimen/home_bottomimage_size"
+                app:cmarginTop="12dp"
+                app:csrc="@mipmap/ic_launcher"
+                app:ctext="房号呼叫"
+                app:ctextColor="@color/common_white"
+                app:ctextSize="14"
+                app:direction="vertical" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+
+
+</FrameLayout>
