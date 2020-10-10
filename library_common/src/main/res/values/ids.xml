@@ -4,4 +4,9 @@
 
     <item type="id" name="statusbarutil_fake_status_bar_view" />
     <item type="id" name="statusbarutil_translucent_view" />
+
+    <item type="id" name="numinput_help" />
+    <item type="id" name="numinput_confirm" />
+    <item type="id" name="numinput_back" />
+    <item type="id" name="numinput_clear" />
 </resources>

@@ -11,26 +11,38 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jbb.library_common.utils.CommUtil;
+import com.jbb.library_common.utils.ToastUtil;
+import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
+import com.xsjqzt.module_main.greendao.DbManager;
+import com.xsjqzt.module_main.greendao.OpenCodeDao;
+import com.xsjqzt.module_main.greendao.entity.OpenCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NumInputView extends ViewGroup implements View.OnClickListener {
 
-    private int mType ;// 1 密码开门， 2 房号呼叫
+    private String TAG = "NumInputView";
+    private int mType;// 1 密码开门， 2 房号呼叫
 
+    private int logoIvSize = CommUtil.dp2px(100);
+    private int inputHeight = CommUtil.dp2px(30);
     private int itemWidth = CommUtil.dp2px(100);
-    private int itemHeight = itemWidth/2;
+    private int itemHeight = itemWidth / 2;
     private int itemSpace = CommUtil.dp2px(20);
     private int paddingLeft = CommUtil.dp2px(20);
     private int colCount = 4;//4列
 
+    private List<TextView> numViews = new ArrayList<>();
 
     //itemView
     private ImageView logoTipIv;
-    private TextView inputTv,helpTv,confirmTv,backTv,clearTv;
+    private TextView inputTv, helpTv, confirmTv, backTv, clearTv;
 
 
     public NumInputView(Context context) {
-        this(context,null);
+        this(context, null);
     }
 
     public NumInputView(Context context, AttributeSet attrs) {
@@ -38,11 +50,69 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         initView();
     }
 
+    public void setmType(int mType) {
+        this.mType = mType;
+        inputTv.setHint(getHintText());
+        inputTv.setHintTextColor(Color.parseColor("#666666"));
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+
+        itemWidth = (r - l - paddingLeft * 2) / colCount;
+        itemWidth = Math.round(itemWidth * 0.9f);
+        itemHeight = itemWidth / 2;
+        itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
+
+        LogUtil.d(TAG, "r - l  = " + (r - l));
+
+        //确定各个按钮在布局中的位置，
+        for (int i = 0; i < numViews.size(); i++) {
+            Point xy = getCoorFromIndex(i);
+            numViews.get(i).layout(xy.x, xy.y, xy.x + itemWidth, xy.y + itemSpace);
+        }
+
+        logoTipIv.layout(paddingLeft, paddingLeft, paddingLeft + logoIvSize, paddingLeft + logoIvSize);
+        inputTv.layout(paddingLeft + logoIvSize + itemSpace, paddingLeft + logoIvSize - inputHeight, paddingLeft + logoIvSize + logoIvSize * 3, paddingLeft + logoIvSize);
+        helpTv.layout(r - l - paddingLeft - logoIvSize, paddingLeft, r - l - paddingLeft, paddingLeft + inputHeight);
+        confirmTv.layout(paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace,
+                paddingLeft + logoIvSize + itemSpace,
+                paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace + itemWidth,
+                paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 2 + itemHeight);
+        backTv.layout(paddingLeft + (itemSpace + itemWidth) * 2 + itemSpace,
+                paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3,
+                paddingLeft + (itemSpace + itemWidth) * 2 + itemSpace + itemWidth,
+                paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3 + itemHeight);
+
+        clearTv.layout(paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace,
+                paddingLeft + logoIvSize + (itemSpace + itemWidth) * 3 + itemSpace,
+                paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace + itemWidth,
+                paddingLeft + logoIvSize + (itemSpace + itemWidth) * 3 + itemSpace + itemHeight);
+    }
+
+
     private void initView() {
         //添加各个按钮到view中来、
 
-        for (int i = 1; i< 10 ; i++){
-            addView(createNumTv(i));
+        int screenWidth = CommUtil.getScreenWidth(getContext());
+        itemWidth = (screenWidth - paddingLeft * 2) / colCount;
+        itemWidth = Math.round(itemWidth * 0.9f);
+        itemHeight = itemWidth / 2;
+        itemSpace = ((screenWidth - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
+
+        LogUtil.d(TAG, "screenWidth = " + screenWidth);
+
+        numViews.clear();
+        for (int i = 1; i < 10; i++) {
+            TextView numTv = createNumTv(i);
+            numViews.add(numTv);
+            addView(numTv);
         }
 
         addView(logoTipIv = createLogoIv());
@@ -55,7 +125,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
     private ImageView createLogoIv() {
         ImageView imageView = new ImageView(getContext());
-        LayoutParams params = new LayoutParams(itemWidth, itemWidth);
+        LayoutParams params = new LayoutParams(logoIvSize, logoIvSize);
         imageView.setLayoutParams(params);
         return imageView;
     }
@@ -67,20 +137,19 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         textView.setHint(getHintText());
         textView.setHintTextColor(Color.parseColor("#666666"));
         textView.setGravity(Gravity.CENTER_VERTICAL);
-        textView.setPadding(10,0,0,0);
+        textView.setPadding(10, 0, 0, 0);
         textView.setBackgroundResource(R.drawable.white_corners20_bg);
 
-        LayoutParams params = new LayoutParams(itemWidth * 3, CommUtil.dp2px(30));
+        LayoutParams params = new LayoutParams(logoIvSize * 3, inputHeight);
         textView.setLayoutParams(params);
         return textView;
     }
 
 
-
     private String getHintText() {
-        if(mType == 1){
+        if (mType == 1) {
             return "输入住户密码，按\"确定\"键开门";
-        }else {
+        } else {
             return "输入住户栋数+房号，按\"确定\"键呼叫";
         }
     }
@@ -95,7 +164,8 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.white_corners20_bg);
         textView.setTag("other");
-        LayoutParams params = new LayoutParams(itemWidth , CommUtil.dp2px(30));
+        textView.setId(R.id.numinput_help);
+        LayoutParams params = new LayoutParams(logoIvSize, inputHeight);
         textView.setLayoutParams(params);
 
         textView.setOnClickListener(this);
@@ -111,7 +181,8 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.confirm_selector);
         textView.setTag("other");
-        LayoutParams params = new LayoutParams(itemWidth , itemHeight *3 + itemSpace *2);
+        textView.setId(R.id.numinput_confirm);
+        LayoutParams params = new LayoutParams(itemWidth, itemHeight * 3 + itemSpace * 2);
         textView.setLayoutParams(params);
 
         textView.setOnClickListener(this);
@@ -128,13 +199,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.input_num_selector);
         textView.setTag("other");
-        LayoutParams params = new LayoutParams(itemWidth , itemHeight);
+        textView.setId(R.id.numinput_back);
+        LayoutParams params = new LayoutParams(itemWidth, itemHeight);
         textView.setLayoutParams(params);
 
         textView.setOnClickListener(this);
         return textView;
     }
-
 
 
     private TextView createClearTv() {
@@ -146,16 +217,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.clear_selector);
         textView.setTag("other");
-        LayoutParams params = new LayoutParams(itemWidth , itemHeight);
+        textView.setId(R.id.numinput_clear);
+        LayoutParams params = new LayoutParams(itemWidth, itemHeight);
         textView.setLayoutParams(params);
 
         textView.setOnClickListener(this);
         return textView;
     }
-
-
-
-
 
 
     private TextView createNumTv(int num) {
@@ -163,11 +231,11 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         TextView textView = new TextView(getContext());
         textView.setTextSize(24);
         textView.setTextColor(Color.BLACK);
-        textView.setText(num+"");
+        textView.setText(num + "");
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.input_num_selector);
         textView.setTag("num");
-        LayoutParams params = new LayoutParams(itemWidth , itemHeight);
+        LayoutParams params = new LayoutParams(itemWidth, itemHeight);
         textView.setLayoutParams(params);
 
         textView.setOnClickListener(this);
@@ -176,38 +244,103 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     }
 
 
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-
-        itemWidth = (r - l - paddingLeft * 2) / colCount;
-        itemWidth = Math.round(itemWidth * 0.9f);
-        itemHeight = itemWidth / 2 ;
-        itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
-
-        //确定各个按钮在布局中的位置，
-
-
-    }
-
-
-
     //1-9 个数字返回位置 x y 坐标
     protected Point getCoorFromIndex(int index) {
-        int col = index % colCount -1;
-        int row = index / colCount -1;
-        return new Point(paddingLeft + itemSpace + (itemWidth + itemSpace) * col, (paddingLeft + itemWidth) + (itemSpace
-                + (itemHeight + itemSpace) * row ));
+        int col = index % colCount - 1;
+        int row = index / colCount - 1;
+        return new Point(paddingLeft + itemSpace + (itemWidth + itemSpace) * col, (paddingLeft + logoIvSize) + itemSpace
+                + (itemHeight + itemSpace) * row);
     }
 
     @Override
     public void onClick(View v) {
+        String tag = (String) v.getTag();
+        if ("num".equals(tag)) {
+            String oldNum = inputTv.getText().toString().trim();
+            setInputData(oldNum, ((TextView) v).getText().toString());
+            if (clickListeren != null)
+                clickListeren.numClick();
+        } else {
+            if (v.getId() == R.id.numinput_help) {
+                if (clickListeren != null) {
+                    clickListeren.helpClick();
+                    clickListeren.numClick();
+                }
+            } else if (v.getId() == R.id.numinput_confirm) {
+                checkInput(inputTv.getText().toString().trim());
 
+            } else if (v.getId() == R.id.numinput_back) {
+                if (clickListeren != null) {
+                    clickListeren.backClick();
+                }
+            } else if (v.getId() == R.id.numinput_clear) {
+                inputTv.setText("");
+                clickListeren.numClick();
+            }
+
+        }
     }
+
+    private void setInputData(String oldNum, String inputNum) {
+        inputTv.setText(oldNum + inputNum);
+
+        String hint = inputTv.getHint().toString();
+        if (getContext().getString(R.string.input_error).equals(hint)) {
+            inputTv.setHint(getHintText());
+            inputTv.setHintTextColor(Color.parseColor("#666666"));
+        }
+    }
+
+    private void checkInput(String inputNum) {
+        if (inputNum.length() == 5) {//密码开门
+            //请求接口验证密码是否正确，是就开门
+            OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
+                    .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
+
+            if (openCode != null) {
+                int expiry_time = openCode.getExpiry_time();
+                long now = System.currentTimeMillis();
+                if (expiry_time < (now / 1000)) {//过期了
+                    inputTv.setHint(getContext().getString(R.string.input_error));
+                    inputTv.setHintTextColor(Color.RED);
+                } else {//密码开门成功
+                    if (clickListeren != null) {
+                        clickListeren.confirmClick(inputNum ,mType == 1 ? 3: 5);
+                    }
+                    DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
+                }
+            } else {
+                inputTv.setHint(getContext().getString(R.string.input_error));
+                inputTv.setHintTextColor(Color.RED);
+            }
+
+        } else if (inputNum.length() == 4 || inputNum.length() == 6) {
+            if (clickListeren != null) {
+                clickListeren.confirmClick(inputNum ,mType == 1 ? 3: 5);
+            }
+        } else {
+//            ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
+
+            inputTv.setHint(getContext().getString(R.string.input_error));
+            inputTv.setHintTextColor(Color.RED);
+        }
+    }
+
+
+    NumInputListeren clickListeren;
+
+    public void setClickListeren(NumInputListeren clickListeren) {
+        this.clickListeren = clickListeren;
+    }
+
+    public interface NumInputListeren {
+        void helpClick();
+
+        void backClick();
+
+        void confirmClick(String inputNum,int type);
+
+        void numClick();
+    }
+
 }

@@ -21,4 +21,17 @@
     <string name="tips4">请低头20°</string>
     <string name="face_demo">demo演示</string>
     <string name="face_examples">demo实例</string>
+
+
+
+    <string name="input_error">密码无效，请重新输入</string>
+
+
+    <string name="help_tip">"幢号"+"房号"\n
+    "A幢"="01"、"B幢"="02"......\n
+    例如："A幢0205"\n
+    输入"010205"\n
+    "C幢0403"\n
+    输入"030403"\n</string>
+
 </resources>

@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,12 +30,14 @@ public class ImgTextView extends LinearLayout {
         init(context,attrs);
     }
 
+
     private void init(Context context, @Nullable AttributeSet attrs) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ImgTextView);
         direction = typedArray.getInt(R.styleable.ImgTextView_direction, direction);
-        float imageSize = typedArray.getDimension(R.styleable.ImgTextView_cimageSize, defauleImageSize);
+        float imageSizeWidth = typedArray.getDimension(R.styleable.ImgTextView_cimageSizeWidth, defauleImageSize);
+        float imageSizeHeight = typedArray.getDimension(R.styleable.ImgTextView_cimageSizeHeight, defauleImageSize);
         int src = typedArray.getResourceId(R.styleable.ImgTextView_csrc, 0);
-        int textSize = typedArray.getInt(R.styleable.ImgTextView_ctextSize, defauleTextSize);
+        float textSize = typedArray.getDimension(R.styleable.ImgTextView_ctextSize, defauleTextSize);
         String text = typedArray.getString(R.styleable.ImgTextView_ctext);
         int textColor = typedArray.getColor(R.styleable.ImgTextView_ctextColor,defauleTextColor);
         float marginTop = typedArray.getDimension(R.styleable.ImgTextView_cmarginTop, defauleMarginTop);
@@ -46,12 +49,13 @@ public class ImgTextView extends LinearLayout {
 
         imageView  = new ImageView(context);
         imageView.setImageResource(src);
-        LayoutParams params = new LayoutParams((int)imageSize,(int)imageSize);
+        LayoutParams params = new LayoutParams((int)imageSizeWidth,(int)imageSizeHeight);
         imageView.setLayoutParams(params);
         addView(imageView);
 
         textView = new TextView(context);
-        textView.setTextSize(textSize);
+//        textView.setTextSize(textSize);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX,textSize);
         textView.setText(text);
         textView.setTextColor(textColor);
         LayoutParams params2 = new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
