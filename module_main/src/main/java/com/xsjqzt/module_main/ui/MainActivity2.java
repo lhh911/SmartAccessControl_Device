@@ -97,6 +97,7 @@ import com.xsjqzt.module_main.modle.BindCardSuccessEventBus;
 import com.xsjqzt.module_main.modle.DownVideoSuccessEventBus;
 import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
+import com.xsjqzt.module_main.modle.TimeChangeEvent;
 import com.xsjqzt.module_main.modle.User;
 import com.xsjqzt.module_main.presenter.MainPresenter;
 import com.xsjqzt.module_main.service.DownAllDataService;
@@ -162,6 +163,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     //新增触屏输入键盘dialog，
     private NumInputDialog numInputDialog;
     private ImgTextView openPswIt, callManagerIt, cardRegistIt, openVideoIt;
+    private TextView timeTv, dateTv;
 
 
     private int showType = 1;// 1 图片广告，2 视频广告
@@ -261,6 +263,11 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 //        roomNumEt = findViewById(R.id.room_psw_et);
 //        TextView bottomTv = findViewById(R.id.bottom_tv);
 //        inputNumLayout = findViewById(R.id.input_layout);
+
+        timeTv = findViewById(R.id.time_tv);
+        dateTv = findViewById(R.id.date_tv);
+
+
         openPswIt = findViewById(R.id.open_psw_it);
         callManagerIt = findViewById(R.id.call_manager_it);
         cardRegistIt = findViewById(R.id.card_regist_it);
@@ -321,7 +328,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
             }
         }, 3000);
 
-
+        setCurDate();
     }
 
 
@@ -446,8 +453,6 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         videoPlayer.setUp(videos.get(0), null);//设置地址
         videoPlayer.start();
     }
-
-
 
 
 //    @Override
@@ -982,8 +987,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     /**
      * 检查输入的是房号还是开门密码
-     *
-//     * @param inputNum 4位或6位位房号 ， 5位为开门密码
+     * <p>
+     * //     * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
 //    private void checkInput(String inputNum) {
 //        if (!DeviceUtil.isNetWorkEnable()) {
@@ -1052,7 +1057,6 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
 
     //密码开门显示结果
-
     private void setShowSucOrError(boolean success, String code) {
 //        hideRoomInputLayout();
         hideInputDialog();
@@ -1608,7 +1612,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     }
 
 
-    public void inputShowTime(){
+    public void inputShowTime() {
         hideAndStopFace();//输入时禁止识别
         startShowTime = System.currentTimeMillis();//更新10秒检查时间
         startShowLayoutTime();
@@ -2298,12 +2302,61 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         handleNotity(bean.getBundle());
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void timeChage(TimeChangeEvent bean) {
+        setCurDate();
+    }
+
+    private void setCurDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        int week = calendar.get(Calendar.DAY_OF_WEEK);
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        StringBuffer sf = new StringBuffer();
+
+        if (hour < 10) {
+            sf.append("0").append(hour);
+        } else {
+            sf.append(hour);
+        }
+        sf.append(":");
+        if (minute < 10) {
+            sf.append("0").append(minute);
+        } else {
+            sf.append(minute);
+        }
+        timeTv.setText(sf.toString());
+
+        sf.setLength(0);
+        sf.append(year).append("年");
+        if (month < 10) {
+            sf.append("0").append(month);
+        } else {
+            sf.append(month);
+        }
+        sf.append("月");
+        if (day < 10) {
+            sf.append("0").append(day);
+        } else {
+            sf.append(day);
+        }
+        sf.append("日").append("\n")
+                .append(StringUtil.getWeekDay(week));
+        dateTv.setText(sf.toString());
+    }
+
 
     // -----------------------------------------------------------
     // For Face start..
 
     private RelativeLayout faceParentRl;
-    private TextView dateTv, openStatusTv;
+    private TextView openStatusTv;
     private SurfaceView sfv_draw_view; //人脸框绘画层
     public FaceSet faceSet = null; //sdk逻辑层
     public CameraView mIRCameraView; //红外摄像头
@@ -2400,12 +2453,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
         //识别预览框的背景层
         faceParentRl = findViewById(R.id.face_parentlayout);
-        dateTv = findViewById(R.id.date_tv);
         openStatusTv = findViewById(R.id.open_staus_tv);
-        Calendar calendar = Calendar.getInstance();
-        int week = calendar.get(Calendar.DAY_OF_WEEK);
-        String today = DateFormateUtil.getCurrentDate();
-        dateTv.setText(today + " " + StringUtil.getWeekDay(week));
 
 
         mCameraView = findViewById(R.id.camera);

@@ -19,6 +19,7 @@ import com.jbb.library_common.utils.log.LogUtil;
 import com.softwinner.Gpio;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.xsjqzt.module_main.ui.MainActivity;
+import com.xsjqzt.module_main.ui.MainActivity2;
 import com.xsjqzt.module_main.util.CrashHandler;
 
 import java.io.File;
@@ -183,7 +184,7 @@ public class ExApplication extends BaseApplication {
                 if(activityCount == 0){//后台
 //                    ToastUtil.showCustomToast("切换到后台");
 
-                    Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                    Intent intent = new Intent(getApplicationContext(), MainActivity2.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
 

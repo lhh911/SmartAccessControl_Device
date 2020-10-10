@@ -93,11 +93,12 @@
             android:includeFontPadding="false"
             android:text="09:20"
             android:textSize="55dp"
+            android:fontFamily="serif"
             android:textColor="@color/common_white"
             android:layout_marginTop="80dp" />
 
         <View
-            android:layout_width="1.5dp"
+            android:layout_width="1dp"
             android:layout_height="38dp"
             android:layout_marginTop="13dp"
             android:background="@color/common_white"
@@ -115,6 +116,7 @@
             android:layout_alignTop="@+id/time_tv"
             android:layout_marginLeft="20dp"
             android:text="2020-10-20星期五"
+            android:fontFamily="serif"
             android:textColor="@color/common_white"/>
 
         <TextView

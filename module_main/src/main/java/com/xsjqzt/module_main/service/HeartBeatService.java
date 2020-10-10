@@ -15,6 +15,9 @@ import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.greendao.DbManager;
 import com.xsjqzt.module_main.model.user.UserInfoInstance;
+import com.xsjqzt.module_main.modle.TimeChangeEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.Timer;
@@ -57,6 +60,9 @@ public class HeartBeatService extends Service {
             public void onSuccess(BaseBean baseBean) {
             }
         });
+
+
+        EventBus.getDefault().post(new TimeChangeEvent());
     }
 
 
