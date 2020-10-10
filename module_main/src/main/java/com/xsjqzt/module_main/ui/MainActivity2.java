@@ -76,7 +76,6 @@ import com.xiao.nicevideoplayer.SimpleVideoPlayer;
 import com.xiao.nicevideoplayer.SimpleVideoPlayerManager;
 import com.xsjqzt.module_main.Config.DemoConfig;
 import com.xsjqzt.module_main.R;
-import com.xsjqzt.module_main.activity.FaceDemoActivity;
 import com.xsjqzt.module_main.activity.base.ExApplication;
 import com.xsjqzt.module_main.dataSource.UserDataUtil;
 import com.xsjqzt.module_main.faceSdk.FaceSet;
@@ -100,7 +99,6 @@ import com.xsjqzt.module_main.modle.FaceResult;
 import com.xsjqzt.module_main.modle.FaceSuccessEventBean;
 import com.xsjqzt.module_main.modle.User;
 import com.xsjqzt.module_main.presenter.MainPresenter;
-import com.xsjqzt.module_main.receive.AlarmReceiver;
 import com.xsjqzt.module_main.service.DownAllDataService;
 import com.xsjqzt.module_main.service.HeartBeatService;
 import com.xsjqzt.module_main.service.OpenRecordService;
@@ -111,6 +109,8 @@ import com.xsjqzt.module_main.util.MyToast;
 import com.xsjqzt.module_main.util.SharedPrefUtils;
 import com.xsjqzt.module_main.util.TrackDrawUtil;
 import com.xsjqzt.module_main.view.MainView;
+import com.xsjqzt.module_main.widget.ImgTextView;
+import com.xsjqzt.module_main.widget.NumInputDialog;
 import com.youth.banner.Banner;
 import com.youth.banner.BannerConfig;
 import com.youth.banner.loader.ImageLoader;
@@ -138,8 +138,8 @@ import tp.xmaihh.serialport.SerialHelper;
 import tp.xmaihh.serialport.bean.ComBean;
 import tp.xmaihh.serialport.utils.ByteUtil;
 
-@Route(path = KeyContacts.PATH_MAIN)
-public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> implements MainView {
+@Route(path = KeyContacts.PATH_MAIN2)
+public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> implements MainView {
 
     private RelativeLayout backgroundLayout;
     private ImageView homebgIv;
@@ -150,21 +150,24 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     //视频呼叫layout
     private LinearLayout callVideoLayout;
     private TextView callNumTv, callStatusTv, callTipTv;
-
 //    private View toolsBar;
-
     //房号密码号输入layout
-    private LinearLayout roomNumLayout;//房号输入布局
-    private EditText roomNumEt;
-    private LinearLayout inputNumLayout;//输入框父布局
+//    private LinearLayout roomNumLayout;//房号输入布局
+//    private EditText roomNumEt;
+//    private LinearLayout inputNumLayout;//输入框父布局
 //    private ImgTextView successLayout, errorLayout;//成功和识别布局
 //    private int showSucOrError = 1; // 1 开门成功 ，2 开门失败
+
+
+    //新增触屏输入键盘dialog，
+    private NumInputDialog numInputDialog;
+    private ImgTextView openPswIt, callManagerIt, cardRegistIt, openVideoIt;
 
 
     private int showType = 1;// 1 图片广告，2 视频广告
     private MyBroadcastReceiver mReceiver;
 
-    private PendingIntent pi,pi2;
+    private PendingIntent pi, pi2;
     private AlarmManager am;
 
     //串口
@@ -252,19 +255,26 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
         callTipTv = findViewById(R.id.call_tip_tv);
-//        toolsBar = findViewById(R.id.tools_bar);
+////        toolsBar = findViewById(R.id.tools_bar);
+//        //房号输入
+//        roomNumLayout = findViewById(R.id.input_num_layout);
+//        roomNumEt = findViewById(R.id.room_psw_et);
+//        TextView bottomTv = findViewById(R.id.bottom_tv);
+//        inputNumLayout = findViewById(R.id.input_layout);
+        openPswIt = findViewById(R.id.open_psw_it);
+        callManagerIt = findViewById(R.id.call_manager_it);
+        cardRegistIt = findViewById(R.id.card_regist_it);
+        openVideoIt = findViewById(R.id.open_video_it);
 
-        //房号输入
-        roomNumLayout = findViewById(R.id.input_num_layout);
-        roomNumEt = findViewById(R.id.room_psw_et);
-        TextView bottomTv = findViewById(R.id.bottom_tv);
-        inputNumLayout = findViewById(R.id.input_layout);
-//        successLayout = findViewById(R.id.success_layout);
-//        errorLayout = findViewById(R.id.error_layout);ƒ
+        openPswIt.setOnClickListener(this);
+        callManagerIt.setOnClickListener(this);
+        cardRegistIt.setOnClickListener(this);
+        openVideoIt.setOnClickListener(this);
 
-        Drawable drawable = getResources().getDrawable(R.mipmap.icon_gth);
-        drawable.setBounds(0, 0, CommUtil.dp2px(13), CommUtil.dp2px(13));
-        bottomTv.setCompoundDrawables(drawable, null, null, null);
+
+//        Drawable drawable = getResources().getDrawable(R.mipmap.icon_gth);
+//        drawable.setBounds(0, 0, CommUtil.dp2px(13), CommUtil.dp2px(13));
+//        bottomTv.setCompoundDrawables(drawable, null, null, null);
 
 
         banner = findViewById(R.id.banner);
@@ -306,8 +316,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             @Override
             public void run() {
                 if (deviceEnable())
-                    startService(new Intent(MainActivity.this, HeartBeatService.class));
-                closeDoor();
+                    startService(new Intent(MainActivity2.this, HeartBeatService.class));
+//                closeDoor();
             }
         }, 3000);
 
@@ -365,7 +375,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     @Override
     public int getLayoutId() {
-        return R.layout.activity_main2;
+        return R.layout.activity_main3;
     }
 
     @Override
@@ -438,227 +448,173 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-//    public void btn1Click(View view) {
-//        if (inputLayoutShow) {
-//            String inputNum = roomNumEt.getText().toString().trim();
-//            if (TextUtils.isEmpty(inputNum))
-//                return;
+
+
+//    @Override
+//    public boolean dispatchKeyEvent(KeyEvent event) {
+//        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+//            if (hasCallingVideo) {
+//                endCall();
+//                faceOnResuse();
+//                LogUtil.w("keycode : " + "# 号挂断");
+//            } else {
+//                LogUtil.w("keycode : " + "# 号拨号");
+//                inputNum = roomNumEt.getText().toString().trim();
+//                if (!TextUtils.isEmpty(inputNum)) {
+//                    checkInput(inputNum);
+//                } else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+//                    if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
+//                        ToastUtil.showCustomToast("双击enter键");
+//                    }
+//                    okClickTime = System.currentTimeMillis();
+//                }
+//            }
 //
-//            checkInput(inputNum);
-//        } else {
-//            showRoomNumOpen();
+//            isKeyEnterFirst = false;
+//            return true;
+//        }
+//        isKeyEnterFirst = true;
+//        return super.dispatchKeyEvent(event);
+//    }
+//
+//
+//    private boolean isShiftClick;
+//
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {
+//            isShiftClick = true;
+//            return true;
+//        }
+//        if (keyCode == KeyEvent.KEYCODE_DEL) {
+//            String oldNum = roomNumEt.getText().toString().trim();
+//            if (!TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入不为空，清空输入
+//                roomNumEt.setText("");
+//            } else if (TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入为空，隐藏键盘
+//                hideRoomInputLayout();
+//                starEnterDown = false;
+//            } else if (!hasCallingVideo) {// 显示输入布局，并标记为* 组合输入
+//                roomNumEt.setText("");
+//                showRoomNumOpen();
+//                starEnterDown = true;
+//            }
+//
+//            return true;
+//        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
+//
+//            return true;
+//        } else if (keyCode == KeyEvent.KEYCODE_0) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "0");
+//                isShiftClick = false;
+//            }
+////            nullException();
+//        } else if (keyCode == KeyEvent.KEYCODE_1) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "1");
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_2) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "2");
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_3) {
+//            if (isShiftClick) {// # 号
+//                isShiftClick = false;
+//                if (hasCallingVideo) {
+//                    endCall();
+//                    faceOnResuse();
+//                    LogUtil.w("keycode : " + "# 号挂断");
+//                } else {
+//                    LogUtil.w("keycode : " + "# 号拨号");
+//                    inputNum = roomNumEt.getText().toString().trim();
+//                    if (!TextUtils.isEmpty(inputNum))
+//                        checkInput(inputNum);
+//                    else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
+//                        if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
+//                            ToastUtil.showCustomToast("双击enter键");
+//                        }
+//                        okClickTime = System.currentTimeMillis();
+//                    }
+//                }
+//
+//            } else {
+//                if (!hasCallingVideo) {
+//                    LogUtil.w("keycode : " + "拨号 3");
+//                    showRoomNumOpen();
+//                    String oldNum = roomNumEt.getText().toString().trim();
+//                    setInputData(oldNum, "3");
+//                    isShiftClick = false;
+//                }
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_4) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "4");
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_5) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "5");
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_6) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "6");
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_7) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "7");
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_8) {
+//            if (!hasCallingVideo) {
+//                if (isShiftClick) {// * 号
+//                    roomNumEt.setText("");
+//                    showRoomNumOpen();
+//                    starEnterDown = true;
+//                } else {
+//                    showRoomNumOpen();
+//                    String oldNum = roomNumEt.getText().toString().trim();
+//                    setInputData(oldNum, "8");
+//                }
+//                isShiftClick = false;
+//            }
+//
+//        } else if (keyCode == KeyEvent.KEYCODE_9) {
+//            if (!hasCallingVideo) {
+//                showRoomNumOpen();
+//                String oldNum = roomNumEt.getText().toString().trim();
+//                setInputData(oldNum, "9");
+//                isShiftClick = false;
+//            }
+//
 //        }
 //
-////        new AlertDialog.Builder(this)
-////                .setCancelable(true)
-////                .setMessage("确定清空人脸库？")
-////                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-////                    @Override
-////                    public void onClick(DialogInterface dialog, int which) {
-////                        dialog.dismiss();
-////                        CameraUtil.clearAllFace(faceSet);//删除阅面人脸
-//////                        DbManager.getInstance().getDaoSession().getFaceImageDao().getDatabase().execSQL("delete from FACE_IMAGE");//删除数据库中人脸记录数据
-////                    }
-////                }).show();
+//        return super.onKeyDown(keyCode, event);
 //    }
-//
-//
-//    public void btn5Click(View view) {
-//        int faceSize = CameraUtil.getFaceSize(faceSet);
-//
-//        new AlertDialog.Builder(this)
-//                .setCancelable(true)
-//                .setMessage("人脸数量 ： " + faceSize)
-//                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                }).show();
-//    }
-//
-//
-//    public void btn2Click(View view) {
-//        Bundle bundle = new Bundle();
-//        bundle.putInt("mType", 1);
-//        goTo(RegistICCardActivity.class, bundle);
-//    }
-//
-//    public void btn3Click(View view) {
-//        goTo(SystemInfoActivity.class);
-//    }
-//
-//    public void btn4Click(View view) {
-//        goTo(FaceDemoActivity.class);
-//
-//    }
-
-
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
-            if (hasCallingVideo) {
-                endCall();
-                faceOnResuse();
-                LogUtil.w("keycode : " + "# 号挂断");
-            } else {
-                LogUtil.w("keycode : " + "# 号拨号");
-                inputNum = roomNumEt.getText().toString().trim();
-                if (!TextUtils.isEmpty(inputNum)) {
-                    checkInput(inputNum);
-                } else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
-                    if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
-                        ToastUtil.showCustomToast("双击enter键");
-                    }
-                    okClickTime = System.currentTimeMillis();
-                }
-            }
-
-            isKeyEnterFirst = false;
-            return true;
-        }
-        isKeyEnterFirst = true;
-        return super.dispatchKeyEvent(event);
-    }
-
-
-    private boolean isShiftClick;
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT) {
-            isShiftClick = true;
-            return true;
-        }
-        if (keyCode == KeyEvent.KEYCODE_DEL) {
-            String oldNum = roomNumEt.getText().toString().trim();
-            if (!TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入不为空，清空输入
-                roomNumEt.setText("");
-            } else if (TextUtils.isEmpty(oldNum) && inputLayoutShow && !hasCallingVideo) {//输入布局显示，并且输入为空，隐藏键盘
-                hideRoomInputLayout();
-                starEnterDown = false;
-            } else if (!hasCallingVideo) {// 显示输入布局，并标记为* 组合输入
-                roomNumEt.setText("");
-                showRoomNumOpen();
-                starEnterDown = true;
-            }
-
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_BACK) {
-
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_0) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "0");
-                isShiftClick = false;
-            }
-//            nullException();
-        } else if (keyCode == KeyEvent.KEYCODE_1) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "1");
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_2) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "2");
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_3) {
-            if (isShiftClick) {// # 号
-                isShiftClick = false;
-                if (hasCallingVideo) {
-                    endCall();
-                    faceOnResuse();
-                    LogUtil.w("keycode : " + "# 号挂断");
-                } else {
-                    LogUtil.w("keycode : " + "# 号拨号");
-                    inputNum = roomNumEt.getText().toString().trim();
-                    if (!TextUtils.isEmpty(inputNum))
-                        checkInput(inputNum);
-                    else {//当输入框为空时，监听是否是快速双击，双击是呼叫管理处
-                        if ((System.currentTimeMillis() - okClickTime) < 500) {//双击ok健
-                            ToastUtil.showCustomToast("双击enter键");
-                        }
-                        okClickTime = System.currentTimeMillis();
-                    }
-                }
-
-            } else {
-                if (!hasCallingVideo) {
-                    LogUtil.w("keycode : " + "拨号 3");
-                    showRoomNumOpen();
-                    String oldNum = roomNumEt.getText().toString().trim();
-                    setInputData(oldNum, "3");
-                    isShiftClick = false;
-                }
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_4) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "4");
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_5) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "5");
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_6) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "6");
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_7) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "7");
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_8) {
-            if (!hasCallingVideo) {
-                if (isShiftClick) {// * 号
-                    roomNumEt.setText("");
-                    showRoomNumOpen();
-                    starEnterDown = true;
-                } else {
-                    showRoomNumOpen();
-                    String oldNum = roomNumEt.getText().toString().trim();
-                    setInputData(oldNum, "8");
-                }
-                isShiftClick = false;
-            }
-
-        } else if (keyCode == KeyEvent.KEYCODE_9) {
-            if (!hasCallingVideo) {
-                showRoomNumOpen();
-                String oldNum = roomNumEt.getText().toString().trim();
-                setInputData(oldNum, "9");
-                isShiftClick = false;
-            }
-
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
 
 
     @Override
@@ -702,7 +658,6 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         }
 
     }
-
 
 
     @Override
@@ -767,17 +722,17 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
             } else if (intent.getAction() == ConnectivityManager.CONNECTIVITY_ACTION) {
                 //监听网络变化
-                if (Utils.getNetWorkState(MainActivity.this)) {
+                if (Utils.getNetWorkState(MainActivity2.this)) {
                     LogUtil.w("NetWorkState = " + true);
                     login();
-                    startService(new Intent(MainActivity.this, DownAllDataService.class));
-                    startService(new Intent(MainActivity.this, HeartBeatService.class));
+                    startService(new Intent(MainActivity2.this, DownAllDataService.class));
+                    startService(new Intent(MainActivity2.this, HeartBeatService.class));
 
 //                    checkVersion();
                     loadDeviceInfo();
                 }
                 //如果监听程序没有运行，则启动监听app
-                if (!DeviceUtil.isRunBackground(MainActivity.this, "com.test.monitor_appinstall")) {
+                if (!DeviceUtil.isRunBackground(MainActivity2.this, "com.test.monitor_appinstall")) {
                     Intent startIntent = getPackageManager().getLaunchIntentForPackage("com.test.monitor_appinstall");
                     if (startIntent != null) {
                         startIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -786,13 +741,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 }
             } else if (intent.getAction() == KeyContacts.ACTION_RECEICE_NOTITY) {
                 handleNotity(intent.getExtras());
-            }else if(intent.getAction() == KeyContacts.ACTION_ALARM_OPEN_IR){
+            } else if (intent.getAction() == KeyContacts.ACTION_ALARM_OPEN_IR) {
                 LogUtil.w("AlarmReceiver 打开红外");
                 openIRCamera();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     setOpenIRAlarm(interval);
                 }
-            }else if(intent.getAction() == KeyContacts.ACTION_ALARM_CLOSE_IR){
+            } else if (intent.getAction() == KeyContacts.ACTION_ALARM_CLOSE_IR) {
                 LogUtil.w("AlarmReceiver 关闭红外");
                 closeIRCamera();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -803,14 +758,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
-
-
-
-
     private void handleNotity(final Bundle bundle) {
         if (bundle == null) return;
 
-        Log.e("JPush","[onNotifyMessageArrived] "+ "MainActivity收到通知了");
+        Log.e("JPush", "[onNotifyMessageArrived] " + "MainActivity收到通知了");
 //        ToastUtil.showCustomToast("通知传递下来，准备下载 ：" + bundle.getString(JPushInterface.EXTRA_EXTRA));
         new Thread(new Runnable() {
             @Override
@@ -1032,78 +983,79 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     /**
      * 检查输入的是房号还是开门密码
      *
-     * @param inputNum 4位或6位位房号 ， 5位为开门密码
+//     * @param inputNum 4位或6位位房号 ， 5位为开门密码
      */
-    private void checkInput(String inputNum) {
-        if (!DeviceUtil.isNetWorkEnable()) {
-            ToastUtil.showCustomToast("设备未联网，暂不支持呼叫");
-            return;
-        }
-
-        if (!deviceEnable()) {
-            showEnableToast();
-            return;
-        }
-
-        hideRoomInputLayout();
-        if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
-
-            if ("000".equals(inputNum)) {
-                goTo(SystemInfoActivity.class);
-            } else if ("101".equals(inputNum)) {
-                goTo(RegistICCardActivity.class);
-            } else if ("102".equals(inputNum)) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("mType", 1);
-                goTo(RegistICCardActivity.class, bundle);
-            } else {
-                ToastUtil.showCustomToast("输入错误");
-                faceOnResuse();
-            }
-        } else {
-            if (inputNum.length() == 5) {//密码开门
-                //请求接口验证密码是否正确，是就开门
-                OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
-                        .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
-
-                if (openCode != null) {
-                    int expiry_time = openCode.getExpiry_time();
-                    long now = System.currentTimeMillis();
-                    if (expiry_time < (now / 1000)) {//过期了
-                        setShowSucOrError(false, inputNum);
-                    } else {
-                        setShowSucOrError(true, inputNum);
-                        DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
-                    }
-                } else {
-                    setShowSucOrError(false, inputNum);
-                }
-                faceOnResuse();
-            } else if (inputNum.length() == 4 || inputNum.length() == 6) {
-
-                hasCallingVideo = true;
-
-                callUserId = 0;//清零
-                //根据房号获取userid，再拨视频通话
-                presenter.getUseridByRoom(inputNum, callUserId);
-                startMusic(5);//呼叫中语音
-
-                //开始计时第一个人
-                startCallSuccessTime();
-            } else {
-                ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
-                faceOnResuse();
-            }
-
-        }
-        starEnterDown = false;
-    }
+//    private void checkInput(String inputNum) {
+//        if (!DeviceUtil.isNetWorkEnable()) {
+//            ToastUtil.showCustomToast("设备未联网，暂不支持呼叫");
+//            return;
+//        }
+//
+//        if (!deviceEnable()) {
+//            showEnableToast();
+//            return;
+//        }
+//
+////        hideRoomInputLayout();
+//        if (starEnterDown) {//按了 * 号了，组合键，调起注册等页面
+//
+//            if ("000".equals(inputNum)) {
+//                goTo(SystemInfoActivity.class);
+//            } else if ("101".equals(inputNum)) {
+//                goTo(RegistICCardActivity.class);
+//            } else if ("102".equals(inputNum)) {
+//                Bundle bundle = new Bundle();
+//                bundle.putInt("mType", 1);
+//                goTo(RegistICCardActivity.class, bundle);
+//            } else {
+//                ToastUtil.showCustomToast("输入错误");
+//                faceOnResuse();
+//            }
+//        } else {
+//            if (inputNum.length() == 5) {//密码开门
+//                //请求接口验证密码是否正确，是就开门
+//                OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
+//                        .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
+//
+//                if (openCode != null) {
+//                    int expiry_time = openCode.getExpiry_time();
+//                    long now = System.currentTimeMillis();
+//                    if (expiry_time < (now / 1000)) {//过期了
+//                        setShowSucOrError(false, inputNum);
+//                    } else {
+//                        setShowSucOrError(true, inputNum);
+//                        DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
+//                    }
+//                } else {
+//                    setShowSucOrError(false, inputNum);
+//                }
+//                faceOnResuse();
+//            } else if (inputNum.length() == 4 || inputNum.length() == 6) {
+//
+//                hasCallingVideo = true;
+//
+//                callUserId = 0;//清零
+//                //根据房号获取userid，再拨视频通话
+//                presenter.getUseridByRoom(inputNum, callUserId);
+//                startMusic(5);//呼叫中语音
+//
+//                //开始计时第一个人
+//                startCallSuccessTime();
+//            } else {
+//                ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
+//                faceOnResuse();
+//            }
+//
+//        }
+//        starEnterDown = false;
+//    }
 
 
     //密码开门显示结果
 
     private void setShowSucOrError(boolean success, String code) {
 //        hideRoomInputLayout();
+        hideInputDialog();
         if (success) {//开门成功
 
             Message msg = Message.obtain();
@@ -1120,15 +1072,26 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
 
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
+        if (v.getId() == R.id.open_psw_it) {
+            showInputDialog(1);
+        } else if (v.getId() == R.id.call_manager_it) {
+
+        } else if (v.getId() == R.id.card_regist_it) {
+            goTo(RegistICCardActivity.class);
+        } else if (v.getId() == R.id.open_video_it) {
+            showInputDialog(2);
+        }
+    }
+
     //================================= 视频通话 =========================================================
     //拨打视频通话
     private void callVideo(String userId, String roomNum) {
 
         showCallVideoLayout();
         callNumTv.setText(roomNum);
-
-//        onFacePause();
-//        hideFaceLayout();
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
         try {//单参数
@@ -1138,24 +1101,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
             e.printStackTrace();
             runOnUiThread(new Runnable() {
                 public void run() {
-//                    String st2 = e.getMessage();
-//                    if (e.getErrorCode() == EMError.CALL_REMOTE_OFFLINE) {
-//                        st2 = getResources().getString(R.string.The_other_is_not_online);
-//                        startMusic(6);//对方未接听
-//                    } else if (e.getErrorCode() == EMError.USER_NOT_LOGIN) {
-//                        st2 = getResources().getString(R.string.Is_not_yet_connected_to_the_server);
-//                    } else if (e.getErrorCode() == EMError.INVALID_USER_NAME) {
-//                        st2 = getResources().getString(R.string.illegal_user_name);
-//                    } else if (e.getErrorCode() == EMError.CALL_BUSY) {
-//                        st2 = getResources().getString(R.string.The_other_is_on_the_phone);
-//                        startMusic(6);//对方未接听
-//                    } else if (e.getErrorCode() == EMError.NETWORK_ERROR) {
-//                        st2 = getResources().getString(R.string.can_not_connect_chat_server_connection);
-//                    }
-//                    Toast.makeText(MainActivity.this, st2, Toast.LENGTH_SHORT).show();
 
-//                    endCall();
-//                    faceOnResuse();
                 }
             });
         }
@@ -1485,25 +1431,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
     //=========================================================
 
-    public void showAnim(View view) {
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.callview_in);
-        roomNumLayout.startAnimation(animation);
-    }
-
-    public void dismissAnim(View view) {
-        Animation animation = AnimationUtils.loadAnimation(this, R.anim.callview_out);
-        view.startAnimation(animation);
-    }
-
 
     private void setInputData(String oldNum, String inputNum) {
-        roomNumEt.setText(oldNum + inputNum);
+//        roomNumEt.setText(oldNum + inputNum);
     }
 
 
     //开启任务检查布局在十秒内是否有键盘操作，没有就掩藏底部输入布局
     private void startShowLayoutTime() {
-        if (inutLayoutShowTimeRunnable != null && inutLayoutShowTimeRunnable != null) {
+        if (doorHandler != null && inutLayoutShowTimeRunnable != null) {
             doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
         }
         if (inutLayoutShowTimeRunnable == null) {
@@ -1576,7 +1512,8 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                 if (type == 1) {
                     long endTime = System.currentTimeMillis();
                     if (endTime - startShowTime >= 10000) {//十秒未操作关闭输入框
-                        hideRoomInputLayout();
+//                        hideRoomInputLayout();
+                        hideInputDialog();
                         faceOnResuse();
                     }
                 } else if (type == 2) {
@@ -1608,31 +1545,81 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 
 
     //显示密码输入框开门ui
-    private void showRoomNumOpen() {
-        hideAndStopFace();//输入时禁止识别
-
-        startShowTime = System.currentTimeMillis();
-        startShowLayoutTime();
-        if (!inputLayoutShow) {
-            roomNumLayout.setVisibility(View.VISIBLE);
-//            showAnim(roomNumLayout);
-
-            callVideoLayout.setVisibility(View.GONE);
-            inputLayoutShow = true;
-        }
-
-    }
+//    private void showRoomNumOpen() {
+//        hideAndStopFace();//输入时禁止识别
+//
+//        startShowTime = System.currentTimeMillis();
+//        startShowLayoutTime();
+//        if (!inputLayoutShow) {
+//            roomNumLayout.setVisibility(View.VISIBLE);
+////            showAnim(roomNumLayout);
+//
+//            callVideoLayout.setVisibility(View.GONE);
+//            inputLayoutShow = true;
+//        }
+//
+//    }
 
     //掩藏底部输入布局
-    private void hideRoomInputLayout() {
-        roomNumLayout.setVisibility(View.GONE);
-        roomNumEt.setText("");
-        inputLayoutShow = false;
+//    private void hideRoomInputLayout() {
+//        roomNumLayout.setVisibility(View.GONE);
+//        roomNumEt.setText("");
+//        inputLayoutShow = false;
+//    }
+
+
+    public void hideInputDialog() {
+        if (numInputDialog != null) {
+            numInputDialog.reset();
+            numInputDialog.dismiss();
+
+        }
     }
+
+    public void showInputDialog(int showType) {
+        if (numInputDialog == null) {
+            numInputDialog = new NumInputDialog(this);
+            numInputDialog.setInputClickListeren(new NumInputDialog.InputClickListeren() {
+                @Override
+                public void inputClick() {
+                    inputShowTime();
+                }
+
+                @Override
+                public void inputDismiss() {
+                    hideInputDialog();
+                }
+
+                @Override
+                public void inputConfirm(String input, int type) {
+                    hasCallingVideo = true;
+                    callUserId = 0;//清零
+                    //根据房号获取userid，再拨视频通话
+                    presenter.getUseridByRoom(inputNum, callUserId);
+                    startMusic(5);//呼叫中语音
+                    //开始计时第一个人
+                    startCallSuccessTime();
+                }
+            });
+        }
+        numInputDialog.setmType(showType);
+        numInputDialog.show();
+        inputShowTime();
+    }
+
+
+    public void inputShowTime(){
+        hideAndStopFace();//输入时禁止识别
+        startShowTime = System.currentTimeMillis();//更新10秒检查时间
+        startShowLayoutTime();
+        callVideoLayout.setVisibility(View.GONE);
+
+    }
+
 
     //单独显示视频通话ui
     private void showCallVideoLayout() {
-        roomNumLayout.setVisibility(View.GONE);
+//        roomNumLayout.setVisibility(View.GONE);
         callVideoLayout.setVisibility(View.VISIBLE);
     }
 
@@ -1665,18 +1652,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
 //            @Override
 //            public void run() {
 
-                OpenRecord record = new OpenRecord();
-                record.setCreateTime(new Date().getTime());
-                record.setImage(imagePath);
-                record.setSn(sn);
-                record.setStatus(1);
-                record.setUploadStatus(false);
-                record.setSid(sid);
-                record.setType(type);
-                DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
+        OpenRecord record = new OpenRecord();
+        record.setCreateTime(new Date().getTime());
+        record.setImage(imagePath);
+        record.setSn(sn);
+        record.setStatus(1);
+        record.setUploadStatus(false);
+        record.setSid(sid);
+        record.setType(type);
+        DbManager.getInstance().getDaoSession().getOpenRecordDao().insert(record);
 
-                Intent in = new Intent(MainActivity.this, OpenRecordService.class);
-                startService(in);
+        Intent in = new Intent(MainActivity2.this, OpenRecordService.class);
+        startService(in);
 
 //            }
 //        }).start();
@@ -1699,9 +1686,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         PendingIntent pi = PendingIntent.getBroadcast(this, 1000, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
-        }else
-            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis()+interval, interval, pi);
+            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval, pi);
+        } else
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval, interval, pi);
 
 //        LogUtil.w("AlarmReceiver setOpenIRAlarm打开红外");
 //        LogUtil.w("AlarmReceiver " + new SimpleDateFormat("MM-dd HH:mm:ss").format(ca.getTimeInMillis()));
@@ -1722,9 +1709,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         PendingIntent pi = PendingIntent.getBroadcast(this, 1000, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval , pi);
-        }else
-            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis()+interval, interval, pi);
+            am.setExact(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval, pi);
+        } else
+            am.setRepeating(AlarmManager.RTC_WAKEUP, ca.getTimeInMillis() + interval, interval, pi);
 
 //        LogUtil.w("AlarmReceiver setCloseIRAlarm关闭红外");
 //        LogUtil.w("AlarmReceiver " + new SimpleDateFormat("MM-dd HH:mm:ss").format(ca.getTimeInMillis()));
@@ -1766,9 +1753,9 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     showEnableToast();
                     return;
                 }*/
-                android.util.Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
+                Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
                 String str = parseCard2(paramComBean.bRec);
-                android.util.Log.d("wlDebug", "onDataReceived2 str = " + str);
+                Log.d("wlDebug", "onDataReceived2 str = " + str);
                 //对比数据库，开门
                 Message msg = Message.obtain();
                 msg.what = 4;
@@ -1867,7 +1854,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     private void parseData2(String str) {
         // ToastUtil.showCustomToast(str);
         // LogUtil.w("nfc数据 = " + str);
-        android.util.Log.d("wldebug", "parseData2 = " + str);
+        Log.d("wldebug", "parseData2 = " + str);
 //        str = str.substring(0, 20);
         //ic卡
         ICCard iccard = DbManager.getInstance().getDaoSession().getICCardDao().queryBuilder()
@@ -1899,10 +1886,10 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         try {
             /**/
             if (serialHelper != null) {
-                try{
+                try {
                     serialHelper.open();
-                }catch (Exception e){
-                    android.util.Log.d("wlDebug", "serialHelper1.open fail.");
+                } catch (Exception e) {
+                    Log.d("wlDebug", "serialHelper1.open fail.");
                 }
             }
 
@@ -1911,13 +1898,13 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                     serialHelper2.open();
                     closeDoor2();
                 } catch (Exception e) {
-                    android.util.Log.d("wlDebug", "serialHelper2.open fail.");
+                    Log.d("wlDebug", "serialHelper2.open fail.");
                 }
             } else {
-                android.util.Log.d("wlDebug", "serialHelper2.open fail.");
+                Log.d("wlDebug", "serialHelper2.open fail.");
             }
         } catch (Exception e) {
-            android.util.Log.d("wlDebug", "serialHelper2.open fail.", e);
+            Log.d("wlDebug", "serialHelper2.open fail.", e);
         }
     }
 
@@ -1929,7 +1916,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         if (banner != null)
             banner.startAutoPlay();
 
-        open();
+//        open();
         stopFaceTranck = false;
         onFaceResume();
 
@@ -2024,18 +2011,18 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     public void openDoor2() {
-        android.util.Log.d("wlDebug", "openDoor2..");
+        Log.d("wlDebug", "openDoor2..");
         if (serialHelper2.isOpen()) {
-            android.util.Log.d("wlDebug", "do openDoor2..");
+            Log.d("wlDebug", "do openDoor2..");
             serialHelper2.sendHex("040FD4204000000000000000000040");
         }
     }
 
 
     private void closeDoor2() {
-        android.util.Log.d("wlDebug", "closeDoor2..");
+        Log.d("wlDebug", "closeDoor2..");
         if (serialHelper2.isOpen()) {
-            android.util.Log.d("wlDebug", "do closeDoor2..");
+            Log.d("wlDebug", "do closeDoor2..");
             serialHelper2.sendHex("040FD4202000000000000000000020");
         }
     }
@@ -2180,7 +2167,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
         new Thread(new Runnable() {
             @Override
             public void run() {
-                FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(MainActivity.this)));
+                FileUtil.deleteFilesByDirectory(new File(FileUtil.getAppCachePath(MainActivity2.this)));
                 clearDB();
 
                 goTo(SplashActivity.class);
@@ -2225,7 +2212,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     public Bitmap getCameraBitmap() {
         //bitmapBytes格式成YuvImage格式，YuvImage格式是横的，宽高反的
         YuvImage yuvimage = new YuvImage(bitmapBytes, ImageFormat.NV21, mConfig.previewSizeWidth,
-                mConfig.previewSizeHeight , null);
+                mConfig.previewSizeHeight, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         yuvimage.compressToJpeg(new Rect(0, 0, mConfig.previewSizeWidth,
                 mConfig.previewSizeHeight), 100, baos);
@@ -2235,7 +2222,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
     }
 
     private void getPicture(final int type, final int id, final String sn) {
-        String picturePath = FileUtil.getAppRecordPicturePath(MainActivity.this);
+        String picturePath = FileUtil.getAppRecordPicturePath(MainActivity2.this);
         File file = new File(picturePath, new Date().getTime() + ".jpg");
 //        Utils.saveBitmap(file.getPath(), BitmapUtil.getViewBitmap(homebgIv));
 
@@ -2370,7 +2357,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
                             mConfig.specialCameraLeftRightReverse = true;
                             //保存配置
                             SharedPrefUtils.putObject(getApplicationContext(), "DEMO_CONFIG", mConfig);
-                            android.util.Log.d("Debug", "mConfig = " + mConfig.toString());
+                            Log.d("Debug", "mConfig = " + mConfig.toString());
 
                             if (isDoubleEyes) openIRCamera();
 

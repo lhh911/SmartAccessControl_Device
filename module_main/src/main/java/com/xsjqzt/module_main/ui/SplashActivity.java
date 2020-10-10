@@ -86,7 +86,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
 
     private void initMac() {
 
-        macAddress = DeviceUtil.getEthernetMac();
+//        macAddress = DeviceUtil.getEthernetMac();
         if (TextUtils.isEmpty(macAddress)) {
             ToastUtil.showCustomToast("未获取到mac地址");
             return;
@@ -125,8 +125,8 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-//                goTo(MainActivity.class);
-                ARouter.getInstance().build("/module_main/main").navigation();//
+                goTo(MainActivity2.class);
+//                ARouter.getInstance().build(KeyContacts.PATH_MAIN).navigation();//
                 finish();
             }
         };

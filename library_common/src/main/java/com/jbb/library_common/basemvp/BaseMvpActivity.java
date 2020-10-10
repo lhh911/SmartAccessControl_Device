@@ -70,7 +70,7 @@ public abstract class BaseMvpActivity <V extends BaseMvpView,T extends BaseMvpPr
     }
 
     protected void restartApp() {
-        ARouter.getInstance().build("/module_main/main")
+        ARouter.getInstance().build(KeyContacts.PATH_MAIN2)
                 .withInt(KeyContacts.START_LAUNCH_ACTION,KeyContacts.STATUS_FORCE_KILLED).navigation();//
 
 //        Intent intent = new Intent(this, MainActivity.class);

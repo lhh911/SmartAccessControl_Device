@@ -48,6 +48,12 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
+
+        <activity
+            android:name=".ui.MainActivity2"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".ui.MainActivity"
             android:launchMode="singleTask"

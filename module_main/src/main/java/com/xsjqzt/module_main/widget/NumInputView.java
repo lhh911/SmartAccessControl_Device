@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jbb.library_common.utils.CommUtil;
-import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.log.LogUtil;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.greendao.DbManager;
@@ -31,14 +30,17 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private int itemWidth = CommUtil.dp2px(100);
     private int itemHeight = itemWidth / 2;
     private int itemSpace = CommUtil.dp2px(20);
-    private int paddingLeft = CommUtil.dp2px(20);
+    private int paddingLeft = CommUtil.dp2px(15);
     private int colCount = 4;//4列
 
     private List<TextView> numViews = new ArrayList<>();
 
+    NumInputListeren clickListeren;
+    
+    
     //itemView
     private ImageView logoTipIv;
-    private TextView inputTv, helpTv, confirmTv, backTv, clearTv;
+    private TextView inputTv, helpTv, confirmTv, backTv, clearTv,zoroTv;
 
 
     public NumInputView(Context context) {
@@ -56,11 +58,32 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         inputTv.setHintTextColor(Color.parseColor("#666666"));
     }
 
+
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    protected void onFinishInflate() {
+        super.onFinishInflate();
 
     }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        final int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            measureChild(child, widthMeasureSpec, heightMeasureSpec);
+        }
+
+        int height = paddingLeft * 2 + logoIvSize + (itemHeight + itemSpace) * 4 ;
+
+
+        setMeasuredDimension(getDefaultSize(MeasureSpec.getSize(widthMeasureSpec), widthMeasureSpec),
+                height
+        );
+    }
+
+
+
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -68,6 +91,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         itemWidth = (r - l - paddingLeft * 2) / colCount;
         itemWidth = Math.round(itemWidth * 0.9f);
         itemHeight = itemWidth / 2;
+        logoIvSize = itemWidth * 2 /3 ;
         itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
 
         LogUtil.d(TAG, "r - l  = " + (r - l));
@@ -75,12 +99,18 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         //确定各个按钮在布局中的位置，
         for (int i = 0; i < numViews.size(); i++) {
             Point xy = getCoorFromIndex(i);
-            numViews.get(i).layout(xy.x, xy.y, xy.x + itemWidth, xy.y + itemSpace);
+            numViews.get(i).layout(xy.x, xy.y, xy.x + itemWidth, xy.y + itemHeight);
         }
 
         logoTipIv.layout(paddingLeft, paddingLeft, paddingLeft + logoIvSize, paddingLeft + logoIvSize);
-        inputTv.layout(paddingLeft + logoIvSize + itemSpace, paddingLeft + logoIvSize - inputHeight, paddingLeft + logoIvSize + logoIvSize * 3, paddingLeft + logoIvSize);
-        helpTv.layout(r - l - paddingLeft - logoIvSize, paddingLeft, r - l - paddingLeft, paddingLeft + inputHeight);
+        inputTv.layout(paddingLeft + logoIvSize + itemSpace, 
+                paddingLeft + logoIvSize - inputHeight, 
+                paddingLeft + logoIvSize + itemWidth * 3, 
+                paddingLeft + logoIvSize);
+        helpTv.layout(r - l - paddingLeft - logoIvSize, 
+                paddingLeft, 
+                r - l - paddingLeft, 
+                paddingLeft + inputHeight);
         confirmTv.layout(paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace,
                 paddingLeft + logoIvSize + itemSpace,
                 paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace + itemWidth,
@@ -91,9 +121,14 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
                 paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3 + itemHeight);
 
         clearTv.layout(paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace,
-                paddingLeft + logoIvSize + (itemSpace + itemWidth) * 3 + itemSpace,
+                paddingLeft + logoIvSize + (itemSpace + itemHeight) * 3 + itemSpace,
                 paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace + itemWidth,
-                paddingLeft + logoIvSize + (itemSpace + itemWidth) * 3 + itemSpace + itemHeight);
+                paddingLeft + logoIvSize + (itemSpace + itemHeight) * 3 + itemSpace + itemHeight);
+
+        zoroTv.layout(paddingLeft + itemSpace,
+                paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3,
+                paddingLeft  + (itemWidth + itemSpace) * 2 ,
+                paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3 + itemHeight);
     }
 
 
@@ -104,6 +139,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         itemWidth = (screenWidth - paddingLeft * 2) / colCount;
         itemWidth = Math.round(itemWidth * 0.9f);
         itemHeight = itemWidth / 2;
+        logoIvSize = itemWidth * 2 /3 ;
         itemSpace = ((screenWidth - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
 
         LogUtil.d(TAG, "screenWidth = " + screenWidth);
@@ -121,10 +157,12 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         addView(confirmTv = createConfirmTv());
         addView(backTv = createBackTv());
         addView(clearTv = createClearTv());
+        addView(zoroTv= createNumTv(0));
     }
 
     private ImageView createLogoIv() {
         ImageView imageView = new ImageView(getContext());
+        imageView.setImageResource(R.mipmap.ic_launcher);
         LayoutParams params = new LayoutParams(logoIvSize, logoIvSize);
         imageView.setLayoutParams(params);
         return imageView;
@@ -132,15 +170,15 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
     private TextView createInputTv() {
         TextView textView = new TextView(getContext());
-        textView.setTextSize(14);
+        textView.setTextSize(12);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setHint(getHintText());
         textView.setHintTextColor(Color.parseColor("#666666"));
         textView.setGravity(Gravity.CENTER_VERTICAL);
-        textView.setPadding(10, 0, 0, 0);
+        textView.setPadding(30, 0, 0, 0);
         textView.setBackgroundResource(R.drawable.white_corners20_bg);
 
-        LayoutParams params = new LayoutParams(logoIvSize * 3, inputHeight);
+        LayoutParams params = new LayoutParams(itemWidth * 3, inputHeight);
         textView.setLayoutParams(params);
         return textView;
     }
@@ -158,13 +196,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private TextView createHelpTv() {
 
         TextView textView = new TextView(getContext());
+        textView.setId(R.id.numinput_help);
         textView.setTextSize(14);
         textView.setTextColor(Color.parseColor("#3e6cbb"));
         textView.setText("帮助");
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.white_corners20_bg);
         textView.setTag("other");
-        textView.setId(R.id.numinput_help);
         LayoutParams params = new LayoutParams(logoIvSize, inputHeight);
         textView.setLayoutParams(params);
 
@@ -175,13 +213,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private TextView createConfirmTv() {
 
         TextView textView = new TextView(getContext());
+        textView.setId(R.id.numinput_confirm);
         textView.setTextSize(14);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("确\n定");
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.confirm_selector);
         textView.setTag("other");
-        textView.setId(R.id.numinput_confirm);
         LayoutParams params = new LayoutParams(itemWidth, itemHeight * 3 + itemSpace * 2);
         textView.setLayoutParams(params);
 
@@ -193,13 +231,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private TextView createBackTv() {
 
         TextView textView = new TextView(getContext());
+        textView.setId(R.id.numinput_back);
         textView.setTextSize(14);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("返回");
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.input_num_selector);
         textView.setTag("other");
-        textView.setId(R.id.numinput_back);
         LayoutParams params = new LayoutParams(itemWidth, itemHeight);
         textView.setLayoutParams(params);
 
@@ -211,13 +249,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private TextView createClearTv() {
 
         TextView textView = new TextView(getContext());
+        textView.setId(R.id.numinput_clear);
         textView.setTextSize(14);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("清空");
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.clear_selector);
         textView.setTag("other");
-        textView.setId(R.id.numinput_clear);
         LayoutParams params = new LayoutParams(itemWidth, itemHeight);
         textView.setLayoutParams(params);
 
@@ -246,8 +284,8 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
     //1-9 个数字返回位置 x y 坐标
     protected Point getCoorFromIndex(int index) {
-        int col = index % colCount - 1;
-        int row = index / colCount - 1;
+        int col = index % (colCount - 1);
+        int row = index / (colCount - 1);
         return new Point(paddingLeft + itemSpace + (itemWidth + itemSpace) * col, (paddingLeft + logoIvSize) + itemSpace
                 + (itemHeight + itemSpace) * row);
     }
@@ -301,8 +339,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
                 int expiry_time = openCode.getExpiry_time();
                 long now = System.currentTimeMillis();
                 if (expiry_time < (now / 1000)) {//过期了
-                    inputTv.setHint(getContext().getString(R.string.input_error));
-                    inputTv.setHintTextColor(Color.RED);
+                    inputError();
                 } else {//密码开门成功
                     if (clickListeren != null) {
                         clickListeren.confirmClick(inputNum ,mType == 1 ? 3: 5);
@@ -310,8 +347,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
                     DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
                 }
             } else {
-                inputTv.setHint(getContext().getString(R.string.input_error));
-                inputTv.setHintTextColor(Color.RED);
+                inputError();
             }
 
         } else if (inputNum.length() == 4 || inputNum.length() == 6) {
@@ -320,17 +356,23 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
             }
         } else {
 //            ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
-
-            inputTv.setHint(getContext().getString(R.string.input_error));
-            inputTv.setHintTextColor(Color.RED);
+            inputError();
         }
     }
 
+    private void inputError(){
+        inputTv.setText("");
+        inputTv.setHint(getContext().getString(R.string.input_error));
+        inputTv.setHintTextColor(Color.RED);
+    }
 
-    NumInputListeren clickListeren;
 
     public void setClickListeren(NumInputListeren clickListeren) {
         this.clickListeren = clickListeren;
+    }
+
+    public void reset() {
+        inputTv.setText("");
     }
 
     public interface NumInputListeren {
@@ -341,6 +383,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         void confirmClick(String inputNum,int type);
 
         void numClick();
+
     }
 
 }

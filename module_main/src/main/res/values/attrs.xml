@@ -18,7 +18,7 @@
         <attr name="cimageSizeWidth" format="dimension" />
         <attr name="cimageSizeHeight" format="dimension" />
         <attr name="csrc" format="reference" />
-        <attr name="ctextSize" format="integer" />
+        <attr name="ctextSize" format="dimension" />
         <attr name="ctext" format="string" />
         <attr name="ctextColor" format="color" />
         <attr name="cmarginTop" format="dimension" />

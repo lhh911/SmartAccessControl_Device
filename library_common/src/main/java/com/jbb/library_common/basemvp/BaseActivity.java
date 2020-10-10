@@ -59,7 +59,7 @@ public abstract class BaseActivity extends FragmentActivity implements View.OnCl
     }
 
     protected void restartApp() {
-        ARouter.getInstance().build("/module_main/main")
+        ARouter.getInstance().build(KeyContacts.PATH_MAIN2)
                 .withInt(KeyContacts.START_LAUNCH_ACTION,KeyContacts.STATUS_FORCE_KILLED).navigation();//卖花
 
 //        Intent intent = new Intent(this, MainActivity.class);

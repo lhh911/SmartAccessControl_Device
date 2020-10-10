@@ -55,7 +55,7 @@
                 app:csrc="@mipmap/icon_gth"
                 app:ctext="请刷IC卡"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="10"
+                app:ctextSize="10dp"
                 app:direction="horizontal"/>
 
 

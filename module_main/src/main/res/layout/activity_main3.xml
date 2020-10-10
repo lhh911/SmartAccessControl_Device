@@ -114,7 +114,7 @@
             android:layout_toRightOf="@+id/time_tv"
             android:layout_alignTop="@+id/time_tv"
             android:layout_marginLeft="20dp"
-            android:text="2020-10-20\n星期五"
+            android:text="2020-10-20星期五"
             android:textColor="@color/common_white"/>
 
         <TextView
@@ -138,7 +138,7 @@
 
 
             <com.xsjqzt.module_main.widget.ImgTextView
-                android:id="@+id/mygroup_it"
+                android:id="@+id/open_psw_it"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -148,12 +148,12 @@
                 app:csrc="@mipmap/ic_launcher"
                 app:ctext="密码开门"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14"
+                app:ctextSize="14dp"
                 app:direction="vertical" />
 
 
             <com.xsjqzt.module_main.widget.ImgTextView
-                android:id="@+id/withdraw_it"
+                android:id="@+id/call_manager_it"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -163,11 +163,11 @@
                 app:csrc="@mipmap/ic_launcher"
                 app:ctext="呼叫物业"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14"
+                app:ctextSize="14dp"
                 app:direction="vertical" />
 
             <com.xsjqzt.module_main.widget.ImgTextView
-                android:id="@+id/online_select_it"
+                android:id="@+id/card_regist_it"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -177,11 +177,11 @@
                 app:csrc="@mipmap/ic_launcher"
                 app:ctext="卡片注册"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14"
+                app:ctextSize="14dp"
                 app:direction="vertical" />
 
             <com.xsjqzt.module_main.widget.ImgTextView
-                android:id="@+id/scan_jifu_it"
+                android:id="@+id/open_video_it"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -191,11 +191,13 @@
                 app:csrc="@mipmap/ic_launcher"
                 app:ctext="房号呼叫"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14"
+                app:ctextSize="14dp"
                 app:direction="vertical" />
 
         </LinearLayout>
 
+
+        <include layout="@layout/call_video_layout" />
 
     </RelativeLayout>
 

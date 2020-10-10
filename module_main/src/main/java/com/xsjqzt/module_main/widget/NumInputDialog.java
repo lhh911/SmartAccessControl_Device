@@ -1,7 +1,9 @@
 package com.xsjqzt.module_main.widget;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,10 +23,7 @@ public class NumInputDialog extends BaseInputView implements NumInputView.NumInp
     public NumInputDialog(Context context){
         super(context);
 
-        initViews();
-    }
-
-    protected void initViews(){
+        LayoutInflater.from(context).inflate(R.layout.numinput_dialog, contentContainer);
         numInputView = (NumInputView) findViewById(R.id.numinputview);
         numInputView.setClickListeren(this);
 
@@ -35,8 +34,12 @@ public class NumInputDialog extends BaseInputView implements NumInputView.NumInp
     }
 
 
+
+
     @Override
     public void helpClick() {
+
+        setHelpLayoutHeight();
         numInputView.setVisibility(View.GONE);
         helpLl.setVisibility(View.VISIBLE);
 
@@ -69,6 +72,16 @@ public class NumInputDialog extends BaseInputView implements NumInputView.NumInp
         }
     }
 
+
+    public void setHelpLayoutHeight() {
+        int measuredHeight = numInputView.getMeasuredHeight();
+
+        ViewGroup.LayoutParams layoutParams = helpLl.getLayoutParams();
+        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutParams.height = measuredHeight;
+        helpLl.setLayoutParams(layoutParams);
+    }
+
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.back_tv){
@@ -91,6 +104,12 @@ public class NumInputDialog extends BaseInputView implements NumInputView.NumInp
 
     public void setInputClickListeren(InputClickListeren inputClickListeren) {
         this.inputClickListeren = inputClickListeren;
+    }
+
+    public void reset() {
+        numInputView.setVisibility(View.VISIBLE);
+        helpLl.setVisibility(View.GONE);
+        numInputView.reset();
     }
 
     public interface InputClickListeren{

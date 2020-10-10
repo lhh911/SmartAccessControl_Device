@@ -20,7 +20,7 @@ public class ImgTextView extends LinearLayout {
     private TextView textView;
 
     private int defauleImageSize = CommUtil.dp2px(23);
-    private int defauleTextSize = 13;
+    private int defauleTextSize = CommUtil.dp2px(13);
     private int defauleTextColor = Color.parseColor("#333333");
     private int defauleMarginTop = CommUtil.dp2px(12);
     private int direction = LinearLayout.VERTICAL;//方向

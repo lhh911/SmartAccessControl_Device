@@ -67,4 +67,11 @@ public class KeyContacts {
     public static final int STATUS_NORMAL = 2; //APP正常态
     public static final String START_LAUNCH_ACTION = "start_launch_action";
 
+
+
+    public static final String PATH_MAIN = "/module_main/main";
+    public static final String PATH_MAIN2 = "/module_main/main2";
+
+
+
 }

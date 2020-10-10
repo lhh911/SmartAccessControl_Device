@@ -16,8 +16,7 @@ import com.jbb.library_common.widght.pickerview.utils.PickerViewAnimateUtil;
 import com.xsjqzt.module_main.R;
 
 /**
- * Created by Sai on 15/11/22.
- * 精仿iOSPickerViewController控件
+ *
  */
 public class BaseInputView {
     private final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -54,7 +53,6 @@ public class BaseInputView {
         ));
         contentContainer = (ViewGroup) rootView.findViewById(R.id.content_container);
         contentContainer.setLayoutParams(params);
-        contentContainer.setBackgroundResource(R.color.common_transparent);
     }
 
     protected void init() {
