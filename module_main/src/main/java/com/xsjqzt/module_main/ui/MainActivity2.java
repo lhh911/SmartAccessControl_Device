@@ -2264,8 +2264,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         }
 
         if (bean.isRegist) {
-            mCameraView.setBackgroundResource(R.drawable.green_line_bg);
-            openStatusTv.setText("您好！\n认证成功");
+//            mCameraView.setBackgroundResource(R.drawable.green_line_bg);
+            openStatusTv.setText("开门成功");
             openStatusTv.setTextColor(Color.parseColor("#ffffff"));
 
             long currentTime = System.currentTimeMillis();
@@ -2278,9 +2278,9 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                 doorHandler.sendMessage(msg);
             }
         } else {
-            mCameraView.setBackgroundResource(R.drawable.red_line_bg);
-            openStatusTv.setText("抱歉！\n认证失败");
-            openStatusTv.setTextColor(Color.parseColor("#ff0000"));
+//            mCameraView.setBackgroundResource(R.drawable.red_line_bg);
+//            openStatusTv.setText("抱歉！\n认证失败");
+//            openStatusTv.setTextColor(Color.parseColor("#ff0000"));
 
             long now = System.currentTimeMillis();
             if (now - faceErrorStartTime > 3000) {
