@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -68,6 +69,7 @@ import com.jbb.library_common.utils.ToastUtil;
 import com.jbb.library_common.utils.Utils;
 import com.jbb.library_common.utils.compress.CompressImageUtil;
 import com.jbb.library_common.utils.log.LogUtil;
+import com.jbb.library_common.widght.DoubleButtonDialog;
 import com.readsense.cameraview.camera.CameraView;
 import com.readsense.cameraview.camera.Size;
 import com.softwinner.Gpio;
@@ -150,7 +152,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     //视频呼叫layout
     private LinearLayout callVideoLayout;
-    private TextView callNumTv, callStatusTv, callTipTv;
+    private TextView callTimeTv, callStatusTv, hangupTv;//, callTipTv;
+    private ImageView callHeadIv;
 //    private View toolsBar;
     //房号密码号输入layout
 //    private LinearLayout roomNumLayout;//房号输入布局
@@ -254,9 +257,12 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         homebgIv = findViewById(R.id.homebg_iv);
         //视频通话
         callVideoLayout = findViewById(R.id.call_video_layout);
-        callNumTv = findViewById(R.id.call_num_tv);
+//        callNumTv = findViewById(R.id.call_num_tv);
         callStatusTv = findViewById(R.id.call_status_tv);
-        callTipTv = findViewById(R.id.call_tip_tv);
+        callTimeTv = findViewById(R.id.call_time_tv);
+        hangupTv = findViewById(R.id.hangup_call_tv);
+        callHeadIv = findViewById(R.id.call_head_iv);
+//        callTipTv = findViewById(R.id.call_tip_tv);
 ////        toolsBar = findViewById(R.id.tools_bar);
 //        //房号输入
 //        roomNumLayout = findViewById(R.id.input_num_layout);
@@ -277,6 +283,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         callManagerIt.setOnClickListener(this);
         cardRegistIt.setOnClickListener(this);
         openVideoIt.setOnClickListener(this);
+        hangupTv.setOnClickListener(this);
 
 
 //        Drawable drawable = getResources().getDrawable(R.mipmap.icon_gth);
@@ -1082,12 +1089,29 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         if (v.getId() == R.id.open_psw_it) {
             showInputDialog(1);
         } else if (v.getId() == R.id.call_manager_it) {
-
+            showCallManager();
         } else if (v.getId() == R.id.card_regist_it) {
             goTo(RegistICCardActivity.class);
         } else if (v.getId() == R.id.open_video_it) {
             showInputDialog(2);
+        } else if (v.getId() == R.id.hangup_call_tv) {
+            endCall();
+            faceOnResuse();
         }
+    }
+
+    private int callType ;// 1呼叫物业，默认呼叫业主
+    private void showCallManager() {
+        final DoubleButtonDialog dialog = new DoubleButtonDialog(this, R.style.common_loading_dialog);
+        dialog.setTitle("确定呼叫物业？");
+        dialog.showDialog();
+        dialog.getConfirmBtn().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                callType = 1;
+            }
+        });
     }
 
     //================================= 视频通话 =========================================================
@@ -1095,7 +1119,14 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     private void callVideo(String userId, String roomNum) {
 
         showCallVideoLayout();
-        callNumTv.setText(roomNum);
+//        callNumTv.setText(roomNum);
+        if(callType == 0) {
+            callStatusTv.setText(Html.fromHtml("正在呼叫<font color='#48FF62'>" + Utils.getStrByRoomNum(roomNum) + "业主</font>\n请稍等..."));
+            callHeadIv.setImageResource(R.mipmap.ic_owner);
+        }else{
+            callStatusTv.setText(Html.fromHtml("正在呼叫<font color='#48FF62'>物业</font>\n请稍等..."));
+            callHeadIv.setImageResource(R.mipmap.ic_manager);
+        }
 
         setPushProviderAndListeren();//设置不在线时发送离线通知
         try {//单参数
@@ -1161,7 +1192,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 ToastUtil.showCustomToast("正在连接对方");
-                                callStatusTv.setText("呼叫中，请稍候...");
+//                                callStatusTv.setText("呼叫中，请稍候...");
                             }
                         });
 
@@ -1170,7 +1201,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 ToastUtil.showCustomToast("双方已经建立连接");
-                                callStatusTv.setText("呼叫中，请稍候...");
+//                                callStatusTv.setText("呼叫中，请稍候...");
                             }
                         });
                         break;
@@ -1179,6 +1210,14 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 ToastUtil.showCustomToast("电话接通成功");
+//                                callStatusTv.setText(inputNum+"业主\n呼叫成功");
+
+                                if(callType == 0)
+                                    callStatusTv.setText(Html.fromHtml("<font color='#48FF62'>" + Utils.getStrByRoomNum(inputNum) + "业主</font>\n呼叫成功"));
+                                else{
+                                    callStatusTv.setText(Html.fromHtml("<font color='#48FF62'>物业</font>\n呼叫成功"));
+                                }
+
                                 startTimer();
                                 openSpeakerOn();
                                 hasCallSuccess = true;
@@ -1379,7 +1418,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         public void run() {
             if (weakReference.get() != null) {
                 duration += delayMillis;
-                callStatusTv.setText("通话中 " + DurationFormatUtils.formatDuration(duration, mTimePattern));
+//                callStatusTv.setText("通话中 " + DurationFormatUtils.formatDuration(duration, mTimePattern));
+                callTimeTv.setText(DurationFormatUtils.formatDuration(duration, mTimePattern));
                 timeHandler.postDelayed(timeRunnable, delayMillis);
             }
         }
@@ -1596,13 +1636,23 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
                 @Override
                 public void inputConfirm(String input, int type) {
-                    hasCallingVideo = true;
-                    callUserId = 0;//清零
-                    //根据房号获取userid，再拨视频通话
-                    presenter.getUseridByRoom(inputNum, callUserId);
-                    startMusic(5);//呼叫中语音
-                    //开始计时第一个人
-                    startCallSuccessTime();
+
+                    if(type == 5) {//呼叫业主
+                        callType = 0;
+                        hasCallingVideo = true;
+                        callUserId = 0;//清零
+                        //根据房号获取userid，再拨视频通话
+                        presenter.getUseridByRoom(input, callUserId);
+                        startMusic(5);//呼叫中语音
+                        //开始计时第一个人
+                        startCallSuccessTime();
+                    }else{//密码开门成功
+                        Message msg = Message.obtain();
+                        msg.what = 1;
+                        msg.arg1 = 3;
+                        msg.obj = input;
+                        doorHandler.sendMessage(msg);
+                    }
                 }
             });
         }
@@ -1630,8 +1680,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     //单独掩藏视频通话ui
     private void hideCallVideoLayout() {
         callVideoLayout.setVisibility(View.GONE);
-        callStatusTv.setText("呼叫中，请稍候...");
-        callNumTv.setText("");
+//        callStatusTv.setText("呼叫中，请稍候...");
+//        callNumTv.setText("");
     }
 
     //单独掩藏密码开门ui

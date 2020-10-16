@@ -2,18 +2,55 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/call_video_layout"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:visibility="gone"
+    android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
     android:background="@color/color_99000000"
     android:gravity="center"
+    android:visibility="gone"
     android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="22dp"
+            android:src="@mipmap/ic_left_arr"/>
+
+        <ImageView
+            android:id="@+id/call_head_iv"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:src="@mipmap/ic_owner"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="22dp"
+            android:src="@mipmap/ic_right_arr"/>
+
+    </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/call_status_tv"
+        style="@style/textview14"
+        android:layout_marginTop="5dp"
+        android:text="呼叫中"
+        android:textColor="@color/common_white" />
 
     <TextView
         android:id="@+id/call_num_tv"
         android:layout_width="185dp"
         android:layout_height="37dp"
         android:gravity="center"
+        android:visibility="gone"
         android:imeOptions="actionDone"
         android:inputType="number"
         android:singleLine="true"
@@ -21,12 +58,6 @@
         android:textColor="@color/common_white"
         android:textSize="22dp" />
 
-    <TextView
-        android:id="@+id/call_status_tv"
-        style="@style/textview13"
-        android:layout_marginTop="20dp"
-        android:text="呼叫中"
-        android:textColor="@color/common_white" />
 
 
     <TextView
@@ -34,14 +65,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="24dp"
         android:drawableLeft="@mipmap/icon_gth"
         android:drawablePadding="6dp"
         android:gravity="center"
         android:includeFontPadding="false"
+        android:visibility="gone"
         android:text="按OK键呼叫"
         android:textColor="@color/common_white"
         android:textSize="9dp" />
+
+    <TextView
+        android:id="@+id/call_time_tv"
+        style="@style/textview12"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:visibility="invisible"
+        android:text="12:00"
+        android:textColor="@color/common_white" />
+
+    <TextView
+        android:id="@+id/hangup_call_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="16dp"
+        android:drawablePadding="3dp"
+        android:text="挂断"
+        android:textColor="@color/common_white"
+        android:textSize="12dp"
+        android:drawableTop="@mipmap/ic_hang_up"/>
 
 
 </LinearLayout>

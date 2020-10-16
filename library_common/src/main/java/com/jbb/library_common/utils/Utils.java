@@ -374,6 +374,8 @@ public class Utils {
     }
 
 
+
+
     /*
      * 判断通知权限是否打开
      */
@@ -442,6 +444,40 @@ public class Utils {
             //网络异常
             return false;
         }
+    }
+
+
+    public static String getStrByRoomNum(String roomNum) {
+        if(TextUtils.isEmpty(roomNum) || roomNum.length() < 2)
+            return "";
+
+        String str = "";
+        String substring = roomNum.substring(0, 2);
+        switch (substring){
+            case "01":
+                str = "A幢";
+                break;
+            case "02":
+                str = "B幢";
+                break;
+            case "03":
+                str = "C幢";
+                break;
+            case "04":
+                str = "D幢";
+                break;
+            case "05":
+                str = "E幢";
+                break;
+            case "06":
+                str = "F幢";
+                break;
+            default:
+                str = substring;
+                break;
+        }
+        return str + roomNum.substring(2);
+
     }
 
 }
