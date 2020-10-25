@@ -36,11 +36,11 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private List<TextView> numViews = new ArrayList<>();
 
     NumInputListeren clickListeren;
-    
-    
+
+
     //itemView
     private ImageView logoTipIv;
-    private TextView inputTv, helpTv, confirmTv, backTv, clearTv,zoroTv;
+    private TextView inputTv, helpTv, confirmTv, backTv, clearTv, zoroTv;
 
 
     public NumInputView(Context context) {
@@ -74,7 +74,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
             measureChild(child, widthMeasureSpec, heightMeasureSpec);
         }
 
-        int height = paddingLeft * 2 + logoIvSize + (itemHeight + itemSpace) * 4 ;
+        int height = paddingLeft * 2 + logoIvSize + (itemHeight + itemSpace) * 4;
 
 
         setMeasuredDimension(getDefaultSize(MeasureSpec.getSize(widthMeasureSpec), widthMeasureSpec),
@@ -83,15 +83,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     }
 
 
-
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
         itemWidth = (r - l - paddingLeft * 2) / colCount;
         itemWidth = Math.round(itemWidth * 0.9f);
         itemHeight = itemWidth / 2;
-        logoIvSize = itemWidth * 2 /3 ;
+        logoIvSize = itemWidth * 2 / 3;
         itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
 
         LogUtil.d(TAG, "r - l  = " + (r - l));
@@ -103,13 +101,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         }
 
         logoTipIv.layout(paddingLeft, paddingLeft, paddingLeft + logoIvSize, paddingLeft + logoIvSize);
-        inputTv.layout(paddingLeft + logoIvSize + itemSpace, 
-                paddingLeft + logoIvSize - inputHeight, 
-                paddingLeft + logoIvSize + itemWidth * 3, 
+        inputTv.layout(paddingLeft + logoIvSize + itemSpace,
+                paddingLeft + logoIvSize - inputHeight,
+                paddingLeft + logoIvSize + itemWidth * 3,
                 paddingLeft + logoIvSize);
-        helpTv.layout(r - l - paddingLeft - logoIvSize, 
-                paddingLeft, 
-                r - l - paddingLeft, 
+        helpTv.layout(r - l - paddingLeft - logoIvSize,
+                paddingLeft,
+                r - l - paddingLeft,
                 paddingLeft + inputHeight);
         confirmTv.layout(paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace,
                 paddingLeft + logoIvSize + itemSpace,
@@ -127,7 +125,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         zoroTv.layout(paddingLeft + itemSpace,
                 paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3,
-                paddingLeft  + (itemWidth + itemSpace) * 2 ,
+                paddingLeft + (itemWidth + itemSpace) * 2,
                 paddingLeft + logoIvSize + itemSpace + (itemSpace + itemHeight) * 3 + itemHeight);
     }
 
@@ -139,7 +137,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         itemWidth = (screenWidth - paddingLeft * 2) / colCount;
         itemWidth = Math.round(itemWidth * 0.9f);
         itemHeight = itemWidth / 2;
-        logoIvSize = itemWidth * 2 /3 ;
+        logoIvSize = itemWidth * 2 / 3;
         itemSpace = ((screenWidth - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
 
         LogUtil.d(TAG, "screenWidth = " + screenWidth);
@@ -157,7 +155,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         addView(confirmTv = createConfirmTv());
         addView(backTv = createBackTv());
         addView(clearTv = createClearTv());
-        addView(zoroTv= createNumTv(0));
+        addView(zoroTv = createNumTv(0));
     }
 
     private ImageView createLogoIv() {
@@ -323,7 +321,8 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         inputTv.setText(oldNum + inputNum);
 
         String hint = inputTv.getHint().toString();
-        if (getContext().getString(R.string.input_error).equals(hint)) {
+        if (getContext().getString(R.string.input_error).equals(hint) ||
+                getContext().getString(R.string.input_psw_error).equals(hint)) {
             inputTv.setHint(getHintText());
             inputTv.setHintTextColor(Color.parseColor("#666666"));
         }
@@ -339,30 +338,34 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
                 int expiry_time = openCode.getExpiry_time();
                 long now = System.currentTimeMillis();
                 if (expiry_time < (now / 1000)) {//过期了
-                    inputError();
+                    inputError(2);
                 } else {//密码开门成功
                     if (clickListeren != null) {
-                        clickListeren.confirmClick(inputNum ,mType == 1 ? 3: 5);
+                        clickListeren.confirmClick(inputNum, mType == 1 ? 3 : 5);
                     }
                     DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
                 }
             } else {
-                inputError();
+                inputError(2);
             }
 
         } else if (inputNum.length() == 4 || inputNum.length() == 6) {
             if (clickListeren != null) {
-                clickListeren.confirmClick(inputNum ,mType == 1 ? 3: 5);
+                clickListeren.confirmClick(inputNum, mType == 1 ? 3 : 5);
             }
         } else {
 //            ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
-            inputError();
+            inputError(1);
         }
     }
 
-    private void inputError(){
+    private void inputError(int type) {
         inputTv.setText("");
-        inputTv.setHint(getContext().getString(R.string.input_error));
+        if (type == 1)
+            inputTv.setHint(getContext().getString(R.string.input_error));
+        else{
+            inputTv.setHint(getContext().getString(R.string.input_psw_error));
+        }
         inputTv.setHintTextColor(Color.RED);
     }
 
@@ -380,7 +383,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         void backClick();
 
-        void confirmClick(String inputNum,int type);
+        void confirmClick(String inputNum, int type);
 
         void numClick();
 
