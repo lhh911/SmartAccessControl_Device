@@ -331,7 +331,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
             public void run() {
                 if (deviceEnable())
                     startService(new Intent(MainActivity2.this, HeartBeatService.class));
-//                closeDoor();
+                closeDoor();
             }
         }, 3000);
 
@@ -1970,7 +1970,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         if (banner != null)
             banner.startAutoPlay();
 
-//        open();
+        open();
         stopFaceTranck = false;
         onFaceResume();
 
