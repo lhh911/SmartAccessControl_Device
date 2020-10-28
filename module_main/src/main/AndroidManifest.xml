@@ -99,7 +99,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SystemInfoActivity"
-            android:screenOrientation="portrait" />
+            android:theme="@style/translucent"/>
 
 
         <!-- jpush start 2.0前  极光接收别名tag设置时的回调消息 -->

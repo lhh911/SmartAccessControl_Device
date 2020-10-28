@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import com.jbb.library_common.retrofit.RetrofitManager;
 import com.jbb.library_common.utils.CommUtil;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.SharePreferensUtil;
+import com.jbb.library_common.utils.StatusUtil;
 import com.jbb.library_common.utils.Utils;
 import com.xsjqzt.module_main.R;
 import com.xsjqzt.module_main.model.EntranceInfoResBean;
@@ -244,5 +246,13 @@ public class SystemInfoActivity extends BaseMvpActivity<SystemInfoIView, SystemI
     }
 
 
+    //不同页面需要改状态栏颜色时重写此方法
+    protected void setStatusColor() {
+
+    }
+
+    protected void setSystemInvadeBlack() {
+
+    }
 
 }

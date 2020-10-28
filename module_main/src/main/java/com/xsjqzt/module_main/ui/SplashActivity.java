@@ -126,6 +126,7 @@ public class SplashActivity extends BaseMvpActivity<TokenView, TokenPresenter> i
             @Override
             public void run() {
                 goTo(MainActivity2.class);
+//                goTo(SystemInfoActivity.class);
 //                ARouter.getInstance().build(KeyContacts.PATH_MAIN).navigation();//
                 finish();
             }
