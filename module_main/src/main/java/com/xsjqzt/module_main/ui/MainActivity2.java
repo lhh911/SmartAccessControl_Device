@@ -177,8 +177,10 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     //串口
     private SerialHelper serialHelper;
-    private String sPort = "/dev/ttyS1";
-    private int iBaudRate = 115200;
+//    private String sPort = "/dev/ttyS1";
+    private String sPort = "/dev/ttys4";
+//    private int iBaudRate = 115200;
+    private int iBaudRate = 9600;
 
     // 读卡器2
     private SerialHelper serialHelper2;
@@ -628,6 +630,11 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 //        return super.onKeyDown(keyCode, event);
 //    }
 
+
+    @Override
+    public void onBackPressed() {
+
+    }
 
     @Override
     public void loadKeySuccess(String key) {
@@ -1089,7 +1096,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         if (v.getId() == R.id.open_psw_it) {
             showInputDialog(1);
         } else if (v.getId() == R.id.call_manager_it) {
-            showCallManager();
+//            showCallManager();
+            ToastUtil.showCustomToast("功能开发中...");
         } else if (v.getId() == R.id.card_regist_it) {
             goTo(RegistICCardActivity.class);
         } else if (v.getId() == R.id.open_video_it) {
@@ -1102,8 +1110,9 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     private int callType ;// 1呼叫物业，默认呼叫业主
     private void showCallManager() {
+
         final DoubleButtonDialog dialog = new DoubleButtonDialog(this, R.style.common_loading_dialog);
-        dialog.setTitle("确定呼叫物业？");
+        dialog.setDatas("确定呼叫物业？");
         dialog.showDialog();
         dialog.getConfirmBtn().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1799,25 +1808,25 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
             }
         };
 
-        serialHelper2 = new SerialHelper(sPort2, iBaudRate2) {
-            @Override
-            protected void onDataReceived(ComBean paramComBean) {
-                /*
-                if (!deviceEnable()) {
-                    showEnableToast();
-                    return;
-                }*/
-                Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
-                String str = parseCard2(paramComBean.bRec);
-                Log.d("wlDebug", "onDataReceived2 str = " + str);
-                //对比数据库，开门
-                Message msg = Message.obtain();
-                msg.what = 4;
-                msg.obj = str;
-//                msg.obj = "ic20190501";
-                doorHandler.sendMessage(msg);
-            }
-        };
+//        serialHelper2 = new SerialHelper(sPort2, iBaudRate2) {
+//            @Override
+//            protected void onDataReceived(ComBean paramComBean) {
+//                /*
+//                if (!deviceEnable()) {
+//                    showEnableToast();
+//                    return;
+//                }*/
+//                Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
+//                String str = parseCard2(paramComBean.bRec);
+//                Log.d("wlDebug", "onDataReceived2 str = " + str);
+//                //对比数据库，开门
+//                Message msg = Message.obtain();
+//                msg.what = 4;
+//                msg.obj = str;
+////                msg.obj = "ic20190501";
+//                doorHandler.sendMessage(msg);
+//            }
+//        };
     }
 
     private void toast(final byte[] cardData) {
@@ -2052,16 +2061,21 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
 
     public void openDoor() {
-        Gpio.setPull('0', 4, 1);
-        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-        Gpio.writeGpio('O', 4, 1);
+//        Gpio.setPull('0', 4, 1);
+//        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+//        Gpio.writeGpio('O', 4, 1);
+
+        sendBroadcast(new Intent(KeyContacts.ACTION_OPEN_DOOR));
     }
 
 
     private void closeDoor() {
-        Gpio.setPull('0', 4, 1);
-        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-        Gpio.writeGpio('O', 4, 0);
+//        Gpio.setPull('0', 4, 1);
+//        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+//        Gpio.writeGpio('O', 4, 0);
+
+
+        sendBroadcast(new Intent(KeyContacts.ACTION_CLOSE_DOOR));
     }
 
     public void openDoor2() {

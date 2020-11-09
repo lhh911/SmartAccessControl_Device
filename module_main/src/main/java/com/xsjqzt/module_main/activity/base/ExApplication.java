@@ -13,6 +13,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.BuildConfig;
 import com.jbb.library_common.comfig.AppConfig;
+import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.log.LogUtil;
@@ -120,9 +121,11 @@ public class ExApplication extends BaseApplication {
     }
 
     private void closeDoor(){
-        Gpio.setPull('0', 4, 1);
-        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-        Gpio.writeGpio('O', 4, 0);
+//        Gpio.setPull('0', 4, 1);
+//        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+//        Gpio.writeGpio('O', 4, 0);
+
+        sendBroadcast(new Intent(KeyContacts.ACTION_CLOSE_DOOR));
     }
 
 

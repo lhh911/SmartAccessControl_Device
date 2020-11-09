@@ -23,10 +23,10 @@ import java.util.List;
 public class NumInputView extends ViewGroup implements View.OnClickListener {
 
     private String TAG = "NumInputView";
-    private int mType;// 1 密码开门， 2 房号呼叫
+    private int mType =1;// 1 密码开门， 2 房号呼叫
 
     private int logoIvSize = CommUtil.dp2px(100);
-    private int inputHeight = CommUtil.dp2px(30);
+    private int inputHeight = CommUtil.dp2px(45);
     private int itemWidth = CommUtil.dp2px(100);
     private int itemHeight = itemWidth / 2;
     private int itemSpace = CommUtil.dp2px(20);
@@ -56,6 +56,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         this.mType = mType;
         inputTv.setHint(getHintText());
         inputTv.setHintTextColor(Color.parseColor("#666666"));
+        logoTipIv.setImageResource(getLogo());
     }
 
 
@@ -87,7 +88,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
         itemWidth = (r - l - paddingLeft * 2) / colCount;
-        itemWidth = Math.round(itemWidth * 0.9f);
+        itemWidth = Math.round(itemWidth * 0.8f);
         itemHeight = itemWidth / 2;
         logoIvSize = itemWidth * 2 / 3;
         itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
@@ -102,11 +103,11 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         logoTipIv.layout(paddingLeft, paddingLeft, paddingLeft + logoIvSize, paddingLeft + logoIvSize);
         inputTv.layout(paddingLeft + logoIvSize + itemSpace,
-                paddingLeft + logoIvSize - inputHeight,
+                paddingLeft + logoIvSize- 10 - inputHeight,
                 paddingLeft + logoIvSize + itemWidth * 3,
-                paddingLeft + logoIvSize);
+                paddingLeft + logoIvSize -10);
         helpTv.layout(r - l - paddingLeft - logoIvSize,
-                paddingLeft,
+                paddingLeft ,
                 r - l - paddingLeft,
                 paddingLeft + inputHeight);
         confirmTv.layout(paddingLeft + (itemSpace + itemWidth) * 3 + itemSpace,
@@ -190,6 +191,14 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         }
     }
 
+
+    private int getLogo() {
+        if (mType == 1) {
+            return R.mipmap.ic_open_psw;
+        } else {
+            return R.mipmap.ic_open_call;
+        }
+    }
 
     private TextView createHelpTv() {
 

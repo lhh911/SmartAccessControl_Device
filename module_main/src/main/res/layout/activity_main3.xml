@@ -135,7 +135,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="25dp"
             android:orientation="horizontal">
 
 
@@ -150,7 +150,7 @@
                 app:csrc="@mipmap/ic_open_psw"
                 app:ctext="密码开门"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14dp"
+                app:ctextSize="16dp"
                 app:direction="vertical" />
 
 
@@ -165,7 +165,7 @@
                 app:csrc="@mipmap/ic_callmanager"
                 app:ctext="呼叫物业"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14dp"
+                app:ctextSize="16dp"
                 app:direction="vertical" />
 
             <com.xsjqzt.module_main.widget.ImgTextView
@@ -179,7 +179,7 @@
                 app:csrc="@mipmap/ic_cardregist"
                 app:ctext="卡片注册"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14dp"
+                app:ctextSize="16dp"
                 app:direction="vertical" />
 
             <com.xsjqzt.module_main.widget.ImgTextView
@@ -193,7 +193,7 @@
                 app:csrc="@mipmap/ic_open_call"
                 app:ctext="房号呼叫"
                 app:ctextColor="@color/common_white"
-                app:ctextSize="14dp"
+                app:ctextSize="16dp"
                 app:direction="vertical" />
 
         </LinearLayout>

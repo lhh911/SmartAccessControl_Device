@@ -10,7 +10,9 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.jbb.library_common.BaseApplication;
 import com.jbb.library_common.basemvp.ActivityManager;
+import com.jbb.library_common.comfig.KeyContacts;
 import com.jbb.library_common.utils.DeviceUtil;
 import com.jbb.library_common.utils.FileUtil;
 import com.jbb.library_common.utils.ToastUtil;
@@ -133,9 +135,11 @@ public class CrashHandler implements UncaughtExceptionHandler {
 
 
     private void closeDoor(){
-        Gpio.setPull('0', 4, 1);
-        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
-        Gpio.writeGpio('O', 4, 0);
+//        Gpio.setPull('0', 4, 1);
+//        Gpio.setMulSel('O', 4, 1);//0 做为输入，1做为输出
+//        Gpio.writeGpio('O', 4, 0);
+
+        BaseApplication.getContext().sendBroadcast(new Intent(KeyContacts.ACTION_CLOSE_DOOR));
     }
 
 

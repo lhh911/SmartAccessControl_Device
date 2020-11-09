@@ -49,6 +49,7 @@ public class ImgTextView extends LinearLayout {
 
         imageView  = new ImageView(context);
         imageView.setImageResource(src);
+//        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         LayoutParams params = new LayoutParams((int)imageSizeWidth,(int)imageSizeHeight);
         imageView.setLayoutParams(params);
         addView(imageView);

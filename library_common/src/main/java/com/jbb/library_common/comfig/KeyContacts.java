@@ -58,6 +58,9 @@ public class KeyContacts {
     public static final String ACTION_ALARM_OPEN_IR = "com.xsjqzt.app.action_alarm_open_ir";//定时打开红外摄像头
     public static final String ACTION_ALARM_CLOSE_IR = "com.xsjqzt.app.action_alarm_close_ir";//定时关闭红外摄像头
 
+    public static final String ACTION_OPEN_DOOR= "com.android.intent.OpenRelay";//触摸屏新设备开门广播
+    public static final String ACTION_CLOSE_DOOR = "com.android.intent.CloseRelay";//触摸屏新设备关门广播
+
     public static final String system  = "android";//手机系统
 
     public static final String Bearer  = "Bearer ";//
