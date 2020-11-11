@@ -87,11 +87,11 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
-        itemWidth = (r - l - paddingLeft * 2) / colCount;
-        itemWidth = Math.round(itemWidth * 0.8f);
-        itemHeight = itemWidth / 2;
-        logoIvSize = itemWidth * 2 / 3;
-        itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
+//        itemWidth = (r - l - paddingLeft * 2) / colCount;
+//        itemWidth = Math.round(itemWidth * 0.8f);
+//        itemHeight = itemWidth / 2;
+//        logoIvSize = itemWidth * 2 / 3;
+//        itemSpace = ((r - l - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
 
         LogUtil.d(TAG, "r - l  = " + (r - l));
 
@@ -132,17 +132,9 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
 
     private void initView() {
+        initSize();
+
         //添加各个按钮到view中来、
-
-        int screenWidth = CommUtil.getScreenWidth(getContext());
-        itemWidth = (screenWidth - paddingLeft * 2) / colCount;
-        itemWidth = Math.round(itemWidth * 0.9f);
-        itemHeight = itemWidth / 2;
-        logoIvSize = itemWidth * 2 / 3;
-        itemSpace = ((screenWidth - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
-
-        LogUtil.d(TAG, "screenWidth = " + screenWidth);
-
         numViews.clear();
         for (int i = 1; i < 10; i++) {
             TextView numTv = createNumTv(i);
@@ -159,6 +151,15 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
         addView(zoroTv = createNumTv(0));
     }
 
+    private void initSize(){
+        int screenWidth = CommUtil.getScreenWidth(getContext());
+        itemWidth = (screenWidth - paddingLeft * 2) / colCount;
+        itemWidth = Math.round(itemWidth * 0.8f);
+        itemHeight = itemWidth / 2;
+        logoIvSize = itemWidth * 2 / 3;
+        itemSpace = ((screenWidth - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
+    }
+
     private ImageView createLogoIv() {
         ImageView imageView = new ImageView(getContext());
         imageView.setImageResource(R.mipmap.ic_launcher);
@@ -169,7 +170,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
     private TextView createInputTv() {
         TextView textView = new TextView(getContext());
-        textView.setTextSize(12);
+        textView.setTextSize(14);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setHint(getHintText());
         textView.setHintTextColor(Color.parseColor("#666666"));
@@ -204,7 +205,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_help);
-        textView.setTextSize(14);
+        textView.setTextSize(16);
         textView.setTextColor(Color.parseColor("#3e6cbb"));
         textView.setText("帮助");
         textView.setGravity(Gravity.CENTER);
@@ -221,7 +222,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_confirm);
-        textView.setTextSize(14);
+        textView.setTextSize(16);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("确\n定");
         textView.setGravity(Gravity.CENTER);
@@ -239,7 +240,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_back);
-        textView.setTextSize(14);
+        textView.setTextSize(16);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("返回");
         textView.setGravity(Gravity.CENTER);
@@ -257,7 +258,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_clear);
-        textView.setTextSize(14);
+        textView.setTextSize(16);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("清空");
         textView.setGravity(Gravity.CENTER);

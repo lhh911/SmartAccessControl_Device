@@ -2528,6 +2528,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         faceSet = new FaceSet(this);
     }
 
+    long curTime;
     // 设置CameraPreviewFrame CallBack;
     protected void initAddCallback() {
         if (mCameraView != null) {
@@ -2555,10 +2556,13 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                             ratio = Size.inverse(ratio);
                         }
-//                         android.util.Log.d("ymFaces===", "ymFaces = " + JSON.toJSONString(ymFaces));
+//                         android.util.Log.d("ymFaces===", "ymFaces = " + ymFaces.size());
 //                         android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
 
-//                        showShortToast(getApplicationContext(), "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
+                        if(System.currentTimeMillis() - curTime > 4000){
+                            showShortToast(getApplicationContext(), "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
+                            curTime = System.currentTimeMillis();
+                        }
 
                         //获取缩放比例
                         mConfig.screenZoon = mCameraView.getScale();

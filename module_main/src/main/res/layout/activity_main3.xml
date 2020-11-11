@@ -50,7 +50,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="40dp"
             android:gravity="center"
-            android:text="10000"
+            android:text=""
             android:textColor="@color/common_white" />
 
     </RelativeLayout>
