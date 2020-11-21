@@ -30,6 +30,7 @@ import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceView;
@@ -178,7 +179,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     //串口
     private SerialHelper serialHelper;
 //    private String sPort = "/dev/ttyS1";
-    private String sPort = "/dev/ttys4";
+    private String sPort = "/dev/ttyS4";
 //    private int iBaudRate = 115200;
     private int iBaudRate = 9600;
 
@@ -1494,12 +1495,13 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     private void startShowLayoutTime() {
         if (doorHandler != null && inutLayoutShowTimeRunnable != null) {
             doorHandler.removeCallbacks(inutLayoutShowTimeRunnable);
+            inutLayoutShowTimeRunnable = null;
         }
         if (inutLayoutShowTimeRunnable == null) {
             inutLayoutShowTimeRunnable = new InutLayoutShowTimeRunnable(this, 1);
         }
 
-        doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10000);
+        doorHandler.postDelayed(inutLayoutShowTimeRunnable, 10500);
     }
 
     //拨打第一个人，拨打视频通话，30秒计时，如果超过没接通，就中断，拨打第二个人
@@ -1622,10 +1624,11 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
 
     public void hideInputDialog() {
+        stopFaceTranck = false;
         if (numInputDialog != null) {
             numInputDialog.reset();
             numInputDialog.dismiss();
-
+            numInputDialog = null;
         }
     }
 
@@ -1843,6 +1846,9 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     public String parseCard(ComBean comBean) {
         String cardID = "";
+        String __str = ByteUtil.ByteArrToHex(comBean.bRec);
+        android.util.Log.d("wlDebug","__str = " + __str);
+        showShortToast(this,__str );
         if (comBean.bRec[1] == 0x08) {
             byte[] cardData = new byte[4];
             cardData[0] = comBean.bRec[8];
@@ -1864,6 +1870,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
             String _str = ByteUtil.ByteArrToHex(cardData);
             cardID = new BigInteger(_str, 16).toString();
         }
+        android.util.Log.d("wlDebug","cardID = " + cardID);
         return cardID;
     }
 
@@ -1952,7 +1959,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                 try {
                     serialHelper.open();
                 } catch (Exception e) {
-                    Log.d("wlDebug", "serialHelper1.open fail.");
+                    Log.d("wlDebug", "serialHelper1.open fail. " );
+                    e.printStackTrace();
                 }
             }
 
@@ -1961,7 +1969,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                     serialHelper2.open();
                     closeDoor2();
                 } catch (Exception e) {
-                    Log.d("wlDebug", "serialHelper2.open fail.");
+                    Log.d("wlDebug", "serialHelper2.open fail." + e.getLocalizedMessage());
                 }
             } else {
                 Log.d("wlDebug", "serialHelper2.open fail.");
@@ -2548,9 +2556,13 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                         if (stopFaceTranck)
                             return;
 
+                        LogUtil.d("checkface = " + System.currentTimeMillis());
+
                         //调用sdk获取人脸集合
                         ymFaces = onCameraPreviewFrame(mdata, irData,
                                 mCameraView.getCameraResolution().getWidth(), mCameraView.getCameraResolution().getHeight(), mConfig.isMulti);
+
+                        LogUtil.d("checkface end= " + System.currentTimeMillis());
                         //获取预览分辨率
                         ratio = mCameraView.getCameraResolution();
                         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -2559,10 +2571,11 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 //                         android.util.Log.d("ymFaces===", "ymFaces = " + ymFaces.size());
 //                         android.util.Log.d("wlDebug", "ymFacesIsNull = " + (ymFaces == null));
 
-                        if(System.currentTimeMillis() - curTime > 4000){
-                            showShortToast(getApplicationContext(), "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
-                            curTime = System.currentTimeMillis();
-                        }
+//                        if(System.currentTimeMillis() - curTime > 4000){
+//                            showShortToast(getApplicationContext(), "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
+                            LogUtil.d( "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
+//                            curTime = System.currentTimeMillis();
+//                        }
 
                         //获取缩放比例
                         mConfig.screenZoon = mCameraView.getScale();
@@ -2574,6 +2587,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                                 if (ymFaces != null && !isFaceViewShow) {
                                     showFaceLayout();
 
+                                    LogUtil.d("checkface end show= " + System.currentTimeMillis());
                                 } else if (ymFaces == null && isFaceViewShow) {
                                     hideFaceLayout();
                                 }
@@ -2595,16 +2609,16 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     private void showFaceLayout() {
         isFaceViewShow = true;
 //        mCameraView.bringToFront();
-//        sfv_draw_view.setVisibility(View.VISIBLE);
+        sfv_draw_view.setVisibility(View.VISIBLE);
         faceParentRl.bringToFront();
 //        entranceDetailTv.bringToFront();
         // if (mIRCameraView != null) mIRCameraView.bringToFront();
     }
 
     private void hideFaceLayout() {
-//        if (!isFaceViewShow) return;
+        if (!isFaceViewShow) return;
         isFaceViewShow = false;
-//        sfv_draw_view.setVisibility(View.INVISIBLE);
+        sfv_draw_view.setVisibility(View.INVISIBLE);
         backgroundLayout.bringToFront();
 //        homebgIv.bringToFront();
 //        banner.bringToFront();
@@ -2696,13 +2710,40 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         }
     }
 
+//    private void initConfig() {
+//        mConfig = SharedPrefUtils.getObject(ExApplication.getContext(), "DEMO_CONFIG", DemoConfig.class);
+//        if (mConfig == null) {
+//            mConfig = new DemoConfig();
+//            SharedPrefUtils.putObject(ExApplication.getContext(), "DEMO_CONFIG", mConfig);
+//        }
+//    }
+
+
     private void initConfig() {
-        mConfig = SharedPrefUtils.getObject(ExApplication.getContext(), "DEMO_CONFIG", DemoConfig.class);
+//        mConfig = SharedPrefUtils.getObject(ExApplication.getContext(), "DEMO_CONFIG", DemoConfig.class);
         if (mConfig == null) {
             mConfig = new DemoConfig();
+            Camera.Size cameraSize = getCameraSize();
+            mConfig.setPreviewSize(cameraSize.width, cameraSize.height);
             SharedPrefUtils.putObject(ExApplication.getContext(), "DEMO_CONFIG", mConfig);
         }
     }
+
+
+    public Camera.Size getCameraSize() {
+        Camera mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+        Camera.Parameters parameters = mCamera.getParameters();
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        Camera.Size preSize = CameraUtil.getCloselyPreSize(true, metrics.widthPixels, metrics.heightPixels,
+                parameters.getSupportedPreviewSizes());
+
+        mCamera.release();
+
+        LogUtil.d("预览分辨率： " + preSize.width + " * " + preSize.height);
+        return preSize;
+    }
+
+
 
     /**
      * 更新DrawView 大小
@@ -2764,7 +2805,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
             sdkOrientation = 0;  //横屏
         else {
-            if (facing == 0) sdkOrientation = 90;  //竖屏后置
+            if (facing == 0) sdkOrientation = 270;  //竖屏后置
             else sdkOrientation = 270;//竖屏前置
         }
         return sdkOrientation;

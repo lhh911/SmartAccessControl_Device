@@ -19,21 +19,21 @@
         <TextView
             android:id="@+id/back_tv"
             android:layout_width="60dp"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:layout_gravity="right"
-            android:layout_marginRight="15dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginRight="25dp"
+            android:layout_marginTop="25dp"
             android:gravity="center"
-            android:background="@drawable/input_num_selector"
+            android:background="@drawable/white_corners20_bg"
             android:textSize="14dp"
             android:textColor="#3e6cbb"
             android:text="返回>"/>
         
         
         <TextView
-            style="@style/textview16"
+            style="@style/textview18"
             android:text="帮助"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="15dp"
             android:textColor="#3e6cbb"
             android:drawableLeft="@mipmap/icon_gth"
             android:drawablePadding="10dp"
@@ -42,12 +42,12 @@
 
         <TextView
             android:id="@+id/help_tip_tv"
-            style="@style/textview15"
+            style="@style/textview16"
             android:text="@string/help_tip"
             android:textColor="@color/common_white"
             android:layout_marginLeft="45dp"
-            android:layout_marginTop="10dp"
-            android:lineSpacingExtra="4dp"/>
+            android:layout_marginTop="20dp"
+            android:lineSpacingExtra="10dp"/>
 
     </LinearLayout>
 

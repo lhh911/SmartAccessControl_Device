@@ -26,11 +26,11 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private int mType =1;// 1 密码开门， 2 房号呼叫
 
     private int logoIvSize = CommUtil.dp2px(100);
-    private int inputHeight = CommUtil.dp2px(45);
+    private int inputHeight = CommUtil.dp2px(35);
     private int itemWidth = CommUtil.dp2px(100);
     private int itemHeight = itemWidth / 2;
     private int itemSpace = CommUtil.dp2px(20);
-    private int paddingLeft = CommUtil.dp2px(15);
+    private int paddingLeft = CommUtil.dp2px(25);
     private int colCount = 4;//4列
 
     private List<TextView> numViews = new ArrayList<>();
@@ -103,10 +103,10 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         logoTipIv.layout(paddingLeft, paddingLeft, paddingLeft + logoIvSize, paddingLeft + logoIvSize);
         inputTv.layout(paddingLeft + logoIvSize + itemSpace,
-                paddingLeft + logoIvSize- 10 - inputHeight,
-                paddingLeft + logoIvSize + itemWidth * 3,
-                paddingLeft + logoIvSize -10);
-        helpTv.layout(r - l - paddingLeft - logoIvSize,
+                paddingLeft + logoIvSize -10 - inputHeight,
+                paddingLeft + logoIvSize + itemSpace + itemWidth * 3,
+                paddingLeft + logoIvSize -10 );
+        helpTv.layout(r - l - paddingLeft - (int)(logoIvSize * 1.3),
                 paddingLeft ,
                 r - l - paddingLeft,
                 paddingLeft + inputHeight);
@@ -154,9 +154,9 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private void initSize(){
         int screenWidth = CommUtil.getScreenWidth(getContext());
         itemWidth = (screenWidth - paddingLeft * 2) / colCount;
-        itemWidth = Math.round(itemWidth * 0.8f);
+        itemWidth = Math.round(itemWidth * 0.80f);
         itemHeight = itemWidth / 2;
-        logoIvSize = itemWidth * 2 / 3;
+        logoIvSize = itemWidth * 2 / 4;
         itemSpace = ((screenWidth - paddingLeft * 2) - (itemWidth * colCount)) / (colCount + 1);
     }
 
@@ -205,13 +205,13 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_help);
-        textView.setTextSize(16);
+        textView.setTextSize(14);
         textView.setTextColor(Color.parseColor("#3e6cbb"));
         textView.setText("帮助");
         textView.setGravity(Gravity.CENTER);
         textView.setBackgroundResource(R.drawable.white_corners20_bg);
         textView.setTag("other");
-        LayoutParams params = new LayoutParams(logoIvSize, inputHeight);
+        LayoutParams params = new LayoutParams((int) (logoIvSize*1.3), inputHeight);
         textView.setLayoutParams(params);
 
         textView.setOnClickListener(this);
@@ -222,7 +222,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_confirm);
-        textView.setTextSize(16);
+        textView.setTextSize(18);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("确\n定");
         textView.setGravity(Gravity.CENTER);
@@ -240,7 +240,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_back);
-        textView.setTextSize(16);
+        textView.setTextSize(18);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("返回");
         textView.setGravity(Gravity.CENTER);
@@ -258,7 +258,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
 
         TextView textView = new TextView(getContext());
         textView.setId(R.id.numinput_clear);
-        textView.setTextSize(16);
+        textView.setTextSize(18);
         textView.setTextColor(Color.parseColor("#333333"));
         textView.setText("清空");
         textView.setGravity(Gravity.CENTER);
@@ -275,7 +275,7 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     private TextView createNumTv(int num) {
 
         TextView textView = new TextView(getContext());
-        textView.setTextSize(24);
+        textView.setTextSize(26);
         textView.setTextColor(Color.BLACK);
         textView.setText(num + "");
         textView.setGravity(Gravity.CENTER);
@@ -339,34 +339,42 @@ public class NumInputView extends ViewGroup implements View.OnClickListener {
     }
 
     private void checkInput(String inputNum) {
-        if (inputNum.length() == 5) {//密码开门
-            //请求接口验证密码是否正确，是就开门
-            OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
-                    .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
+        if(mType ==1){//密码开门
+            if (inputNum.length() == 5) {//密码开门
+                //请求接口验证密码是否正确，是就开门
+                OpenCode openCode = DbManager.getInstance().getDaoSession().getOpenCodeDao().queryBuilder()
+                        .where(OpenCodeDao.Properties.Code.eq(inputNum)).unique();
 
-            if (openCode != null) {
-                int expiry_time = openCode.getExpiry_time();
-                long now = System.currentTimeMillis();
-                if (expiry_time < (now / 1000)) {//过期了
-                    inputError(2);
-                } else {//密码开门成功
-                    if (clickListeren != null) {
-                        clickListeren.confirmClick(inputNum, mType == 1 ? 3 : 5);
+                if (openCode != null) {
+                    int expiry_time = openCode.getExpiry_time();
+                    long now = System.currentTimeMillis();
+                    if (expiry_time < (now / 1000)) {//过期了
+                        inputError(2);
+                    } else {//密码开门成功
+                        if (clickListeren != null) {
+                            clickListeren.confirmClick(inputNum,  3 );
+                        }
+                        DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
                     }
-                    DbManager.getInstance().getDaoSession().getOpenCodeDao().delete(openCode);
+                } else {
+                    inputError(2);
                 }
-            } else {
-                inputError(2);
-            }
 
-        } else if (inputNum.length() == 4 || inputNum.length() == 6) {
-            if (clickListeren != null) {
-                clickListeren.confirmClick(inputNum, mType == 1 ? 3 : 5);
-            }
-        } else {
+            }  else {
 //            ToastUtil.showCustomToast("请输入正确的房间号或者临时密码");
-            inputError(1);
+                inputError(1);
+            }
+        }else if(mType== 2){//视频呼叫
+            if (inputNum.length() == 4 || inputNum.length() == 6) {//呼叫业主
+                if (clickListeren != null) {
+                    clickListeren.confirmClick(inputNum,  5);
+                }
+            }else{
+                inputError(1);
+            }
         }
+
+
     }
 
     private void inputError(int type) {

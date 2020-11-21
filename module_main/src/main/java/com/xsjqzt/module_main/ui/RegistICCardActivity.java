@@ -63,8 +63,8 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private MyHandler doorHandler;
     //串口
     private SerialHelper serialHelper;
-    private String sPort = "/dev/ttyS1";
-    private int iBaudRate = 115200;
+    private String sPort = "/dev/ttyS4";
+    private int iBaudRate = 9600;//115200;
     private boolean isShiftClick;
 
     private int duration = 15 * 1000;//自动关闭时间
