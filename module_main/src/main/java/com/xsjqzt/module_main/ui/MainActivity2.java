@@ -1848,7 +1848,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         String cardID = "";
         String __str = ByteUtil.ByteArrToHex(comBean.bRec);
         android.util.Log.d("wlDebug","__str = " + __str);
-        showShortToast(this,__str );
+        showShortToast(__str );
         if (comBean.bRec[1] == 0x08) {
             byte[] cardData = new byte[4];
             cardData[0] = comBean.bRec[8];
@@ -2785,6 +2785,16 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     public void showShortToast(Context context, String content) {
         Toast.makeText(context, content, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showShortToast(final String content) {
+        doorHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), content, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     /**
