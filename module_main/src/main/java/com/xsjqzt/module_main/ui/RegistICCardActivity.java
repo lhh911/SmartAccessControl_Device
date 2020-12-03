@@ -63,7 +63,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
     private MyHandler doorHandler;
     //串口
     private SerialHelper serialHelper;
-    private String sPort = "/dev/ttyS4";
+    private String sPort = "/dev/ttyS1";
     private int iBaudRate = 9600;//115200;
     private boolean isShiftClick;
 
@@ -220,11 +220,22 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 
     public String parseCard(ComBean comBean) {
         String cardID = "";
-        if (comBean.bRec[1] == 0x08) {
+
+        String __str = ByteUtil.ByteArrToHex(comBean.bRec);
+        android.util.Log.d("wlDebug", "__str = " + __str);
+        showShortToast(new BigInteger(__str, 16).toString());
+
+//        if (comBean.bRec[1] == 0x08) {
+        if (comBean.bRec[1] == 0xAA) {
             byte[] cardData = new byte[4];
-            cardData[0] = comBean.bRec[8];
-            cardData[1] = comBean.bRec[7];
-            cardData[2] = comBean.bRec[6];
+//            cardData[0] = comBean.bRec[8];
+//            cardData[1] = comBean.bRec[7];
+//            cardData[2] = comBean.bRec[6];
+//            cardData[3] = comBean.bRec[5];
+
+            cardData[0] = comBean.bRec[2];
+            cardData[1] = comBean.bRec[3];
+            cardData[2] = comBean.bRec[4];
             cardData[3] = comBean.bRec[5];
             String _str = ByteUtil.ByteArrToHex(cardData);
             cardID = new BigInteger(_str, 16).toString();
@@ -242,6 +253,16 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
             cardID = new BigInteger(_str, 16).toString();
         }
         return cardID;
+    }
+
+    public void showShortToast(final String content) {
+        doorHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getBaseContext(), content, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 
@@ -336,7 +357,7 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER && isKeyEnterFirst) {
             isKeyEnterFirst = false;
             finish();
             return true;
@@ -344,7 +365,6 @@ public class RegistICCardActivity extends BaseMvpActivity<RegistICCardIView, Reg
         isKeyEnterFirst = true;
         return super.dispatchKeyEvent(event);
     }
-
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)

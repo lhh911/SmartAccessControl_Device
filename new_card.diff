@@ -1,0 +1,33 @@
+diff --git a/module_main/src/main/java/com/xsjqzt/module_main/ui/MainActivity.java b/module_main/src/main/java/com/xsjqzt/module_main/ui/MainActivity.java
+index e1388cd..d0aeb91 100644
+--- a/module_main/src/main/java/com/xsjqzt/module_main/ui/MainActivity.java
++++ b/module_main/src/main/java/com/xsjqzt/module_main/ui/MainActivity.java
+@@ -170,7 +170,7 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
+     //串口
+     private SerialHelper serialHelper;
+     private String sPort = "/dev/ttyS1";
+-    private int iBaudRate = 115200;
++    private int iBaudRate = 9600;
+ 
+     // 读卡器2
+     private SerialHelper serialHelper2;
+@@ -1793,11 +1793,15 @@ public class MainActivity extends BaseMvpActivity<MainView, MainPresenter> imple
+ 
+     public String parseCard(ComBean comBean) {
+         String cardID = "";
+-        if (comBean.bRec[1] == 0x08) {
++        if (comBean.bRec[1] == 0xAA) {
+             byte[] cardData = new byte[4];
+-            cardData[0] = comBean.bRec[8];
+-            cardData[1] = comBean.bRec[7];
+-            cardData[2] = comBean.bRec[6];
++//            cardData[0] = comBean.bRec[8];
++//            cardData[1] = comBean.bRec[7];
++//            cardData[2] = comBean.bRec[6];
++//            cardData[3] = comBean.bRec[5];
++            cardData[0] = comBean.bRec[2];
++            cardData[1] = comBean.bRec[3];
++            cardData[2] = comBean.bRec[4];
+             cardData[3] = comBean.bRec[5];
+             String _str = ByteUtil.ByteArrToHex(cardData);
+             cardID = new BigInteger(_str, 16).toString();

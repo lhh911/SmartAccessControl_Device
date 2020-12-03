@@ -149,7 +149,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     private ImageView homebgIv;
     private TextView entranceDetailTv;
     private Banner banner;
-    private SimpleVideoPlayer videoPlayer;
+//    private SimpleVideoPlayer videoPlayer;
 
     //视频呼叫layout
     private LinearLayout callVideoLayout;
@@ -178,14 +178,14 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     //串口
     private SerialHelper serialHelper;
-//    private String sPort = "/dev/ttyS1";
-    private String sPort = "/dev/ttyS4";
-//    private int iBaudRate = 115200;
+    //    private String sPort = "/dev/ttyS1";
+    private String sPort = "/dev/ttyS1";
+    //    private int iBaudRate = 115200;
     private int iBaudRate = 9600;
 
     // 读卡器2
     private SerialHelper serialHelper2;
-    private String sPort2 = "/dev/ttyS0";
+    private String sPort2 = "/dev/ttyS4";
     private int iBaudRate2 = 9600;
 
     //    private int mType;// 0 默认什么都没显示， 1 密码开锁布局显示，2 视频电话显示
@@ -295,7 +295,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
 
         banner = findViewById(R.id.banner);
-        videoPlayer = findViewById(R.id.videoplayer);
+//        videoPlayer = findViewById(R.id.videoplayer);
 
         initData();
 
@@ -303,7 +303,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
 
     private void initData() {
-
+        doorHandler = new MyHandler(this);
         initView();
         registReceiver();
 
@@ -414,18 +414,18 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     private void initImageAd() {
         String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_BANNER_DATA, KeyContacts.SP_NAME_USERINFO);
         if (TextUtils.isEmpty(string)) {
-            videoPlayer.setVisibility(View.GONE);
+//            videoPlayer.setVisibility(View.GONE);
             banner.setVisibility(View.GONE);
             return;
         }
         List<String> images = JSON.parseArray(string, String.class);
         if (images == null || images.size() < 1) {
-            videoPlayer.setVisibility(View.GONE);
+//            videoPlayer.setVisibility(View.GONE);
             banner.setVisibility(View.GONE);
             return;
         }
 
-        videoPlayer.setVisibility(View.GONE);
+//        videoPlayer.setVisibility(View.GONE);
         banner.setVisibility(View.VISIBLE);
         banner.setBannerStyle(BannerConfig.CIRCLE_INDICATOR);
         //设置图片加载器
@@ -441,27 +441,27 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     private void initVideo() {
         String string = SharePreferensUtil.getString(KeyContacts.SP_KEY_VIDEO_DATA, KeyContacts.SP_NAME_USERINFO);
         if (TextUtils.isEmpty(string)) {
-            videoPlayer.setVisibility(View.GONE);
+//            videoPlayer.setVisibility(View.GONE);
             banner.setVisibility(View.GONE);
             return;
         }
         List<String> videos = JSON.parseArray(string, String.class);
         if (videos == null || videos.size() < 1) {
-            videoPlayer.setVisibility(View.GONE);
+//            videoPlayer.setVisibility(View.GONE);
             banner.setVisibility(View.GONE);
             return;
         }
 
         banner.setVisibility(View.GONE);
-        videoPlayer.setVisibility(View.VISIBLE);
+//        videoPlayer.setVisibility(View.VISIBLE);
 
 //        AssetFileDescriptor assetFileDescriptor = getAssets().openFd("ad_movice.mp4");
 //        Uri mUri = Uri.parse("android.resource://" + getPackageName() + "/"+ R.raw.ad_movice);
         String path = FileUtil.getAppVideoPath(this);
         path = path + File.separator + "123.mp4";
 
-        videoPlayer.setUp(videos.get(0), null);//设置地址
-        videoPlayer.start();
+//        videoPlayer.setUp(videos.get(0), null);//设置地址
+//        videoPlayer.start();
     }
 
 
@@ -1109,7 +1109,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         }
     }
 
-    private int callType ;// 1呼叫物业，默认呼叫业主
+    private int callType;// 1呼叫物业，默认呼叫业主
+
     private void showCallManager() {
 
         final DoubleButtonDialog dialog = new DoubleButtonDialog(this, R.style.common_loading_dialog);
@@ -1130,10 +1131,10 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
         showCallVideoLayout();
 //        callNumTv.setText(roomNum);
-        if(callType == 0) {
+        if (callType == 0) {
             callStatusTv.setText(Html.fromHtml("正在呼叫<font color='#48FF62'>" + Utils.getStrByRoomNum(roomNum) + "业主</font>\n请稍等..."));
             callHeadIv.setImageResource(R.mipmap.ic_owner);
-        }else{
+        } else {
             callStatusTv.setText(Html.fromHtml("正在呼叫<font color='#48FF62'>物业</font>\n请稍等..."));
             callHeadIv.setImageResource(R.mipmap.ic_manager);
         }
@@ -1222,9 +1223,9 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                                 ToastUtil.showCustomToast("电话接通成功");
 //                                callStatusTv.setText(inputNum+"业主\n呼叫成功");
 
-                                if(callType == 0)
+                                if (callType == 0)
                                     callStatusTv.setText(Html.fromHtml("<font color='#48FF62'>" + Utils.getStrByRoomNum(inputNum) + "业主</font>\n呼叫成功"));
-                                else{
+                                else {
                                     callStatusTv.setText(Html.fromHtml("<font color='#48FF62'>物业</font>\n呼叫成功"));
                                 }
 
@@ -1649,7 +1650,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                 @Override
                 public void inputConfirm(String input, int type) {
 
-                    if(type == 5) {//呼叫业主
+                    if (type == 5) {//呼叫业主
                         callType = 0;
                         hasCallingVideo = true;
                         callUserId = 0;//清零
@@ -1658,7 +1659,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                         startMusic(5);//呼叫中语音
                         //开始计时第一个人
                         startCallSuccessTime();
-                    }else{//密码开门成功
+                    } else {//密码开门成功
                         Message msg = Message.obtain();
                         msg.what = 1;
                         msg.arg1 = 3;
@@ -1788,7 +1789,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     //初始化nfc串口
     public void startMeasuing() {
         LogUtil.w("SerialPort  startMeasuing");
-        doorHandler = new MyHandler(this);
+
 
         serialHelper = new SerialHelper(sPort, iBaudRate) {
             @Override
@@ -1811,25 +1812,25 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
             }
         };
 
-//        serialHelper2 = new SerialHelper(sPort2, iBaudRate2) {
-//            @Override
-//            protected void onDataReceived(ComBean paramComBean) {
-//                /*
-//                if (!deviceEnable()) {
-//                    showEnableToast();
-//                    return;
-//                }*/
-//                Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
-//                String str = parseCard2(paramComBean.bRec);
-//                Log.d("wlDebug", "onDataReceived2 str = " + str);
-//                //对比数据库，开门
-//                Message msg = Message.obtain();
-//                msg.what = 4;
-//                msg.obj = str;
-////                msg.obj = "ic20190501";
-//                doorHandler.sendMessage(msg);
-//            }
-//        };
+        serialHelper2 = new SerialHelper(sPort2, iBaudRate2) {
+            @Override
+            protected void onDataReceived(ComBean paramComBean) {
+                /*
+                if (!deviceEnable()) {
+                    showEnableToast();
+                    return;
+                }*/
+                Log.d("wlDebug", "onDataReceived2 base = " + ByteUtil.ByteArrToHex(paramComBean.bRec));
+                String str = parseCard2(paramComBean.bRec);
+                Log.d("wlDebug", "onDataReceived2 str = " + str);
+                //对比数据库，开门
+                Message msg = Message.obtain();
+                msg.what = 4;
+                msg.obj = str;
+//                msg.obj = "ic20190501";
+                doorHandler.sendMessage(msg);
+            }
+        };
     }
 
     private void toast(final byte[] cardData) {
@@ -1847,14 +1848,21 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     public String parseCard(ComBean comBean) {
         String cardID = "";
         String __str = ByteUtil.ByteArrToHex(comBean.bRec);
-        android.util.Log.d("wlDebug","__str = " + __str);
-        showShortToast(__str );
-        if (comBean.bRec[1] == 0x08) {
+        android.util.Log.d("wlDebug", "__str = " + __str);
+        showShortToast(__str);
+//        if (comBean.bRec[1] == 0x08) {
+        if (comBean.bRec[1] == 0xAA) {
+            showShortToast( "comBean.bRec[1] == 0xAA ," + String.valueOf(comBean.bRec[1]));
             byte[] cardData = new byte[4];
-            cardData[0] = comBean.bRec[8];
-            cardData[1] = comBean.bRec[7];
-            cardData[2] = comBean.bRec[6];
+//            cardData[0] = comBean.bRec[8];
+//            cardData[1] = comBean.bRec[7];
+//            cardData[2] = comBean.bRec[6];
+//            cardData[3] = comBean.bRec[5];
+            cardData[0] = comBean.bRec[2];
+            cardData[1] = comBean.bRec[3];
+            cardData[2] = comBean.bRec[4];
             cardData[3] = comBean.bRec[5];
+
             String _str = ByteUtil.ByteArrToHex(cardData);
             cardID = new BigInteger(_str, 16).toString();
         } else if (comBean.bRec[1] == 0x0c) {
@@ -1870,7 +1878,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
             String _str = ByteUtil.ByteArrToHex(cardData);
             cardID = new BigInteger(_str, 16).toString();
         }
-        android.util.Log.d("wlDebug","cardID = " + cardID);
+        android.util.Log.d("wlDebug", "cardID = " + cardID);
         return cardID;
     }
 
@@ -1885,6 +1893,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         String _str = ByteUtil.ByteArrToHex(cardData);
         cardID = new BigInteger(_str, 16).toString();
         // }
+        showShortToast(_str);
         return cardID;
     }
 
@@ -1959,7 +1968,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                 try {
                     serialHelper.open();
                 } catch (Exception e) {
-                    Log.d("wlDebug", "serialHelper1.open fail. " );
+                    Log.d("wlDebug", "serialHelper1.open fail. ");
                     e.printStackTrace();
                 }
             }
@@ -2090,7 +2099,9 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         Log.d("wlDebug", "openDoor2..");
         if (serialHelper2.isOpen()) {
             Log.d("wlDebug", "do openDoor2..");
-            serialHelper2.sendHex("040FD4204000000000000000000040");
+//            serialHelper2.sendHex("040FD4204000000000000000000040");
+
+            sendBroadcast(new Intent(KeyContacts.ACTION_OPEN_DOOR));
         }
     }
 
@@ -2099,7 +2110,9 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         Log.d("wlDebug", "closeDoor2..");
         if (serialHelper2.isOpen()) {
             Log.d("wlDebug", "do closeDoor2..");
-            serialHelper2.sendHex("040FD4202000000000000000000020");
+//            serialHelper2.sendHex("040FD4202000000000000000000020");
+
+            sendBroadcast(new Intent(KeyContacts.ACTION_CLOSE_DOOR));
         }
     }
 
@@ -2305,7 +2318,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         if (bitmapBytes != null) {
             Bitmap bitmap = getCameraBitmap();
 //
-            bitmap = BitmapUtil.rotateBitmap(90, bitmap);
+            bitmap = BitmapUtil.rotateBitmap(getSdkOrientation(mConfig.cameraFacing), bitmap);
             Utils.saveBitmap(file.getPath(), bitmap);
         }
 
@@ -2537,6 +2550,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
     }
 
     long curTime;
+
     // 设置CameraPreviewFrame CallBack;
     protected void initAddCallback() {
         if (mCameraView != null) {
@@ -2573,7 +2587,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
 //                        if(System.currentTimeMillis() - curTime > 4000){
 //                            showShortToast(getApplicationContext(), "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
-                            LogUtil.d( "ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
+                        LogUtil.d("ymFaces : " + (ymFaces == null ? null : ymFaces.size()));
 //                            curTime = System.currentTimeMillis();
 //                        }
 
@@ -2723,8 +2737,8 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 //        mConfig = SharedPrefUtils.getObject(ExApplication.getContext(), "DEMO_CONFIG", DemoConfig.class);
         if (mConfig == null) {
             mConfig = new DemoConfig();
-            Camera.Size cameraSize = getCameraSize();
-            mConfig.setPreviewSize(cameraSize.width, cameraSize.height);
+//            Camera.Size cameraSize = getCameraSize();
+//            mConfig.setPreviewSize(cameraSize.width, cameraSize.height);
             SharedPrefUtils.putObject(ExApplication.getContext(), "DEMO_CONFIG", mConfig);
         }
     }
@@ -2742,7 +2756,6 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         LogUtil.d("预览分辨率： " + preSize.width + " * " + preSize.height);
         return preSize;
     }
-
 
 
     /**
