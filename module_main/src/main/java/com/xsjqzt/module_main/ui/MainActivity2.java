@@ -1849,10 +1849,12 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
         String cardID = "";
         String __str = ByteUtil.ByteArrToHex(comBean.bRec);
         android.util.Log.d("wlDebug", "__str = " + __str);
+        android.util.Log.d("wlDebug", "comBean.bRec[1] = " + comBean.bRec[1] );
+        android.util.Log.d("wlDebug", "comBean.bRec[1] = " + Byte.toString(comBean.bRec[1] ));
         showShortToast(__str);
+//        showShortToast("comBean.bRec[1] = " + Byte.toString(comBean.bRec[1]));
 //        if (comBean.bRec[1] == 0x08) {
-        if (comBean.bRec[1] == 0xAA) {
-            showShortToast( "comBean.bRec[1] == 0xAA ," + String.valueOf(comBean.bRec[1]));
+        if (comBean.bRec[1] == 0xAA || true) {
             byte[] cardData = new byte[4];
 //            cardData[0] = comBean.bRec[8];
 //            cardData[1] = comBean.bRec[7];
@@ -2472,7 +2474,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
                     public void accept(Boolean aBoolean) throws Exception {
                         if (aBoolean) {
 //                            checkCameraEnable();
-
+                            initConfig();
                             userMap = UserDataUtil.updateDataSource(true);
                             //预览适配
                             mCameraView.setAdjustViewBounds(mConfig.isAdjustView);
@@ -2534,7 +2536,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
     // 初始化人脸所需的UI;
     private void initFaceCamera() {
-        initConfig();
+
 
         //识别预览框的背景层
         faceParentRl = findViewById(R.id.face_parentlayout);
@@ -2593,7 +2595,7 @@ public class MainActivity2 extends BaseMvpActivity<MainView, MainPresenter> impl
 
                         //获取缩放比例
                         mConfig.screenZoon = mCameraView.getScale();
-                        initDrawViewSize();
+//                        initDrawViewSize();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
